@@ -40,6 +40,7 @@ public class KryoSerialization extends Kryo implements Serialization {
 		return readObject(input, type);
 	}
 
+	@SuppressWarnings("unchecked")
 	public KryoSerialization stripDeletes(boolean strip) {
 		if(strip)
 			getContext().put(KryoSerialization.STRIP_DELETES, true);
@@ -48,6 +49,7 @@ public class KryoSerialization extends Kryo implements Serialization {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean stripDeletes() {
 		return getContext().containsKey(KryoSerialization.STRIP_DELETES);
 	}

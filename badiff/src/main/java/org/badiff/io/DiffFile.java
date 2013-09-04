@@ -14,6 +14,7 @@ import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
 public abstract class DiffFile extends File implements BADiff {
+	private static final long serialVersionUID = 0;
 	
 	protected abstract Serialization serialization();
 

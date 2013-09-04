@@ -1,13 +1,16 @@
 package org.badiff.kryo;
 
 import java.io.File;
+import java.io.ObjectStreamException;
 import java.net.URI;
 
 import org.badiff.io.DiffFile;
 import org.badiff.io.Serialization;
 
 public class KryoDiffFile extends DiffFile {
-	private KryoSerialization kryo = new KryoSerialization();
+	private static final long serialVersionUID = 0;
+	
+	private transient KryoSerialization kryo = new KryoSerialization();
 	
 	public KryoDiffFile(File parent, String child) {
 		super(parent, child);
@@ -41,5 +44,10 @@ public class KryoDiffFile extends DiffFile {
 
 	public boolean stripDeletes() {
 		return kryo.stripDeletes();
+	}
+	
+	private Object readResolve() throws ObjectStreamException {
+		kryo = new KryoSerialization();
+		return this;
 	}
 }

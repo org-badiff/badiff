@@ -16,6 +16,7 @@ public class OpSerializer extends Serializer<Op> {
 		if(object.getOp() == Op.INSERT)
 			kryo.writeObject(output, object.getData());
 		if(object.getOp() == Op.DELETE) {
+			@SuppressWarnings("unchecked")
 			boolean strip = object.getData() == null || kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
 			output.writeBoolean(strip);
 			if(!strip)
