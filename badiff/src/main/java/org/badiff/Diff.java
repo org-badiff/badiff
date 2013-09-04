@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChukingOpQueue;
+import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ReplaceOpQueue;
@@ -19,6 +20,7 @@ public class Diff {
 	public static OpQueue improved(OpQueue q, int chunk) {
 		q = new ChukingOpQueue(q, chunk);
 		q = new GraphOpQueue(q, chunk);
+		q = new CoalescingOpQueue(q);
 		return q;
 	}
 	
