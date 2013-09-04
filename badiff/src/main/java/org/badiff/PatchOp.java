@@ -67,4 +67,21 @@ public class PatchOp implements FileApplyable, Serializable {
 		}
 	}
 
+	@Override
+	public void apply(File orig) throws IOException {
+		switch(op) {
+		case SKIP:
+			break;
+		case DELETE:
+			orig.delete();
+			break;
+		case CREATE:
+			InputStream in = new EmptyInputStream();
+			OutputStream out = new FileOutputStream(orig);
+			diff.apply(in, out);
+			out.close();
+			in.close();
+			break;
+		}
+	}
 }
