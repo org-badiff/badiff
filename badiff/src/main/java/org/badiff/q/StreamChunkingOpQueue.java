@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.RuntimeIOException;
 
@@ -11,6 +12,10 @@ public class StreamChunkingOpQueue extends OpQueue {
 	protected InputStream orig;
 	protected InputStream target;
 	protected int chunk;
+	
+	public StreamChunkingOpQueue(InputStream orig, InputStream target) {
+		this(orig, target, Diff.DEFAULT_CHUNK);
+	}
 	
 	public StreamChunkingOpQueue(InputStream orig, InputStream target, int chunk) {
 		this.orig = orig;

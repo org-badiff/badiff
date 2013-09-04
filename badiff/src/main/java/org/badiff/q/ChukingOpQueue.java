@@ -1,10 +1,15 @@
 package org.badiff.q;
 
+import org.badiff.Diff;
 import org.badiff.Op;
 
 public class ChukingOpQueue extends FilterOpQueue {
 
 	protected int chunk;
+	
+	public ChukingOpQueue(OpQueue source) {
+		this(source, Diff.DEFAULT_CHUNK);
+	}
 	
 	public ChukingOpQueue(OpQueue source, int chunk) {
 		super(source);

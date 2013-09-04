@@ -19,12 +19,12 @@ public class DiffUtils {
 		return new ReplaceOpQueue(orig, target);
 	}
 	
-	public static OpQueue diff(InputStream orig, InputStream target, int chunk) {
-		return new StreamChunkingOpQueue(orig, target, chunk);
+	public static OpQueue diff(InputStream orig, InputStream target) {
+		return new StreamChunkingOpQueue(orig, target);
 	}
 	
-	public static OpQueue improved(OpQueue q, int chunk) {
-		q = new ChukingOpQueue(q, chunk);
+	public static OpQueue improved(OpQueue q) {
+		q = new ChukingOpQueue(q);
 		q = new ParallelGraphOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		return q;
