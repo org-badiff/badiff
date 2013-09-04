@@ -33,5 +33,13 @@ public class KryoDiffFile extends DiffFile {
 	protected Serialization serialization() {
 		return kryo;
 	}
+	
+	public KryoDiffFile stripDeletes(boolean strip) {
+		kryo.stripDeletes(strip);
+		return this;
+	}
 
+	public boolean stripDeletes() {
+		return kryo.stripDeletes();
+	}
 }

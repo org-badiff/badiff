@@ -15,6 +15,12 @@ public class OpSerializer extends Serializer<Op> {
 		output.writeInt(object.getRun(), true);
 		if(object.getOp() == Op.INSERT)
 			kryo.writeObject(output, object.getData());
+		if(object.getOp() == Op.DELETE) {
+			boolean strip = object.getData() == null || kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
+			output.writeBoolean(strip);
+			if(!strip)
+				kryo.writeObject(output, object.getData());
+		}
 	}
 
 	@Override
@@ -24,6 +30,11 @@ public class OpSerializer extends Serializer<Op> {
 		byte[] data = null;
 		if(op == Op.INSERT)
 			data = kryo.readObject(input, byte[].class);
+		if(op == Op.DELETE) {
+			boolean stripped = input.readBoolean();
+			if(!stripped)
+				data = kryo.readObject(input, byte[].class);
+		}
 		return new Op(op, run, data);
 	}
 
