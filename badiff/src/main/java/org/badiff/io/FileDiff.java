@@ -52,6 +52,7 @@ public abstract class FileDiff extends File implements Diff {
 		}
 	}
 	
+	@Override
 	public OpQueue queue() throws IOException {
 		return new FileOpQueue();
 	}

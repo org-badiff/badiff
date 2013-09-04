@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.q.ListOpQueue;
+import org.badiff.q.OpQueue;
 
 public class MemoryDiff implements Diff {
 	protected List<Op> ops = new ArrayList<Op>();
@@ -25,6 +27,11 @@ public class MemoryDiff implements Diff {
 		this.ops.clear();
 		while(ops.hasNext())
 			this.ops.add(ops.next());
+	}
+
+	@Override
+	public OpQueue queue() {
+		return new ListOpQueue(ops);
 	}
 
 }
