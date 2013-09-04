@@ -93,10 +93,15 @@ public abstract class DiffFile extends File implements BADiff {
 		}
 		
 		@Override
+		public boolean offer(Op e) {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
 		protected void shift() {
 			if(!closed && i < count) {
 				try {
-					pending.offerLast(serialization().readObject(self, Op.class));
+					super.offer(serialization().readObject(self, Op.class));
 					i++;
 				} catch(IOException ioe) {
 					close();
