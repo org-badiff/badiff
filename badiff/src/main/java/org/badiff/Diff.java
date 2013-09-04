@@ -3,6 +3,7 @@ package org.badiff;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChukingOpQueue;
@@ -10,11 +11,16 @@ import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ReplaceOpQueue;
+import org.badiff.q.StreamChunkingOpQueue;
 
 public class Diff {
 	
-	public static OpQueue queue(byte[] orig, byte[] target) {
+	public static OpQueue diff(byte[] orig, byte[] target) {
 		return new ReplaceOpQueue(orig, target);
+	}
+	
+	public static OpQueue diff(InputStream orig, InputStream target, int chunk) {
+		return new StreamChunkingOpQueue(orig, target, chunk);
 	}
 	
 	public static OpQueue improved(OpQueue q, int chunk) {

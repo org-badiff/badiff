@@ -10,7 +10,7 @@ public class DiffTest {
 		String orig = "Hello";
 		String target = "World";
 		
-		BADiff diff = Diff.improved(Diff.queue(orig.getBytes(), target.getBytes()), 1024);
+		BADiff diff = Diff.improved(Diff.diff(orig.getBytes(), target.getBytes()), 1024);
 		
 		byte[] result = Diff.applyDiff(diff, orig.getBytes());
 		
