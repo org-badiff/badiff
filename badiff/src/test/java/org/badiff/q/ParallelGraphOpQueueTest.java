@@ -12,7 +12,7 @@ public class ParallelGraphOpQueueTest {
 
 	@Test
 	public void testPerformance() throws Exception {
-		final int SIZE = 1024 * 1024;
+		final int SIZE = 2048 * 2048;
 		final int CHUNK = 1024;
 		
 		ByteArrayOutputStream orig = new ByteArrayOutputStream(SIZE);
