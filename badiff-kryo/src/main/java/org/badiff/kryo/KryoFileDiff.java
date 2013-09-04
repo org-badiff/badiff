@@ -4,31 +4,31 @@ import java.io.File;
 import java.io.ObjectStreamException;
 import java.net.URI;
 
-import org.badiff.io.DiffFile;
+import org.badiff.io.FileDiff;
 import org.badiff.io.Serialization;
 
-public class KryoDiffFile extends DiffFile {
+public class KryoFileDiff extends FileDiff {
 	private static final long serialVersionUID = 0;
 	
 	private transient KryoSerialization kryo = new KryoSerialization();
 	
-	public KryoDiffFile(File parent, String child) {
+	public KryoFileDiff(File parent, String child) {
 		super(parent, child);
 	}
 
-	public KryoDiffFile(String parent, String child) {
+	public KryoFileDiff(String parent, String child) {
 		super(parent, child);
 	}
 
-	public KryoDiffFile(String pathname) {
+	public KryoFileDiff(String pathname) {
 		super(pathname);
 	}
 
-	public KryoDiffFile(URI uri) {
+	public KryoFileDiff(URI uri) {
 		super(uri);
 	}
 
-	public KryoDiffFile(File file) {
+	public KryoFileDiff(File file) {
 		super(file);
 	}
 
@@ -37,7 +37,7 @@ public class KryoDiffFile extends DiffFile {
 		return kryo;
 	}
 	
-	public KryoDiffFile stripDeletes(boolean strip) {
+	public KryoFileDiff stripDeletes(boolean strip) {
 		kryo.stripDeletes(strip);
 		return this;
 	}

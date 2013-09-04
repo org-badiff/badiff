@@ -14,28 +14,28 @@ import org.badiff.Op;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
-public abstract class DiffFile extends File implements Diff {
+public abstract class FileDiff extends File implements Diff {
 	private static final long serialVersionUID = 0;
 	
 	protected abstract Serialization serialization();
 
-	public DiffFile(File parent, String child) {
+	public FileDiff(File parent, String child) {
 		super(parent, child);
 	}
 
-	public DiffFile(String parent, String child) {
+	public FileDiff(String parent, String child) {
 		super(parent, child);
 	}
 
-	public DiffFile(String pathname) {
+	public FileDiff(String pathname) {
 		super(pathname);
 	}
 
-	public DiffFile(URI uri) {
+	public FileDiff(URI uri) {
 		super(uri);
 	}
 
-	public DiffFile(File file) {
+	public FileDiff(File file) {
 		this(file.toURI());
 	}
 	
@@ -86,7 +86,7 @@ public abstract class DiffFile extends File implements Diff {
 		private boolean closed;
 		
 		public FileOpQueue() throws IOException {
-			self = new FileInputStream(DiffFile.this);
+			self = new FileInputStream(FileDiff.this);
 			count = serialization().readObject(self, Long.class);
 			i = 0;
 			closed = false;
