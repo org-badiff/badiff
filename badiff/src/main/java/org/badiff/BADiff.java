@@ -6,6 +6,4 @@ import java.io.OutputStream;
 
 public interface BADiff {
 	public void applyDiff(InputStream orig, OutputStream target) throws IOException;
-	public byte[] applyDiff(byte[] orig);
-	public long targetLength();
 }

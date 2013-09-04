@@ -1,5 +1,10 @@
 package org.badiff;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class Op {
 	public static final byte STOP = 0x0;
 	public static final byte DELETE = 0x1;
@@ -21,7 +26,29 @@ public class Op {
 		this.run = run;
 		this.data = data;
 	}
-	
+
+	public void applyOp(InputStream orig, OutputStream target) throws IOException {
+		switch(op) {
+		case DELETE:
+			orig.skip(run);
+			break;
+		case NEXT:
+			int count = run;
+			byte[] buf = new byte[Math.min(count, 8192)];
+			int r;
+			for(r = orig.read(buf); r != -1 && count > 0; r = orig.read(buf)) {
+				target.write(buf, 0, r);
+				count -= r;
+			}
+			if(r == -1)
+				throw new EOFException();
+			break;
+		case INSERT:
+			target.write(data, 0, run);
+			break;
+		}
+	}
+
 	public byte getOp() {
 		return op;
 	}
