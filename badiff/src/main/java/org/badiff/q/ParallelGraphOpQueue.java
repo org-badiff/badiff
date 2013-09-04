@@ -20,7 +20,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
 		protected Graph initialValue() {
-			return new Graph(4097 * 4097);
+			return new Graph(1025 * 1025);
 		}
 	};
 
