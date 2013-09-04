@@ -4,8 +4,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
-public class Op {
+public class Op implements Serializable {
+	private static final long serialVersionUID = 0;
+	
 	public static final byte STOP = 0x0;
 	public static final byte DELETE = 0x1;
 	public static final byte INSERT = 0x2;
