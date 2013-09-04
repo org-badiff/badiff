@@ -60,24 +60,40 @@ public class Graph {
 			byte fop = flags[pos];
 			if(op != Op.STOP && op != fop) {
 				byte[] data = null;
-				if(op == Op.INSERT || op == Op.DELETE)
-					data = buf.toByteArray();
+				if(op == Op.INSERT || op == Op.DELETE) {
+					byte[] rdata = buf.toByteArray();
+					data = new byte[rdata.length];
+					for(int i = 0; i < rdata.length; i++) {
+						data[data.length - i - 1] = rdata[i];
+					}
+				}
 				ret.add(new Op(op, run, data));
 				run = 0;
 				buf.reset();
 			}
 			op = fop;
 			run++;
-			if(op == Op.INSERT)
+			if(op == Op.INSERT) {
 				buf.write(yval[pos / xval.length]);
-			if(op == Op.DELETE)
+				pos -= xval.length;
+			}
+			if(op == Op.DELETE) {
 				buf.write(xval[pos % xval.length]);
+				pos -= 1;
+			}
+			if(op == Op.NEXT)
+				pos -= xval.length + 1;
 		}
 		
 		if(op != Op.STOP) {
 			byte[] data = null;
-			if(op == Op.INSERT || op == Op.DELETE)
-				data = buf.toByteArray();
+			if(op == Op.INSERT || op == Op.DELETE) {
+				byte[] rdata = buf.toByteArray();
+				data = new byte[rdata.length];
+				for(int i = 0; i < rdata.length; i++) {
+					data[data.length - i - 1] = rdata[i];
+				}
+			}
 			ret.add(new Op(op, run, data));
 		}
 		
