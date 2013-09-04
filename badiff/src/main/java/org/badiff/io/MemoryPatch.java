@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.TreeMap;
 
 import org.badiff.Diff;
+import org.badiff.DiffUtils;
 import org.badiff.Patch;
 
 public class MemoryPatch extends TreeMap<String, Diff> implements Patch {
@@ -14,6 +15,7 @@ public class MemoryPatch extends TreeMap<String, Diff> implements Patch {
 		for(String path : keySet()) {
 			File file = new File(root, path);
 			Diff diff = get(path);
+			DiffUtils.apply(diff, file);
 		}
 	}
 
