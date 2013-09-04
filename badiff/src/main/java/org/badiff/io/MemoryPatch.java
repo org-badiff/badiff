@@ -36,4 +36,11 @@ public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch {
 		return get((Object) path);
 	}
 
+	@Override
+	public void store(Patch other) {
+		clear();
+		for(String path : other.keySet())
+			put(path, other.get(path));
+	}
+
 }

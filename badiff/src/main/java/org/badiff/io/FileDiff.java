@@ -19,6 +19,8 @@ public abstract class FileDiff extends File implements Diff {
 	
 	protected abstract Serialization serialization();
 
+	protected long offset;
+	
 	public FileDiff(File parent, String child) {
 		super(parent, child);
 	}
@@ -40,9 +42,14 @@ public abstract class FileDiff extends File implements Diff {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target) throws IOException {
+		apply(orig, target, 0L);
+	}
+	
+	public void apply(InputStream orig, OutputStream target, long offset)
 			throws IOException {
 		InputStream self = new FileInputStream(this);
+		self.skip(offset);
 		try {
 			long count = serialization().readObject(self, Long.class);
 			for(long i = 0; i < count; i++)
@@ -52,9 +59,13 @@ public abstract class FileDiff extends File implements Diff {
 		}
 	}
 	
+	public OpQueue queue(long offset) throws IOException {
+		return new FileOpQueue(offset);
+	}
+	
 	@Override
 	public OpQueue queue() throws IOException {
-		return new FileOpQueue();
+		return new FileOpQueue(0L);
 	}
 	
 	@Override
@@ -91,8 +102,9 @@ public abstract class FileDiff extends File implements Diff {
 		private long i;
 		private boolean closed;
 		
-		public FileOpQueue() throws IOException {
+		public FileOpQueue(long offset) throws IOException {
 			self = new FileInputStream(FileDiff.this);
+			self.skip(offset);
 			count = serialization().readObject(self, Long.class);
 			i = 0;
 			closed = false;
