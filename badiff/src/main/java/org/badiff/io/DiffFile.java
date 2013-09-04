@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.Iterator;
 
 import org.badiff.Diff;
 import org.badiff.Op;
@@ -55,12 +56,13 @@ public abstract class DiffFile extends File implements Diff {
 		return new FileOpQueue();
 	}
 	
-	public long write(OpQueue q) throws IOException {
+	public long write(Iterator<Op> q) throws IOException {
 		long count = 0;
 		File tmp = File.createTempFile(getName(), ".tmp");
 		
 		FileOutputStream out = new FileOutputStream(tmp);
-		for(Op e = q.poll(); e != null; e = q.poll()) {
+		while(q.hasNext()) {
+			Op e = q.next();
 			serialization().writeObject(out, e);
 			count++;
 		}
