@@ -12,6 +12,8 @@ import org.badiff.io.EmptyInputStream;
 import org.badiff.util.Streams;
 
 public class PatchOp implements FileApplyable, Serializable {
+	private static final long serialVersionUID = 0;
+	
 	public static final byte SKIP = 0x0; // no diff
 	public static final byte DELETE = 0x1; // no diff
 	public static final byte CREATE = 0x2; // has diff

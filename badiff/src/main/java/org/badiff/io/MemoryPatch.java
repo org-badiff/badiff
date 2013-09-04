@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TreeMap;
 
-import org.badiff.Diff;
-import org.badiff.DiffUtils;
 import org.badiff.Patch;
 import org.badiff.PatchOp;
 
 public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch {
+	private static final long serialVersionUID = 0;
 
 	@Override
 	public void apply(File orig, File target) throws IOException {
