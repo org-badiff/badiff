@@ -18,10 +18,14 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
 		protected Graph initialValue() {
-			return new Graph(1025 * 1025);
+			return new Graph(2049 * 2049);
 		}
 	};
 
+	public ParallelGraphOpQueue(OpQueue source) {
+		this(source, Runtime.getRuntime().availableProcessors());
+	}
+	
 	public ParallelGraphOpQueue(OpQueue source, int workers) {
 		super(new ChainOpQueue(new OpQueue()));
 		this.input = source;

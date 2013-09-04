@@ -27,7 +27,7 @@ public class ParallelGraphOpQueueTest {
 				new ByteArrayInputStream(orig.toByteArray()), 
 				new ByteArrayInputStream(target.toByteArray()), 
 				CHUNK);
-		q = new ParallelGraphOpQueue(q, 4);
+		q = new ParallelGraphOpQueue(q);
 		
 		long start = System.nanoTime();
 		q.drainTo(new ArrayList<Op>());

@@ -10,6 +10,7 @@ import org.badiff.q.ChukingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
+import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 
@@ -25,7 +26,7 @@ public class Diff {
 	
 	public static OpQueue improved(OpQueue q, int chunk) {
 		q = new ChukingOpQueue(q, chunk);
-		q = new GraphOpQueue(q, chunk);
+		q = new ParallelGraphOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		return q;
 	}
