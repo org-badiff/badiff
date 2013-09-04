@@ -1,12 +1,16 @@
 package org.badiff.q;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;
 
+import org.badiff.BADiff;
 import org.badiff.Op;
 
-public class OpQueue {
+public class OpQueue implements BADiff {
 
 	protected Deque<Op> ready = new ArrayDeque<Op>();
 	protected Deque<Op> pending = new ArrayDeque<Op>();
@@ -33,6 +37,13 @@ public class OpQueue {
 		if(e != null)
 			ready.offerLast(e);
 		return e != null;
+	}
+
+	@Override
+	public void applyDiff(InputStream orig, OutputStream target)
+			throws IOException {
+		for(Op e = poll(); e != null; e = poll())
+			e.applyOp(orig, target);
 	}
 	
 }
