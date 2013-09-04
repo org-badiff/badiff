@@ -2,12 +2,9 @@ package org.badiff.q;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.badiff.Op;
 import org.junit.Assert;
 import org.junit.Test;
 

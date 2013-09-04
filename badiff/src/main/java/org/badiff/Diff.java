@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChukingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
-import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
