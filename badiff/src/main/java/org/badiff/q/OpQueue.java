@@ -27,10 +27,14 @@ public class OpQueue implements BADiff {
 		return pending.offerLast(e);
 	}
 	
-	public <T extends List<Op>> T drainTo(T c) {
+	public void drainTo(List<Op> c) {
 		for(Op e = poll(); e != null; e = poll())
 			c.add(e);
-		return c;
+	}
+	
+	public void drainTo(OpQueue q) {
+		for(Op e = poll(); e != null; e = poll())
+			q.offer(e);
 	}
 	
 	protected void shift() {
