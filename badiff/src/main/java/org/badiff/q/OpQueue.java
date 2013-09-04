@@ -6,10 +6,10 @@ import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.badiff.BADiff;
+import org.badiff.Diff;
 import org.badiff.Op;
 
-public class OpQueue implements BADiff {
+public class OpQueue implements Diff {
 
 	protected Deque<Op> ready = new ArrayDeque<Op>();
 	protected Deque<Op> pending = new ArrayDeque<Op>();

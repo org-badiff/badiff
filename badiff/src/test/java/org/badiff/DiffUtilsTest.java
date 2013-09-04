@@ -3,16 +3,16 @@ package org.badiff;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DiffTest {
+public class DiffUtilsTest {
 
 	@Test
 	public void testDiff() throws Exception {
 		String orig = "Hello";
 		String target = "World";
 		
-		BADiff diff = Diff.improved(Diff.diff(orig.getBytes(), target.getBytes()), 1024);
+		Diff diff = DiffUtils.improved(DiffUtils.diff(orig.getBytes(), target.getBytes()), 1024);
 		
-		byte[] result = Diff.applyDiff(diff, orig.getBytes());
+		byte[] result = DiffUtils.applyDiff(diff, orig.getBytes());
 		
 		Assert.assertEquals(target, new String(result));
 	}

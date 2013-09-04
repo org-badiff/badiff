@@ -8,12 +8,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import org.badiff.BADiff;
+import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
-public abstract class DiffFile extends File implements BADiff {
+public abstract class DiffFile extends File implements Diff {
 	private static final long serialVersionUID = 0;
 	
 	protected abstract Serialization serialization();
