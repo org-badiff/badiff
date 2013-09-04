@@ -31,7 +31,18 @@ public class MemoryDiff implements Diff {
 
 	@Override
 	public OpQueue queue() {
-		return new ListOpQueue(ops);
+		return new MemoryOpQueue(ops);
+	}
+
+	private class MemoryOpQueue extends ListOpQueue {
+		private MemoryOpQueue(List<Op> ops) {
+			super(ops);
+		}
+	
+		@Override
+		public boolean offer(Op e) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 }

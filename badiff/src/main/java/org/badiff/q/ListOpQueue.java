@@ -8,7 +8,7 @@ public class ListOpQueue extends OpQueue {
 
 	public ListOpQueue(List<Op> ops) {
 		for(Op e : ops)
-			offer(e);
+			super.offer(e);
 	}
 
 }
