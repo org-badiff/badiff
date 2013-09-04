@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
+import java.util.List;
 import java.util.Queue;
 
 import org.badiff.BADiff;
@@ -26,6 +28,12 @@ public class OpQueue implements BADiff {
 	
 	public boolean offer(Op e) {
 		return pending.offerLast(e);
+	}
+	
+	public <T extends List<Op>> T drainTo(T c) {
+		for(Op e = poll(); e != null; e = poll())
+			c.add(e);
+		return c;
 	}
 	
 	protected void shift() {
