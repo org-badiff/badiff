@@ -1,0 +1,30 @@
+package org.badiff.io;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.badiff.Diff;
+import org.badiff.Op;
+
+public class MemoryDiff implements Diff {
+	protected List<Op> ops = new ArrayList<Op>();
+
+	@Override
+	public void applyDiff(InputStream orig, OutputStream target)
+			throws IOException {
+		for(Op e : ops)
+			e.applyOp(orig, target);
+	}
+
+	@Override
+	public void storeDiff(Iterator<Op> ops) {
+		this.ops.clear();
+		while(ops.hasNext())
+			this.ops.add(ops.next());
+	}
+
+}

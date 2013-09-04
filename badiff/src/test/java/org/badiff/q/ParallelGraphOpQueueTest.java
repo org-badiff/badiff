@@ -32,7 +32,7 @@ public class ParallelGraphOpQueueTest {
 		ByteArrayOutputStream result = new ByteArrayOutputStream(SIZE);
 		
 		long start = System.nanoTime();
-		q.applyDiff(
+		q.applyQueue(
 				new ByteArrayInputStream(orig.toByteArray()),
 				result);
 		long end = System.nanoTime();

@@ -15,11 +15,11 @@ import org.badiff.q.StreamChunkingOpQueue;
 
 public class DiffUtils {
 	
-	public static OpQueue diff(byte[] orig, byte[] target) {
+	public static OpQueue queue(byte[] orig, byte[] target) {
 		return new ReplaceOpQueue(orig, target);
 	}
 	
-	public static OpQueue diff(InputStream orig, InputStream target) {
+	public static OpQueue queue(InputStream orig, InputStream target) {
 		return new StreamChunkingOpQueue(orig, target);
 	}
 	
@@ -28,6 +28,17 @@ public class DiffUtils {
 		q = new ParallelGraphOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		return q;
+	}
+	
+	public static byte[] applyDiff(OpQueue q, byte[] orig) {
+		ByteArrayInputStream in = new ByteArrayInputStream(orig);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			q.applyQueue(in, out);
+		} catch(IOException ioe) {
+			throw new RuntimeIOException(ioe);
+		}
+		return out.toByteArray();
 	}
 	
 	public static byte[] applyDiff(Diff diff, byte[] orig) {

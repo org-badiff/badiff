@@ -56,6 +56,11 @@ public abstract class FileDiff extends File implements Diff {
 		return new FileOpQueue();
 	}
 	
+	@Override
+	public void storeDiff(Iterator<Op> ops) throws IOException {
+		write(ops);
+	}
+	
 	public long write(Iterator<Op> q) throws IOException {
 		long count = 0;
 		File tmp = File.createTempFile(getName(), ".tmp");

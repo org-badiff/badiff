@@ -1,5 +1,6 @@
 package org.badiff;
 
+import org.badiff.q.OpQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ public class DiffUtilsTest {
 		String orig = "Hello";
 		String target = "World";
 		
-		Diff diff = DiffUtils.improved(DiffUtils.diff(orig.getBytes(), target.getBytes()));
+		OpQueue diff = DiffUtils.improved(DiffUtils.queue(orig.getBytes(), target.getBytes()));
 		
 		byte[] result = DiffUtils.applyDiff(diff, orig.getBytes());
 		

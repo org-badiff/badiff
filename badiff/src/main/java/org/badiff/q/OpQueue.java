@@ -11,7 +11,7 @@ import java.util.List;
 import org.badiff.Diff;
 import org.badiff.Op;
 
-public class OpQueue implements Diff, Iterator<Op> {
+public class OpQueue implements Iterator<Op> {
 
 	protected Op iterNext;
 	protected Deque<Op> ready = new ArrayDeque<Op>();
@@ -30,14 +30,21 @@ public class OpQueue implements Diff, Iterator<Op> {
 		return pending.offerLast(e);
 	}
 	
-	public void drainTo(List<Op> c) {
+	public <T extends List<Op>> T drainTo(T c) {
 		for(Op e = poll(); e != null; e = poll())
 			c.add(e);
+		return c;
 	}
 	
-	public void drainTo(OpQueue q) {
+	public <T extends OpQueue> T drainTo(T q) {
 		for(Op e = poll(); e != null; e = poll())
 			q.offer(e);
+		return q;
+	}
+	
+	public <T extends Diff> T drainTo(T diff) throws IOException {
+		diff.storeDiff(this);
+		return diff;
 	}
 	
 	protected void shift() {
@@ -51,8 +58,7 @@ public class OpQueue implements Diff, Iterator<Op> {
 		return e != null;
 	}
 
-	@Override
-	public void applyDiff(InputStream orig, OutputStream target)
+	public void applyQueue(InputStream orig, OutputStream target)
 			throws IOException {
 		for(Op e = poll(); e != null; e = poll())
 			e.applyOp(orig, target);
