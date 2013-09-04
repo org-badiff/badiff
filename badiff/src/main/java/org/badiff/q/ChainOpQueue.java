@@ -14,6 +14,10 @@ public class ChainOpQueue extends OpQueue {
 			offer(q);
 	}
 	
+	public Deque<OpQueue> getChain() {
+		return chain;
+	}
+	
 	public boolean offer(OpQueue q) {
 		return chain.offerLast(q);
 	}
