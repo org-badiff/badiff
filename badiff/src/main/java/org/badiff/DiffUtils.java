@@ -2,6 +2,9 @@ package org.badiff;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -39,6 +42,17 @@ public class DiffUtils {
 			throw new RuntimeIOException(ioe);
 		}
 		return out.toByteArray();
+	}
+	
+	public static void apply(Applyable a, File orig) throws IOException {
+		File tmp = File.createTempFile(orig.getName(), ".tmp");
+		FileInputStream in = new FileInputStream(orig);
+		FileOutputStream out = new FileOutputStream(tmp);
+		a.apply(in, out);
+		out.close();
+		in.close();
+		if(!orig.delete() || !tmp.renameTo(orig))
+			throw new IOException("Unable to move " + tmp + " to " + orig);
 	}
 
 	private DiffUtils() {
