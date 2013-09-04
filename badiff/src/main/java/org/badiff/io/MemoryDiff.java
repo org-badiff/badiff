@@ -14,14 +14,14 @@ public class MemoryDiff implements Diff {
 	protected List<Op> ops = new ArrayList<Op>();
 
 	@Override
-	public void applyDiff(InputStream orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
 		for(Op e : ops)
-			e.applyOp(orig, target);
+			e.apply(orig, target);
 	}
 
 	@Override
-	public void storeDiff(Iterator<Op> ops) {
+	public void store(Iterator<Op> ops) {
 		this.ops.clear();
 		while(ops.hasNext())
 			this.ops.add(ops.next());

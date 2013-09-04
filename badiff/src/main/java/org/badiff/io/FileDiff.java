@@ -40,13 +40,13 @@ public abstract class FileDiff extends File implements Diff {
 	}
 	
 	@Override
-	public void applyDiff(InputStream orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
 		InputStream self = new FileInputStream(this);
 		try {
 			long count = serialization().readObject(self, Long.class);
 			for(long i = 0; i < count; i++)
-				serialization().readObject(self, Op.class).applyOp(orig, target);
+				serialization().readObject(self, Op.class).apply(orig, target);
 		} finally { 
 			self.close();
 		}
@@ -57,7 +57,7 @@ public abstract class FileDiff extends File implements Diff {
 	}
 	
 	@Override
-	public void storeDiff(Iterator<Op> ops) throws IOException {
+	public void store(Iterator<Op> ops) throws IOException {
 		write(ops);
 	}
 	

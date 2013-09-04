@@ -30,22 +30,11 @@ public class DiffUtils {
 		return q;
 	}
 	
-	public static byte[] applyDiff(OpQueue q, byte[] orig) {
+	public static byte[] apply(Applyable a, byte[] orig) {
 		ByteArrayInputStream in = new ByteArrayInputStream(orig);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			q.applyQueue(in, out);
-		} catch(IOException ioe) {
-			throw new RuntimeIOException(ioe);
-		}
-		return out.toByteArray();
-	}
-	
-	public static byte[] applyDiff(Diff diff, byte[] orig) {
-		ByteArrayInputStream in = new ByteArrayInputStream(orig);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			diff.applyDiff(in, out);
+			a.apply(in, out);
 		} catch(IOException ioe) {
 			throw new RuntimeIOException(ioe);
 		}

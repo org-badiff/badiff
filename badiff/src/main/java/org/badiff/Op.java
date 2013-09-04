@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-public class Op implements Serializable {
+public class Op implements Applyable, Serializable {
 	private static final long serialVersionUID = 0;
 	
 	public static final byte STOP = 0x0;
@@ -30,7 +30,7 @@ public class Op implements Serializable {
 		this.data = data;
 	}
 
-	public void applyOp(InputStream orig, OutputStream target) throws IOException {
+	public void apply(InputStream orig, OutputStream target) throws IOException {
 		switch(op) {
 		case DELETE:
 			orig.skip(run);

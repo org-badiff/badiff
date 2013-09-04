@@ -8,10 +8,11 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
+import org.badiff.Applyable;
 import org.badiff.Diff;
 import org.badiff.Op;
 
-public class OpQueue implements Iterator<Op> {
+public class OpQueue implements Applyable, Iterator<Op> {
 
 	protected Op iterNext;
 	protected Deque<Op> ready = new ArrayDeque<Op>();
@@ -43,7 +44,7 @@ public class OpQueue implements Iterator<Op> {
 	}
 	
 	public <T extends Diff> T drainTo(T diff) throws IOException {
-		diff.storeDiff(this);
+		diff.store(this);
 		return diff;
 	}
 	
@@ -58,10 +59,10 @@ public class OpQueue implements Iterator<Op> {
 		return e != null;
 	}
 
-	public void applyQueue(InputStream orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
 		for(Op e = poll(); e != null; e = poll())
-			e.applyOp(orig, target);
+			e.apply(orig, target);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public class DiffUtilsTest {
 		
 		OpQueue diff = DiffUtils.improved(DiffUtils.queue(orig.getBytes(), target.getBytes()));
 		
-		byte[] result = DiffUtils.applyDiff(diff, orig.getBytes());
+		byte[] result = DiffUtils.apply(diff, orig.getBytes());
 		
 		Assert.assertEquals(target, new String(result));
 	}
