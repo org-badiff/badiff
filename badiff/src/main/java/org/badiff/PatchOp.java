@@ -82,6 +82,16 @@ public class PatchOp implements FileApplyable, Serializable {
 			out.close();
 			in.close();
 			break;
+		case DIFF:
+			File tmp = File.createTempFile(orig.getName(), ".tmp");
+			in = new FileInputStream(orig);
+			out = new FileOutputStream(tmp);
+			diff.apply(in, out);
+			out.close();
+			in.close();
+			if(!orig.delete() || !tmp.renameTo(orig))
+				throw new IOException("Unable to replace " + orig);
+			break;
 		}
 	}
 }

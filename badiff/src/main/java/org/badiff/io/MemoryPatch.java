@@ -20,6 +20,14 @@ public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch {
 	}
 	
 	@Override
+	public void apply(File orig) throws IOException {
+		for(String path : keySet()) {
+			PatchOp op = get(path);
+			op.apply(new File(orig, path));
+		}
+	}
+	
+	@Override
 	public boolean containsKey(String path) {
 		return containsKey((Object) path);
 	}
