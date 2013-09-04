@@ -7,25 +7,25 @@ import java.util.TreeMap;
 import org.badiff.Diff;
 import org.badiff.DiffUtils;
 import org.badiff.Patch;
+import org.badiff.PatchOp;
 
-public class MemoryPatch extends TreeMap<String, Diff> implements Patch {
+public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch {
 
 	@Override
-	public void apply(File root) throws IOException {
+	public void apply(File orig, File target) throws IOException {
 		for(String path : keySet()) {
-			File file = new File(root, path);
-			Diff diff = get(path);
-			DiffUtils.apply(diff, file);
+			PatchOp op = get(path);
+			op.apply(new File(orig, path), new File(target, path));
 		}
 	}
-
+	
 	@Override
 	public boolean containsKey(String path) {
 		return containsKey((Object) path);
 	}
 
 	@Override
-	public Diff get(String path) {
+	public PatchOp get(String path) {
 		return get((Object) path);
 	}
 

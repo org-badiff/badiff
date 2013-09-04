@@ -44,15 +44,12 @@ public class DiffUtils {
 		return out.toByteArray();
 	}
 	
-	public static void apply(Applyable a, File orig) throws IOException {
-		File tmp = File.createTempFile(orig.getName(), ".tmp");
+	public static void apply(Applyable a, File orig, File target) throws IOException {
 		FileInputStream in = new FileInputStream(orig);
-		FileOutputStream out = new FileOutputStream(tmp);
+		FileOutputStream out = new FileOutputStream(target);
 		a.apply(in, out);
 		out.close();
 		in.close();
-		if(!orig.delete() || !tmp.renameTo(orig))
-			throw new IOException("Unable to move " + tmp + " to " + orig);
 	}
 
 	private DiffUtils() {
