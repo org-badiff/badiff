@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,6 +13,7 @@ import java.net.URI;
 import org.badiff.BADiff;
 import org.badiff.Op;
 import org.badiff.q.OpQueue;
+import org.badiff.util.Streams;
 
 public abstract class DiffFile extends File implements BADiff {
 	
@@ -52,6 +54,28 @@ public abstract class DiffFile extends File implements BADiff {
 	
 	public OpQueue queue() throws IOException {
 		return new FileOpQueue();
+	}
+	
+	public long write(OpQueue q) throws IOException {
+		long count = 0;
+		File tmp = File.createTempFile(getName(), ".tmp");
+		
+		FileOutputStream out = new FileOutputStream(tmp);
+		for(Op e = q.poll(); e != null; e = q.poll()) {
+			serialization().writeObject(out, e);
+			count++;
+		}
+		out.close();
+		
+		out = new FileOutputStream(this);
+		InputStream in = new FileInputStream(tmp);
+		serialization().writeObject(out, count);
+		Streams.copy(in, out);
+		in.close();
+		out.close();
+		
+		tmp.delete();
+		return count;
 	}
 
 	private class FileOpQueue extends OpQueue {
