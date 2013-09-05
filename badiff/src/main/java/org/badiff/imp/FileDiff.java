@@ -129,7 +129,7 @@ public class FileDiff extends File implements Diff {
 		return count;
 	}
 	
-	private static class FileOpQueue extends OpQueue implements Serialized, Externalizable {
+	private static class FileOpQueue extends OpQueue {
 		private FileDiff thiz;
 		private InputStream self;
 		private long count;
@@ -183,55 +183,6 @@ public class FileDiff extends File implements Diff {
 			} finally {
 				closed = true;
 			}
-		}
-
-		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
-			serialize(DefaultSerialization.getInstance(), Streams.asStream(out));
-		}
-
-		@Override
-		public void readExternal(ObjectInput in) throws IOException,
-				ClassNotFoundException {
-			deserialize(DefaultSerialization.getInstance(), Streams.asStream(in));
-		}
-
-		@Override
-		public void serialize(Serialization serial, OutputStream out)
-				throws IOException {
-			serial.writeObject(out, Class.class, thiz.getClass());
-			serial.writeObject(out, Long.class, i);
-			serial.writeObject(out, Long.class, thiz.length());
-			InputStream in = new FileInputStream(thiz);
-			Streams.copy(in, out);
-			in.close();
-		}
-
-		@Override
-		public void deserialize(Serialization serial, InputStream in)
-				throws IOException {
-			@SuppressWarnings("unchecked")
-			Class<? extends FileDiff> type = serial.readObject(in, Class.class);
-			try {
-				thiz = type.getConstructor(File.class).newInstance(File.createTempFile("FileOpQueue", ".tmp"));
-			} catch(Exception ex) {
-				throw new IOException("Unable to instantiate " + type, ex);
-			}
-			thiz.deleteOnExit();
-			
-			long i = serial.readObject(in, Long.class);
-			
-			long length = serial.readObject(in, Long.class);
-			OutputStream out = new FileOutputStream(thiz);
-			Streams.copy(in, out, length);
-			out.close();
-			
-			self = new FileInputStream(thiz);
-			count = thiz.serial.readObject(self, Long.class);
-			if(count == 0)
-				close();
-			while(this.i < i)
-				poll();
 		}
 	}
 }
