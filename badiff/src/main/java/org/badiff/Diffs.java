@@ -51,10 +51,16 @@ public class Diffs {
 	
 	public static void apply(Applyable a, File orig, File target) throws IOException {
 		FileInputStream in = new FileInputStream(orig);
-		FileOutputStream out = new FileOutputStream(target);
-		a.apply(in, out);
-		out.close();
-		in.close();
+		try {
+			FileOutputStream out = new FileOutputStream(target);
+			try {
+				a.apply(in, out);
+			} finally {
+				out.close();
+			}
+		} finally {
+			in.close();
+		}
 	}
 
 	private Diffs() {

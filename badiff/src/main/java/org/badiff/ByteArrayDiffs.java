@@ -9,7 +9,7 @@ import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Serials;
 
 /**
- * Utilities for dealing with {@link Diff}s and {@link Patch}es as {@code byte[]}.
+ * Utilities for dealing with {@link Diff}s as {@code byte[]}.
  * 
  * @author robin
  *
