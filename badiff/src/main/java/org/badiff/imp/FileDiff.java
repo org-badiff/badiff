@@ -28,14 +28,10 @@ import org.badiff.util.Streams;
  * @author robin
  *
  */
-public abstract class FileDiff extends File implements Diff {
+public class FileDiff extends File implements Diff {
 	private static final long serialVersionUID = 0;
 	
-	/**
-	 * Returns the {@link Serialization} mechanism for this {@link FileDiff}
-	 * @return
-	 */
-	protected abstract Serialization serialization();
+	protected Serialization serial = DefaultSerialization.getInstance();
 
 	public FileDiff(File parent, String child) {
 		super(parent, child);
@@ -57,13 +53,38 @@ public abstract class FileDiff extends File implements Diff {
 		this(file.toURI());
 	}
 	
+	public FileDiff(File parent, String child, Serialization serialization) {
+		super(parent, child);
+		this.serial = serialization;
+	}
+
+	public FileDiff(String parent, String child, Serialization serialization) {
+		super(parent, child);
+		this.serial = serialization;
+	}
+
+	public FileDiff(String pathname, Serialization serialization) {
+		super(pathname);
+		this.serial = serialization;
+	}
+
+	public FileDiff(URI uri, Serialization serialization) {
+		super(uri);
+		this.serial = serialization;
+	}
+
+	public FileDiff(File file, Serialization serialization) {
+		this(file.toURI());
+		this.serial = serialization;
+	}
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		InputStream self = new FileInputStream(this);
 		try {
-			long count = serialization().readObject(self, Long.class);
+			long count = serial.readObject(self, Long.class);
 			for(long i = 0; i < count; i++)
-				serialization().readObject(self, Op.class).apply(orig, target);
+				serial.readObject(self, Op.class).apply(orig, target);
 		} finally { 
 			self.close();
 		}
@@ -92,14 +113,14 @@ public abstract class FileDiff extends File implements Diff {
 		FileOutputStream out = new FileOutputStream(tmp);
 		while(q.hasNext()) {
 			Op e = q.next();
-			serialization().writeObject(out, Op.class, e);
+			serial.writeObject(out, Op.class, e);
 			count++;
 		}
 		out.close();
 		
 		out = new FileOutputStream(this);
 		InputStream in = new FileInputStream(tmp);
-		serialization().writeObject(out, Long.class, count);
+		serial.writeObject(out, Long.class, count);
 		Streams.copy(in, out);
 		in.close();
 		out.close();
@@ -125,7 +146,7 @@ public abstract class FileDiff extends File implements Diff {
 		public FileOpQueue(FileDiff thiz) throws IOException {
 			this.thiz = thiz;
 			self = new FileInputStream(thiz);
-			count = thiz.serialization().readObject(self, Long.class);
+			count = thiz.serial.readObject(self, Long.class);
 			i = 0;
 			closed = false;
 			if(count == 0)
@@ -141,7 +162,7 @@ public abstract class FileDiff extends File implements Diff {
 		protected void shift() {
 			if(!closed && i < count) {
 				try {
-					super.offer(thiz.serialization().readObject(self, Op.class));
+					super.offer(thiz.serial.readObject(self, Op.class));
 					i++;
 				} catch(IOException ioe) {
 					close();
@@ -206,7 +227,7 @@ public abstract class FileDiff extends File implements Diff {
 			out.close();
 			
 			self = new FileInputStream(thiz);
-			count = thiz.serialization().readObject(self, Long.class);
+			count = thiz.serial.readObject(self, Long.class);
 			if(count == 0)
 				close();
 			while(this.i < i)

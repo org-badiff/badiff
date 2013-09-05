@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.badiff.Diffs;
-import org.badiff.imp.DefaultFileDiff;
 import org.badiff.imp.FileDiff;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +15,7 @@ public class DefaultFileDiffTest {
 		byte[] orig = "Hello world!".getBytes();
 		byte[] target = "Hellish cruel world!".getBytes();
 		
-		FileDiff fd = new DefaultFileDiff(File.createTempFile("filediff", ".tmp"));
+		FileDiff fd = new FileDiff(File.createTempFile("filediff", ".tmp"));
 		fd.store(Diffs.improved(Diffs.queue(orig, target)));
 		
 		byte[] result = Diffs.apply(fd.queue(), orig);
