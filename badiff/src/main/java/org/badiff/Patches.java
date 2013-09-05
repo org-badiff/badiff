@@ -8,7 +8,7 @@ import java.io.InputStream;
 import org.badiff.io.EmptyInputStream;
 import org.badiff.io.MemoryDiff;
 
-public class PatchUtils {
+public class Patches {
 
 	public static PatchOp patchOp(File orig, File target) throws IOException {
 		if(!orig.exists() && !target.exists())
@@ -18,7 +18,7 @@ public class PatchUtils {
 		if(!orig.exists()) {
 			Diff diff = new MemoryDiff();
 			InputStream tin = new FileInputStream(target);
-			diff.store(DiffUtils.queue(new EmptyInputStream(), tin));
+			diff.store(Diffs.queue(new EmptyInputStream(), tin));
 			tin.close();
 			return new PatchOp(PatchOp.CREATE, diff);
 		}
@@ -26,13 +26,13 @@ public class PatchUtils {
 		Diff diff = new MemoryDiff();
 		InputStream oin = new FileInputStream(orig);
 		InputStream tin = new FileInputStream(target);
-		diff.store(DiffUtils.improved(DiffUtils.queue(oin, tin)));
+		diff.store(Diffs.improved(Diffs.queue(oin, tin)));
 		tin.close();
 		oin.close();
 		return new PatchOp(PatchOp.DIFF, diff);
 	}
 	
-	private PatchUtils() {
+	private Patches() {
 	}
 
 }

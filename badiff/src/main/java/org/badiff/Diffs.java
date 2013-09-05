@@ -16,7 +16,7 @@ import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 
-public class DiffUtils {
+public class Diffs {
 	
 	public static OpQueue queue(byte[] orig, byte[] target) {
 		return new ReplaceOpQueue(orig, target);
@@ -52,7 +52,7 @@ public class DiffUtils {
 		in.close();
 	}
 
-	private DiffUtils() {
+	private Diffs() {
 	}
 
 }

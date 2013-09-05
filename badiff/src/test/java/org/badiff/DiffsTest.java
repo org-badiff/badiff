@@ -4,16 +4,16 @@ import org.badiff.q.OpQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DiffUtilsTest {
+public class DiffsTest {
 
 	@Test
 	public void testDiff() throws Exception {
 		String orig = "Hello";
 		String target = "World";
 		
-		OpQueue diff = DiffUtils.improved(DiffUtils.queue(orig.getBytes(), target.getBytes()));
+		OpQueue diff = Diffs.improved(Diffs.queue(orig.getBytes(), target.getBytes()));
 		
-		byte[] result = DiffUtils.apply(diff, orig.getBytes());
+		byte[] result = Diffs.apply(diff, orig.getBytes());
 		
 		Assert.assertEquals(target, new String(result));
 	}
