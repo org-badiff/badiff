@@ -1,13 +1,10 @@
 package org.badiff.imp;
 
-import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Iterator;
@@ -17,7 +14,6 @@ import org.badiff.Op;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
-import org.badiff.io.Serialized;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
