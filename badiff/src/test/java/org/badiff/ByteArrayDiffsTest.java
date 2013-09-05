@@ -25,8 +25,10 @@ public class ByteArrayDiffsTest {
 		String target = "Hellish cruel world!";
 		
 		byte[] diff = badiff.diff(orig.getBytes(), target.getBytes());
+		System.out.println("diff:" + diff.length);
 		
-		System.out.println(diff.length);
+		byte[] udiff = badiff.udiff(orig.getBytes(), target.getBytes());
+		System.out.println("udiff:" + udiff.length);
 	}
 
 }

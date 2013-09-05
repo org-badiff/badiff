@@ -112,13 +112,17 @@ public class DefaultSerialization implements Serialization {
 
 			@Override
 			public void write(DataOutput out, byte[] obj) throws IOException {
-				out.writeInt(obj.length);
-				out.write(obj);
+				out.writeInt(obj != null ? obj.length : -1);
+				if(obj != null)
+					out.write(obj);
 			}
 
 			@Override
 			public byte[] read(DataInput in) throws IOException {
-				byte[] obj = new byte[in.readInt()];
+				int size = in.readInt();
+				if(size == -1)
+					return null;
+				byte[] obj = new byte[size];
 				in.readFully(obj);
 				return obj;
 			}

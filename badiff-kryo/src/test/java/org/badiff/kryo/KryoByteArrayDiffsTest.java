@@ -5,7 +5,7 @@ import org.badiff.ByteArrayDiffsTest;
 public class KryoByteArrayDiffsTest extends ByteArrayDiffsTest {
 
 	public KryoByteArrayDiffsTest() {
-		super(new KryoSerialization().stripDeletes(true));
+		super(new KryoSerialization());
 	}
 
 }
