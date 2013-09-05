@@ -92,8 +92,10 @@ public class Op implements Applyable, Serialized {
 			for(r = orig.read(buf, 0, count); r != -1 && count > 0; r = orig.read(buf, 0, count)) {
 				target.write(buf, 0, r);
 				count -= r;
+				if(count == 0)
+					break;
 			}
-			if(r == -1 && count > 0)
+			if(r == -1)
 				throw new EOFException("Needed " + count + " bytes");
 			break;
 		case INSERT:
