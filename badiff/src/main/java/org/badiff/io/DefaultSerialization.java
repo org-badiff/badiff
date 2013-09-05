@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.badiff.DiffOp;
-import org.badiff.PatchOp;
 import org.badiff.imp.MemoryDiff;
-import org.badiff.imp.MemoryPatch;
+import org.badiff.patch.MemoryPatch;
+import org.badiff.patch.PatchOp;
 import org.badiff.util.Streams;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })

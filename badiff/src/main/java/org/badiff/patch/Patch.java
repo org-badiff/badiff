@@ -1,4 +1,4 @@
-package org.badiff;
+package org.badiff.patch;
 
 import java.util.Set;
 

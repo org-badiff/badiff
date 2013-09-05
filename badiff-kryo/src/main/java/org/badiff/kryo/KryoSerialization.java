@@ -5,11 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.badiff.DiffOp;
-import org.badiff.PatchOp;
 import org.badiff.imp.MemoryDiff;
-import org.badiff.imp.MemoryPatch;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
+import org.badiff.patch.MemoryPatch;
+import org.badiff.patch.PatchOp;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;

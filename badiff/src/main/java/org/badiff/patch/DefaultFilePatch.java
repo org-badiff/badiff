@@ -1,9 +1,10 @@
-package org.badiff.io;
+package org.badiff.patch;
 
 import java.io.File;
 import java.net.URI;
 
-import org.badiff.imp.FilePatch;
+import org.badiff.io.DefaultSerialization;
+import org.badiff.io.Serialization;
 
 /**
  * {@link FilePatch} that uses {@link JdkSerialization}

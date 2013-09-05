@@ -1,4 +1,4 @@
-package org.badiff;
+package org.badiff.patch;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.badiff;
+package org.badiff.patch;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.badiff.Diff;
 import org.badiff.io.EmptyInputStream;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;

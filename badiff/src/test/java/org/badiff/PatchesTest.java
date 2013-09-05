@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import org.badiff.patch.Patch;
+import org.badiff.patch.PatchOp;
+import org.badiff.patch.Patches;
 import org.badiff.util.Files;
 import org.junit.Assert;
 import org.junit.Test;

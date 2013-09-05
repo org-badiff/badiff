@@ -1,4 +1,4 @@
-package org.badiff.imp;
+package org.badiff.patch;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.badiff.Patch;
-import org.badiff.PatchOp;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.util.Streams;

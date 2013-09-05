@@ -1,4 +1,4 @@
-package org.badiff;
+package org.badiff.patch;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.badiff.Diff;
+import org.badiff.Diffs;
 import org.badiff.imp.MemoryDiff;
-import org.badiff.imp.MemoryPatch;
 import org.badiff.io.EmptyInputStream;
 import org.badiff.util.Files;
 

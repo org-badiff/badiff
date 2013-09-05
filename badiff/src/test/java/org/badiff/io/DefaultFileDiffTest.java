@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.badiff.Diffs;
+import org.badiff.imp.DefaultFileDiff;
 import org.badiff.imp.FileDiff;
-import org.badiff.io.DefaultFileDiff;
 import org.junit.Assert;
 import org.junit.Test;
 

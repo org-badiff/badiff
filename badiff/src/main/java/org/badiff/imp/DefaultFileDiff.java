@@ -1,9 +1,10 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.File;
 import java.net.URI;
 
-import org.badiff.imp.FileDiff;
+import org.badiff.io.DefaultSerialization;
+import org.badiff.io.Serialization;
 
 /**
  * {@link FileDiff} that uses {@link JdkSerialization}

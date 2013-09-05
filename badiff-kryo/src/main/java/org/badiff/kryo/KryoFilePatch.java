@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.ObjectStreamException;
 import java.net.URI;
 
-import org.badiff.imp.FilePatch;
 import org.badiff.io.Serialization;
+import org.badiff.patch.FilePatch;
 
 public class KryoFilePatch extends FilePatch {
 	private static final long serialVersionUID = 0;
