@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectStreamException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
@@ -165,6 +166,12 @@ public abstract class FilePatch extends File implements Patch {
 		} catch(IOException ioe) {
 			throw new RuntimeIOException(ioe);
 		}
+	}
+
+	private Object writeReplace() throws ObjectStreamException {
+		Patch mpatch = new MemoryPatch();
+		mpatch.store(this);
+		return mpatch;
 	}
 
 }

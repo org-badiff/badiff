@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectStreamException;
 import java.io.OutputStream;
+import java.io.WriteAbortedException;
 import java.net.URI;
 import java.util.Iterator;
 
@@ -94,6 +96,16 @@ public abstract class FileDiff extends File implements Diff {
 		
 		tmp.delete();
 		return count;
+	}
+	
+	private Object writeReplace() throws ObjectStreamException {
+		try {
+			Diff mdiff = new MemoryDiff();
+			mdiff.store(this.queue());
+			return mdiff;
+		} catch(IOException ioe) {
+			throw new WriteAbortedException(ioe.getMessage(), ioe);
+		}
 	}
 
 	private class FileOpQueue extends OpQueue {
