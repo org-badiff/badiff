@@ -5,6 +5,7 @@ import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
+import org.badiff.util.Diffs;
 import org.badiff.util.Serials;
 
 /**

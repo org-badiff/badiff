@@ -3,8 +3,8 @@ package org.badiff.io;
 import java.io.File;
 import java.util.Arrays;
 
-import org.badiff.Diffs;
 import org.badiff.imp.FileDiff;
+import org.badiff.util.Diffs;
 import org.junit.Assert;
 import org.junit.Test;
 

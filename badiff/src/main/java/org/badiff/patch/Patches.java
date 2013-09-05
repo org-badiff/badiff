@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.badiff.Diff;
-import org.badiff.Diffs;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.EmptyInputStream;
+import org.badiff.util.Diffs;
 import org.badiff.util.Files;
 
 /**

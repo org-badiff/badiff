@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.badiff.patch.Patch;
 import org.badiff.patch.PatchOp;
 import org.badiff.patch.Patches;
+import org.badiff.util.Diffs;
 import org.badiff.util.Files;
 import org.junit.Assert;
 import org.junit.Test;
