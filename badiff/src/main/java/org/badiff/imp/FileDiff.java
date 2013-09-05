@@ -20,8 +20,7 @@ import org.badiff.util.Streams;
 
 /**
  * {@link Diff} that is backed by a {@link File}.  Extends {@link File} to
- * make it easy to work with.  This class is abstract so that subclasses can
- * provide their own {@link Serialization} mechanism.
+ * make it easy to work with.
  * @author robin
  *
  */
@@ -146,16 +145,25 @@ public class FileDiff extends File implements Diff, Serialized {
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		Iterator<Op> ops = queue();
-		while(ops.hasNext()) {
-			serial.writeObject(out, Op.class, ops.next());
+		/*
+		 * Since the raw file contents are already serialized, just dump
+		 * the file to the output stream.
+		 */
+		InputStream in = new FileInputStream(this);
+		try {
+			Streams.copy(in, out);
+		} finally {
+			in.close();
 		}
-		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 	}
 
 	@Override
 	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
+		/*
+		 * The input stream has to be processed to determine when to stop reading,
+		 * unlike serialize(...) which can just dump the file to the output stream
+		 */
 		FileOutputStream out = new FileOutputStream(this);
 		try {
 			for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
