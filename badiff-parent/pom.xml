@@ -52,4 +52,17 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<url>http://badiff.org/</url>
+	<description>byte array diff</description>
+	<scm>
+		<url>git@github.com:org-badiff/badiff.git</url>
+		<connection>scm:git:git@github.com:org-badiff/badiff.git</connection>
+		<developerConnection>scm:git:git@github.com:org-badiff/badiff.git</developerConnection>
+	</scm>
+	<licenses>
+		<license>
+			<name>New BSD License</name>
+			<url>http://badiff.org/license.txt</url>
+		</license>
+	</licenses>
 </project>
