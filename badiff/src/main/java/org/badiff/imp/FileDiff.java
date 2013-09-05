@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.ObjectStreamException;
 import java.io.OutputStream;
-import java.io.WriteAbortedException;
 import java.net.URI;
 import java.util.Iterator;
 
@@ -191,6 +189,7 @@ public abstract class FileDiff extends File implements Diff {
 		@Override
 		public void deserialize(Serialization serial, InputStream in)
 				throws IOException {
+			@SuppressWarnings("unchecked")
 			Class<? extends FileDiff> type = serial.readObject(in, Class.class);
 			try {
 				thiz = type.getConstructor(File.class).newInstance(File.createTempFile("FileOpQueue", ".tmp"));

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 
 import org.badiff.io.EmptyInputStream;
 import org.badiff.io.Serialization;
@@ -150,6 +149,7 @@ public class PatchOp implements FileApplyable, Serialized {
 	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
 		op = serial.readObject(in, Byte.class);
+		@SuppressWarnings("unchecked")
 		Class<? extends Diff> type = serial.readObject(in, Class.class);
 		if(type != null)
 			diff = serial.readObject(in, type);
