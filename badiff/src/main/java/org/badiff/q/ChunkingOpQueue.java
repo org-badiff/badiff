@@ -76,13 +76,13 @@ public class ChunkingOpQueue extends FilterOpQueue {
 			if(dpos < ddata.length) {
 				byte[] data = new byte[Math.min(chunk, ddata.length - dpos)];
 				System.arraycopy(ddata, dpos, data, 0, data.length);
-				pending.offerLast(new Op(Op.DELETE, data.length, data));
+				ready.offerLast(new Op(Op.DELETE, data.length, data));
 				dpos += data.length;
 			}
 			if(ipos < idata.length) {
 				byte[] data = new byte[Math.min(chunk, idata.length - ipos)];
 				System.arraycopy(idata, ipos, data, 0, data.length);
-				pending.offerLast(new Op(Op.INSERT, data.length, data));
+				ready.offerLast(new Op(Op.INSERT, data.length, data));
 				ipos += data.length;
 			}
 		}

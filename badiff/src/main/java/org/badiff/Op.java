@@ -89,7 +89,7 @@ public class Op implements Applyable, Serialized {
 			int count = run;
 			byte[] buf = new byte[Math.min(count, 8192)];
 			int r;
-			for(r = orig.read(buf, 0, count); r != -1 && count > 0; r = orig.read(buf, 0, count)) {
+			for(r = orig.read(buf, 0, count); r != -1; r = orig.read(buf, 0, count)) {
 				target.write(buf, 0, r);
 				count -= r;
 				if(count == 0)
