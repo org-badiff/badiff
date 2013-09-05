@@ -42,7 +42,7 @@ public class GraphOpQueueTest {
 		
 		System.out.println("Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");
 
-/*
+
 		byte[] tbuf = target.toByteArray();
 		byte[] rbuf = result.toByteArray();
 		
@@ -52,7 +52,7 @@ public class GraphOpQueueTest {
 		q = new CoalescingOpQueue(q);
 		List<Op> rdiff = q.drainTo(new ArrayList<Op>());
 		System.out.println(rdiff);
-*/		
+		
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}
 
