@@ -45,6 +45,11 @@ public class DiffOp implements Applyable, Serialized {
 	 */
 	private byte[] data;
 	
+	/*
+	 * Required for deserialization
+	 */
+	public DiffOp() {}
+	
 	/**
 	 * Create a new {@link DiffOp}
 	 * @param op

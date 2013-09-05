@@ -1,5 +1,7 @@
 package org.badiff.io;
 
+import java.io.DataInput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
@@ -9,17 +11,21 @@ import java.io.ObjectInput;
  * @author robin
  *
  */
-public class ObjectInputInputStream extends InputStream {
+public class DataInputInputStream extends InputStream {
 	
-	protected ObjectInput in;
+	protected DataInput in;
 
-	public ObjectInputInputStream(ObjectInput in) {
+	public DataInputInputStream(DataInput in) {
 		this.in = in;
 	}
 
 	@Override
 	public int read() throws IOException {
-		return in.read();
+		try {
+			return 0xff & in.readByte();
+		} catch(EOFException eof) {
+			return -1;
+		}
 	}
 
 }

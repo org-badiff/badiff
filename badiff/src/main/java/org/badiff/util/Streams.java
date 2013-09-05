@@ -1,13 +1,15 @@
 package org.badiff.util;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
 
-import org.badiff.io.ObjectInputInputStream;
-import org.badiff.io.ObjectOutputOutputStream;
+import org.badiff.io.DataInputInputStream;
+import org.badiff.io.DataOutputOutputStream;
 
 /**
  * Utility methods for dealing with streams
@@ -56,10 +58,10 @@ public class Streams {
 	 * @param out
 	 * @return
 	 */
-	public static OutputStream asStream(ObjectOutput out) {
+	public static OutputStream asStream(DataOutput out) {
 		if(out instanceof OutputStream)
 			return (OutputStream) out;
-		return new ObjectOutputOutputStream(out);
+		return new DataOutputOutputStream(out);
 	}
 	
 	/**
@@ -67,10 +69,10 @@ public class Streams {
 	 * @param in
 	 * @return
 	 */
-	public static InputStream asStream(ObjectInput in) {
+	public static InputStream asStream(DataInput in) {
 		if(in instanceof InputStream)
 			return (InputStream) in;
-		return new ObjectInputInputStream(in);
+		return new DataInputInputStream(in);
 	}
 	
 	private Streams() {}

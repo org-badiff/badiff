@@ -1,5 +1,6 @@
 package org.badiff.io;
 
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
@@ -9,11 +10,11 @@ import java.io.OutputStream;
  * @author robin
  *
  */
-public class ObjectOutputOutputStream extends OutputStream {
+public class DataOutputOutputStream extends OutputStream {
 
-	protected ObjectOutput out;
+	protected DataOutput out;
 	
-	public ObjectOutputOutputStream(ObjectOutput out) {
+	public DataOutputOutputStream(DataOutput out) {
 		this.out = out;
 	}
 

@@ -5,15 +5,14 @@ import java.io.IOException;
 
 import org.badiff.imp.MemoryDiff;
 import org.badiff.imp.MemoryPatch;
+import org.badiff.io.DefaultSerialization;
 import org.badiff.io.JdkSerialization;
 import org.badiff.io.Serialization;
 import org.badiff.util.Serials;
 
 /**
- * Utilities for dealing with {@link Diff}s and {@link Patch}es as {@code byte[]}.<p>
+ * Utilities for dealing with {@link Diff}s and {@link Patch}es as {@code byte[]}.
  * 
- * No-arg constructor uses {@link JdkSerialization} for conversion to/from {@code byte[]}.
- * This isn't very efficient.  Consider using a module's serializer, such as KryoSerialization.
  * @author robin
  *
  */
@@ -28,7 +27,7 @@ public class ByteArrayDiff {
 	 * Create a new {@link ByteArrayDiff} utilities instance
 	 */
 	public ByteArrayDiff() {
-		this(JdkSerialization.getInstance());
+		this(DefaultSerialization.getInstance());
 	}
 	
 	/**
