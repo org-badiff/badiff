@@ -8,17 +8,12 @@ import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Diffs;
 
+/**
+ * Utility methods that produce {@link MemoryDiff} objects
+ * @author robin
+ *
+ */
 public class MemoryDiffs {
-
-	protected Serialization serial;
-	
-	public MemoryDiffs() {
-		this(DefaultSerialization.getInstance());
-	}
-	
-	public MemoryDiffs(Serialization serial) {
-		this.serial = serial;
-	}
 
 	/**
 	 * Compute and return a diff between {@code orig} and {@code target}
@@ -26,7 +21,7 @@ public class MemoryDiffs {
 	 * @param target
 	 * @return
 	 */
-	public MemoryDiff diff(byte[] orig, byte[] target) {
+	public static MemoryDiff diff(byte[] orig, byte[] target) {
 		return new MemoryDiff(Diffs.improved(Diffs.queue(orig, target)));
 	}
 	
@@ -36,7 +31,7 @@ public class MemoryDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] apply(byte[] orig, Diff diff) {
+	public static byte[] apply(byte[] orig, Diff diff) {
 		return Diffs.apply(diff, orig);
 	}
 	
@@ -46,7 +41,7 @@ public class MemoryDiffs {
 	 * @param target
 	 * @return
 	 */
-	public MemoryDiff udiff(byte[] orig, byte[] target) {
+	public static MemoryDiff udiff(byte[] orig, byte[] target) {
 		return new MemoryDiff(new OneWayOpQueue(Diffs.improved(Diffs.queue(orig, target))));
 	}
 	
@@ -56,7 +51,7 @@ public class MemoryDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] undo(byte[] target, Diff diff) throws IOException {
+	public static byte[] undo(byte[] target, Diff diff) throws IOException {
 		return Diffs.apply(new UndoOpQueue(diff.queue()), target);
 	}
 	
@@ -65,7 +60,7 @@ public class MemoryDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public MemoryDiff udiff(Diff diff) throws IOException {
+	public static MemoryDiff udiff(Diff diff) throws IOException {
 		return new MemoryDiff(new OneWayOpQueue(diff.queue()));
 	}
 	
@@ -74,8 +69,9 @@ public class MemoryDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public MemoryDiff undo(Diff diff) throws IOException {
+	public static MemoryDiff undo(Diff diff) throws IOException {
 		return new MemoryDiff(new UndoOpQueue(diff.queue()));
 	}
 
+	private MemoryDiffs() {}
 }

@@ -31,10 +31,8 @@ public class FileDiffsTest {
 		
 		random.close();
 		
-		FileDiffs util = new FileDiffs();
-		
 		long start = System.nanoTime();
-		FileDiff fd = util.mdiff(orig, target);
+		FileDiff fd = FileDiffs.mdiff(orig, target);
 		long end = System.nanoTime();
 		
 		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");

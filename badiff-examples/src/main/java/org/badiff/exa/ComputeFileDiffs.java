@@ -25,7 +25,7 @@ public class ComputeFileDiffs {
 			return;
 		diff = chooser.getSelectedFile();
 		
-		FileDiff computed = new FileDiffs().diff(orig, target);
+		FileDiff computed = FileDiffs.diff(orig, target);
 		
 		diff.delete();
 		computed.renameTo(diff);

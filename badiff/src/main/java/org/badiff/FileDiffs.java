@@ -21,34 +21,14 @@ import org.badiff.util.Diffs;
  *
  */
 public class FileDiffs {
-
-	/**
-	 * The {@link Serialization} for persistence
-	 */
-	protected Serialization serial;
 	
-	/**
-	 * Create a new {@link FileDiffs} utilities instance
-	 */
-	public FileDiffs() {
-		this(DefaultSerialization.getInstance());
-	}
-	
-	/**
-	 * Create a new {@link FileDiffs} utilities instance with a specified {@link Serialization}
-	 * @param serial
-	 */
-	public FileDiffs(Serialization serial) {
-		this.serial = serial;
-	}
-
 	/**
 	 * Compute and return a diff between {@code orig} and {@code target}
 	 * @param orig
 	 * @param target
 	 * @return
 	 */
-	public FileDiff diff(File orig, File target) throws IOException {
+	public static FileDiff diff(File orig, File target) throws IOException {
 		FileDiff fd = new FileDiff(File.createTempFile(orig.getName(), ".diff"));
 		InputStream oin = new FileInputStream(orig);
 		try {
@@ -72,7 +52,7 @@ public class FileDiffs {
 	 * @return
 	 * @throws IOException
 	 */
-	public FileDiff mdiff(File orig, File target) throws IOException {
+	public static FileDiff mdiff(File orig, File target) throws IOException {
 		FileDiff fd = new FileDiff(File.createTempFile(orig.getName(), ".diff"));
 		FileInputStream oin = new FileInputStream(orig);
 		try {
@@ -96,7 +76,7 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public File apply(File orig, Diff diff) throws IOException {
+	public static File apply(File orig, Diff diff) throws IOException {
 		File target = File.createTempFile(orig.getName(), ".target");
 		Diffs.apply(diff, orig, target);
 		return target;
@@ -108,7 +88,7 @@ public class FileDiffs {
 	 * @param target
 	 * @return
 	 */
-	public FileDiff udiff(File orig, File target) throws IOException {
+	public static FileDiff udiff(File orig, File target) throws IOException {
 		FileDiff fd = new FileDiff(File.createTempFile(orig.getName(), ".udiff"));
 		InputStream oin = new FileInputStream(orig);
 		try {
@@ -130,7 +110,7 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public File undo(File target, Diff diff) throws IOException {
+	public static File undo(File target, Diff diff) throws IOException {
 		File orig = File.createTempFile(target.getName(), ".orig");
 		Diffs.apply(new UndoOpQueue(diff.queue()), target, orig);
 		return orig;
@@ -141,7 +121,7 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public FileDiff udiff(Diff diff) throws IOException {
+	public static FileDiff udiff(Diff diff) throws IOException {
 		FileDiff ud = new FileDiff(File.createTempFile("udiff", ".udiff"));
 		ud.store(new OneWayOpQueue(diff.queue()));
 		return ud;
@@ -152,9 +132,11 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public FileDiff undo(Diff diff) throws IOException {
+	public static FileDiff undo(Diff diff) throws IOException {
 		FileDiff ud = new FileDiff(File.createTempFile("undo", ".undo"));
 		ud.store(new UndoOpQueue(diff.queue()));
 		return ud;
 	}
+	
+	private FileDiffs() {}
 }
