@@ -17,6 +17,7 @@ import org.badiff.imp.MemoryDiff;
 import org.badiff.imp.MemoryPatch;
 import org.badiff.util.Streams;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultSerialization implements Serialization {
 	
 	private static DefaultSerialization instance = new DefaultSerialization();
@@ -38,8 +39,9 @@ public class DefaultSerialization implements Serialization {
 		public abstract T read(DataInput in) throws IOException;
 	}
 
-	private static List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
-	static {
+	private List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
+	
+	private DefaultSerialization() {
 		serializers.add(new Serializer<Class>(Class.class) {
 
 			@Override
@@ -185,10 +187,7 @@ public class DefaultSerialization implements Serialization {
 				return op;
 			}
 		});
-
 	}
-	
-	private DefaultSerialization() {}
 	
 	@Override
 	public <T> void writeObject(OutputStream out, Class<T> type, T object)
@@ -201,6 +200,7 @@ public class DefaultSerialization implements Serialization {
 		}
 		throw new NotSerializableException(type.getName());
 	}
+
 	@Override
 	public <T> T readObject(InputStream in, Class<T> type) throws IOException {
 		for(Serializer s : serializers) {
