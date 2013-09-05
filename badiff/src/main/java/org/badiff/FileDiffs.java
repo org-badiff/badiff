@@ -67,7 +67,7 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public File apply(File orig, FileDiff diff) throws IOException {
+	public File apply(File orig, Diff diff) throws IOException {
 		File target = File.createTempFile(orig.getName(), ".target");
 		Diffs.apply(diff, orig, target);
 		return target;
@@ -101,7 +101,7 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public File undo(File target, FileDiff diff) throws IOException {
+	public File undo(File target, Diff diff) throws IOException {
 		File orig = File.createTempFile(target.getName(), ".orig");
 		Diffs.apply(new UndoOpQueue(diff.queue()), target, orig);
 		return target;
@@ -112,8 +112,8 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public FileDiff udiff(FileDiff diff) throws IOException {
-		FileDiff ud = new FileDiff(File.createTempFile(diff.getName(), ".udiff"));
+	public FileDiff udiff(Diff diff) throws IOException {
+		FileDiff ud = new FileDiff(File.createTempFile("udiff", ".udiff"));
 		ud.store(new OneWayOpQueue(diff.queue()));
 		return ud;
 	}
@@ -123,8 +123,8 @@ public class FileDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public FileDiff undo(FileDiff diff) throws IOException {
-		FileDiff ud = new FileDiff(File.createTempFile(diff.getName(), ".udiff"));
+	public FileDiff undo(Diff diff) throws IOException {
+		FileDiff ud = new FileDiff(File.createTempFile("undo", ".undo"));
 		ud.store(new UndoOpQueue(diff.queue()));
 		return ud;
 	}
