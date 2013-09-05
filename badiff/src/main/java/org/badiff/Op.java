@@ -12,7 +12,7 @@ import org.badiff.io.Serialized;
  * @author robin
  *
  */
-public class DiffOp implements Applyable, Serialized {
+public class Op implements Applyable, Serialized {
 	private static final long serialVersionUID = 0;
 	
 	/**
@@ -48,15 +48,15 @@ public class DiffOp implements Applyable, Serialized {
 	/*
 	 * Required for deserialization
 	 */
-	public DiffOp() {}
+	public Op() {}
 	
 	/**
-	 * Create a new {@link DiffOp}
+	 * Create a new {@link Op}
 	 * @param op
 	 * @param run
 	 * @param data
 	 */
-	public DiffOp(byte op, int run, byte[] data) {
+	public Op(byte op, int run, byte[] data) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
 		if(run < 0 || data != null && run > data.length)

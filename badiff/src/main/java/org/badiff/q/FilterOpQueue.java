@@ -1,6 +1,6 @@
 package org.badiff.q;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
  * {@link OpQueue} that draws its pending elements from another wrapped {@link OpQueue}
@@ -26,7 +26,7 @@ public class FilterOpQueue extends OpQueue {
 	 * Offers the element to the wrapped {@link OpQueue}
 	 */
 	@Override
-	public boolean offer(DiffOp e) {
+	public boolean offer(Op e) {
 		return source.offer(e);
 	}
 	
@@ -49,7 +49,7 @@ public class FilterOpQueue extends OpQueue {
 	 * @return
 	 */
 	protected boolean shiftPending() {
-		DiffOp e = source.poll();
+		Op e = source.poll();
 		if(e != null)
 			pending.offerLast(e);
 		return e != null;

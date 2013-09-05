@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.badiff.Diff;
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.io.RuntimeIOException;
 
 /**
@@ -31,8 +31,8 @@ public class StreamChunkingOpQueue extends OpQueue {
 	/**
 	 * Create an {@link OpQueue} lazily populated with alternating chunks of data read
 	 * from the streams.
-	 * @param orig The source of {@link DiffOp#DELETE} chunks
-	 * @param target The source of {@link DiffOp#INSERT} chunks
+	 * @param orig The source of {@link Op#DELETE} chunks
+	 * @param target The source of {@link Op#INSERT} chunks
 	 * @param chunk
 	 */
 	public StreamChunkingOpQueue(InputStream orig, InputStream target, int chunk) {
@@ -51,9 +51,9 @@ public class StreamChunkingOpQueue extends OpQueue {
 			byte[] tbuf = readChunk(target);
 			
 			if(obuf != null)
-				pending.offerLast(new DiffOp(DiffOp.DELETE, obuf.length, obuf));
+				pending.offerLast(new Op(Op.DELETE, obuf.length, obuf));
 			if(tbuf != null)
-				pending.offerLast(new DiffOp(DiffOp.INSERT, tbuf.length, tbuf));
+				pending.offerLast(new Op(Op.INSERT, tbuf.length, tbuf));
 		}
 		super.shift();
 	}

@@ -8,11 +8,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.alg.Graph;
 
 /**
- * {@link OpQueue} that locates pairs of ({@link DiffOp#DELETE},{@link DiffOp#INSERT}) and
+ * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
  * applies {@link Graph} to them, in parallel.  This {@link OpQueue} is <b>PARTIALLY LAZY</b>.
  * Partially lazy means that it will eagerly draw elements until all worker threads are active
  * any time a lazy element request is made.
@@ -64,25 +64,25 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	protected void filter() {
 		// only do anything if there are inactive threads
 		while(pool.getActiveCount() < pool.getCorePoolSize()) {
-			DiffOp e = input.poll();
+			Op e = input.poll();
 			if(e == null) { 
 				// ran out of input, so we can shutdown the pool
 				pool.shutdown();
 				break;
 			}
 			// look for DELETE,INSERT
-			if(e.getOp() != DiffOp.DELETE) {
+			if(e.getOp() != Op.DELETE) {
 				chain().getChain().peekLast().offer(e);
 				continue;
 			}
-			final DiffOp delete = e;
+			final Op delete = e;
 			e = input.poll();
-			if(e.getOp() != DiffOp.INSERT) {
+			if(e.getOp() != Op.INSERT) {
 				chain().getChain().peekLast().offer(delete);
 				chain().getChain().peekLast().offer(e);
 				continue;
 			}
-			final DiffOp insert = e;
+			final Op insert = e;
 			
 			// construct a task and submit it to the pool
 			Callable<OpQueue> task = new Callable<OpQueue>() {
@@ -90,7 +90,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 				public OpQueue call() throws Exception {
 					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
 					graphed = new GraphOpQueue(graphed, graphs.get());
-					List<DiffOp> ops = new ArrayList<DiffOp>();
+					List<Op> ops = new ArrayList<Op>();
 					graphed.drainTo(ops);
 					graphed = new ListOpQueue(ops);
 					return graphed;

@@ -23,11 +23,11 @@ public interface Diff extends Applyable {
 	 * @param ops
 	 * @throws IOException
 	 */
-	public void store(Iterator<DiffOp> ops) throws IOException;
+	public void store(Iterator<Op> ops) throws IOException;
 	
 	/**
 	 * Return a copy of this {@link Diff}'s operations.  This copy may
-	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(DiffOp)}'d to.
+	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(Op)}'d to.
 	 * @return
 	 * @throws IOException
 	 */

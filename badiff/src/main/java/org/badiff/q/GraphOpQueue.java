@@ -1,10 +1,10 @@
 package org.badiff.q;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.alg.Graph;
 
 /**
- * {@link OpQueue} that replaces ({@link DiffOp#DELETE},{@link DiffOp#INSERT}) pairs
+ * {@link OpQueue} that replaces ({@link Op#DELETE},{@link Op#INSERT}) pairs
  * with their {@link Graph}'d equivalents
  * @author robin
  *
@@ -26,20 +26,20 @@ public class GraphOpQueue extends FilterOpQueue {
 	protected void filter() {
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		if(pending.peekFirst().getOp() != DiffOp.DELETE)
+		if(pending.peekFirst().getOp() != Op.DELETE)
 			return;
 		if(pending.size() == 1 && !shiftPending())
 			return;
 		
-		DiffOp delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != DiffOp.INSERT) {
+		Op delete = pending.pollFirst();
+		if(pending.peekFirst().getOp() != Op.INSERT) {
 			pending.offerFirst(delete);
 			return;
 		}
-		DiffOp insert = pending.pollFirst();
+		Op insert = pending.pollFirst();
 		
 		graph.compute(delete.getData(), insert.getData());
-		for(DiffOp e : graph.rlist())
+		for(Op e : graph.rlist())
 			pending.offerFirst(e);
 	}
 		

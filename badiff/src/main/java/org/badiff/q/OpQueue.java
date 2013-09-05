@@ -10,16 +10,16 @@ import java.util.List;
 
 import org.badiff.Applyable;
 import org.badiff.Diff;
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
- * A unidirectional double-buffering queue of {@link DiffOp}.
- * Contains internally two {@link Deque} of {@link DiffOp}: {@link #ready}
+ * A unidirectional double-buffering queue of {@link Op}.
+ * Contains internally two {@link Deque} of {@link Op}: {@link #ready}
  * and {@link #pending}.  Calls to {@link #poll()} draw from {@link #ready}
  * unless it is empty, in which case they call {@link #shift()} to move
  * an element from {@link #pending} to {@link #ready}.<p>
  * 
- * {@link OpQueue} also implements {@link Iterator}.  Don't mix the {@link #poll()} and {@link #offer(DiffOp)}
+ * {@link OpQueue} also implements {@link Iterator}.  Don't mix the {@link #poll()} and {@link #offer(Op)}
  * methods with the {@link Iterator} methods.<p>
  * 
  * {@link OpQueue} instances are <b>lazy sequences</b>, and will instantiate
@@ -27,28 +27,28 @@ import org.badiff.DiffOp;
  * @author robin
  *
  */
-public class OpQueue implements Applyable, Iterator<DiffOp> {
+public class OpQueue implements Applyable, Iterator<Op> {
 
 	/**
-	 * The next {@link DiffOp} to be returned by the iterator.
+	 * The next {@link Op} to be returned by the iterator.
 	 */
-	protected DiffOp iterNext;
+	protected Op iterNext;
 	/**
-	 * The {@link DiffOp}s which are ready to be {@link #poll()}ed
+	 * The {@link Op}s which are ready to be {@link #poll()}ed
 	 */
-	protected Deque<DiffOp> ready = new ArrayDeque<DiffOp>();
+	protected Deque<Op> ready = new ArrayDeque<Op>();
 	/**
-	 * The {@link DiffOp}s which are ready to be {@link #shift()}ed
+	 * The {@link Op}s which are ready to be {@link #shift()}ed
 	 */
-	protected Deque<DiffOp> pending = new ArrayDeque<DiffOp>();
+	protected Deque<Op> pending = new ArrayDeque<Op>();
 
 	/**
-	 * Draw the next {@link DiffOp} from this {@link OpQueue}, returning
+	 * Draw the next {@link Op} from this {@link OpQueue}, returning
 	 * null if this {@link OpQueue} is empty.
 	 * @return
 	 */
-	public DiffOp poll() {
-		DiffOp e = ready.pollFirst();
+	public Op poll() {
+		Op e = ready.pollFirst();
 		if(e == null) {
 			shift();
 			e = ready.pollFirst();
@@ -57,38 +57,38 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	}
 	
 	/**
-	 * Place a {@link DiffOp} in {@link #pending}
+	 * Place a {@link Op} in {@link #pending}
 	 * @param e
 	 * @return
 	 */
-	public boolean offer(DiffOp e) {
+	public boolean offer(Op e) {
 		return pending.offerLast(e);
 	}
 	
 	/**
-	 * Drain all the {@link DiffOp}s in this object to a {@link List}
+	 * Drain all the {@link Op}s in this object to a {@link List}
 	 * @param c
 	 * @return
 	 */
-	public <T extends List<DiffOp>> T drainTo(T c) {
-		for(DiffOp e = poll(); e != null; e = poll())
+	public <T extends List<Op>> T drainTo(T c) {
+		for(Op e = poll(); e != null; e = poll())
 			c.add(e);
 		return c;
 	}
 	
 	/**
-	 * Drain all the {@link DiffOp}s in this object to another {@link OpQueue}
+	 * Drain all the {@link Op}s in this object to another {@link OpQueue}
 	 * @param q
 	 * @return
 	 */
 	public <T extends OpQueue> T drainTo(T q) {
-		for(DiffOp e = poll(); e != null; e = poll())
+		for(Op e = poll(); e != null; e = poll())
 			q.offer(e);
 		return q;
 	}
 	
 	/**
-	 * Overwrite the argument {@link Diff} with the remaining {@link DiffOp}s in this object.
+	 * Overwrite the argument {@link Diff} with the remaining {@link Op}s in this object.
 	 * Calls {@link Diff#store(Iterator)} with this object as the argument.
 	 * @param diff
 	 * @return
@@ -100,7 +100,7 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	}
 	
 	/**
-	 * Called when a {@link DiffOp} should be moved from {@link #pending} to {@link #ready}.
+	 * Called when a {@link Op} should be moved from {@link #pending} to {@link #ready}.
 	 * Override this method to provide lazy sequences that populate {@link #pending} on demand.
 	 */
 	protected void shift() {
@@ -109,11 +109,11 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	}
 	
 	/**
-	 * Actually moves a {@link DiffOp} from {@link #pending} to {@link #ready}
+	 * Actually moves a {@link Op} from {@link #pending} to {@link #ready}
 	 * @return
 	 */
 	protected boolean shiftReady() {
-		DiffOp e = pending.pollFirst();
+		Op e = pending.pollFirst();
 		if(e != null)
 			ready.offerLast(e);
 		return e != null;
@@ -122,7 +122,7 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	@Override
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
-		for(DiffOp e = poll(); e != null; e = poll())
+		for(Op e = poll(); e != null; e = poll())
 			e.apply(orig, target);
 	}
 
@@ -134,7 +134,7 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	}
 
 	@Override
-	public DiffOp next() {
+	public Op next() {
 		if(iterNext == null)
 			iterNext = poll();
 		try {

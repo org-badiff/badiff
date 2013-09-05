@@ -2,7 +2,7 @@ package org.badiff.q;
 
 import java.util.List;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
  * {@link OpQueue} that initially populates its {@link OpQueue#pending}
@@ -17,8 +17,8 @@ public class ListOpQueue extends OpQueue {
 	 * from the argument list
 	 * @param ops
 	 */
-	public ListOpQueue(List<DiffOp> ops) {
-		for(DiffOp e : ops)
+	public ListOpQueue(List<Op> ops) {
+		for(Op e : ops)
 			super.offer(e);
 	}
 

@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.Iterator;
 
 import org.badiff.Diff;
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
@@ -63,7 +63,7 @@ public abstract class FileDiff extends File implements Diff {
 		try {
 			long count = serialization().readObject(self, Long.class);
 			for(long i = 0; i < count; i++)
-				serialization().readObject(self, DiffOp.class).apply(orig, target);
+				serialization().readObject(self, Op.class).apply(orig, target);
 		} finally { 
 			self.close();
 		}
@@ -75,7 +75,7 @@ public abstract class FileDiff extends File implements Diff {
 	}
 	
 	@Override
-	public void store(Iterator<DiffOp> ops) throws IOException {
+	public void store(Iterator<Op> ops) throws IOException {
 		write(ops);
 	}
 	
@@ -85,14 +85,14 @@ public abstract class FileDiff extends File implements Diff {
 	 * @return The number of operations written
 	 * @throws IOException
 	 */
-	public long write(Iterator<DiffOp> q) throws IOException {
+	public long write(Iterator<Op> q) throws IOException {
 		long count = 0;
 		File tmp = File.createTempFile(getName(), ".tmp");
 		
 		FileOutputStream out = new FileOutputStream(tmp);
 		while(q.hasNext()) {
-			DiffOp e = q.next();
-			serialization().writeObject(out, DiffOp.class, e);
+			Op e = q.next();
+			serialization().writeObject(out, Op.class, e);
 			count++;
 		}
 		out.close();
@@ -133,7 +133,7 @@ public abstract class FileDiff extends File implements Diff {
 		}
 		
 		@Override
-		public boolean offer(DiffOp e) {
+		public boolean offer(Op e) {
 			throw new UnsupportedOperationException();
 		}
 		
@@ -141,7 +141,7 @@ public abstract class FileDiff extends File implements Diff {
 		protected void shift() {
 			if(!closed && i < count) {
 				try {
-					super.offer(thiz.serialization().readObject(self, DiffOp.class));
+					super.offer(thiz.serialization().readObject(self, Op.class));
 					i++;
 				} catch(IOException ioe) {
 					close();

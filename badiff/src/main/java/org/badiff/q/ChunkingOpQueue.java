@@ -1,15 +1,15 @@
 package org.badiff.q;
 
 import org.badiff.Diff;
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.alg.Graph;
 
 /**
  * {@link OpQueue} that lazily chunks pairs of pending
- * DiffOp's with the types ({@link DiffOp#DELETE},{@link DiffOp#INSERT}).
+ * DiffOp's with the types ({@link Op#DELETE},{@link Op#INSERT}).
  * Chunking means removing the two pending operations and replacing them
- * with alternating {@link DiffOp#DELETE} and {@link DiffOp#INSERT} operations
- * whose {@link DiffOp#getRun()} length is no greater than the chunk size.<p>
+ * with alternating {@link Op#DELETE} and {@link Op#INSERT} operations
+ * whose {@link Op#getRun()} length is no greater than the chunk size.<p>
  * 
  * Chunking is used primarily to pre-process input to other algorithms,
  * such as {@link Graph}, into manageable sizes.
@@ -50,17 +50,17 @@ public class ChunkingOpQueue extends FilterOpQueue {
 			return;
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		if(pending.peekFirst().getOp() != DiffOp.DELETE)
+		if(pending.peekFirst().getOp() != Op.DELETE)
 			return;
 		if(pending.size() == 1 && !shiftPending())
 			return;
 		
-		DiffOp delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != DiffOp.INSERT) {
+		Op delete = pending.pollFirst();
+		if(pending.peekFirst().getOp() != Op.INSERT) {
 			pending.offerFirst(delete);
 			return;
 		}
-		DiffOp insert = pending.pollFirst();
+		Op insert = pending.pollFirst();
 		
 		/*
 		 * Chunk the delete and insert
@@ -76,13 +76,13 @@ public class ChunkingOpQueue extends FilterOpQueue {
 			if(dpos < ddata.length) {
 				byte[] data = new byte[Math.min(chunk, ddata.length - dpos)];
 				System.arraycopy(ddata, dpos, data, 0, data.length);
-				pending.offerLast(new DiffOp(DiffOp.DELETE, data.length, data));
+				pending.offerLast(new Op(Op.DELETE, data.length, data));
 				dpos += data.length;
 			}
 			if(ipos < idata.length) {
 				byte[] data = new byte[Math.min(chunk, idata.length - ipos)];
 				System.arraycopy(idata, ipos, data, 0, data.length);
-				pending.offerLast(new DiffOp(DiffOp.INSERT, data.length, data));
+				pending.offerLast(new Op(Op.INSERT, data.length, data));
 				ipos += data.length;
 			}
 		}

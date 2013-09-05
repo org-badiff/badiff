@@ -1,9 +1,9 @@
 package org.badiff.q;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
- * {@link OpQueue} that strips the {@link DiffOp#getData()} from {@link DiffOp#DELETE}s
+ * {@link OpQueue} that strips the {@link Op#getData()} from {@link Op#DELETE}s
  * @author robin
  *
  */
@@ -19,9 +19,9 @@ public class OneWayOpQueue extends FilterOpQueue {
 			return;
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		DiffOp e = pending.pollFirst();
-		if(e.getOp() == DiffOp.DELETE)
-			e = new DiffOp(DiffOp.DELETE, e.getRun(), null);
+		Op e = pending.pollFirst();
+		if(e.getOp() == Op.DELETE)
+			e = new Op(Op.DELETE, e.getRun(), null);
 		ready.offerLast(e);
 	}
 

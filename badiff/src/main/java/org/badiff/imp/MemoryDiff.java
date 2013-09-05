@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.badiff.Diff;
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.q.ListOpQueue;
@@ -16,24 +16,24 @@ import org.badiff.q.OpQueue;
 
 /**
  * Implementation of {@link Diff} that lives entirely in memory, backed
- * by a {@link List} of {@link DiffOp}.
+ * by a {@link List} of {@link Op}.
  * @author robin
  *
  */
 public class MemoryDiff implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 	
-	protected List<DiffOp> ops = new ArrayList<DiffOp>();
+	protected List<Op> ops = new ArrayList<Op>();
 
 	@Override
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
-		for(DiffOp e : ops)
+		for(Op e : ops)
 			e.apply(orig, target);
 	}
 
 	@Override
-	public void store(Iterator<DiffOp> ops) {
+	public void store(Iterator<Op> ops) {
 		this.ops.clear();
 		while(ops.hasNext())
 			this.ops.add(ops.next());
@@ -45,12 +45,12 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 
 	private class MemoryOpQueue extends ListOpQueue {
-		private MemoryOpQueue(List<DiffOp> ops) {
+		private MemoryOpQueue(List<Op> ops) {
 			super(ops);
 		}
 	
 		@Override
-		public boolean offer(DiffOp e) {
+		public boolean offer(Op e) {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -59,8 +59,8 @@ public class MemoryDiff implements Diff, Serialized {
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
 		serial.writeObject(out, Integer.class, ops.size());
-		for(DiffOp op : ops)
-			serial.writeObject(out, DiffOp.class, op);
+		for(Op op : ops)
+			serial.writeObject(out, Op.class, op);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class MemoryDiff implements Diff, Serialized {
 			throws IOException {
 		int size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++)
-			ops.add(serial.readObject(in, DiffOp.class));
+			ops.add(serial.readObject(in, Op.class));
 	}
 
 }

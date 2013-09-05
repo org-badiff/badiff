@@ -3,10 +3,10 @@ package org.badiff.q;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
- * {@link OpQueue} that draws its {@link DiffOp} elements
+ * {@link OpQueue} that draws its {@link Op} elements
  * from the head of a queue of other {@link OpQueue} instances,
  * discarding the head when it is emptied.  Lazy.
  * @author robin
@@ -54,7 +54,7 @@ public class ChainOpQueue extends OpQueue {
 		 * or the chain is empty.
 		 */
 		while(pending.size() == 0 && chain.size() > 0) {
-			DiffOp e = chain.peekFirst().poll();
+			Op e = chain.peekFirst().poll();
 			if(e == null) {
 				chain.pollFirst();
 				continue;

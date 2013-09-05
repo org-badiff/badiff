@@ -1,6 +1,6 @@
 package org.badiff.q;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 public class UndoOpQueue extends FilterOpQueue {
 
@@ -14,12 +14,12 @@ public class UndoOpQueue extends FilterOpQueue {
 			return;
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		DiffOp e = pending.pollFirst();
-		DiffOp u;
-		if(e.getOp() == DiffOp.DELETE)
-			u = new DiffOp(DiffOp.INSERT, e.getRun(), e.getData());
-		else if(e.getOp() == DiffOp.INSERT)
-			u = new DiffOp(DiffOp.DELETE, e.getRun(), e.getData());
+		Op e = pending.pollFirst();
+		Op u;
+		if(e.getOp() == Op.DELETE)
+			u = new Op(Op.INSERT, e.getRun(), e.getData());
+		else if(e.getOp() == Op.INSERT)
+			u = new Op(Op.DELETE, e.getRun(), e.getData());
 		else
 			u = e;
 		ready.offerLast(u);

@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.patch.MemoryPatch;
 import org.badiff.patch.PatchOp;
@@ -128,16 +128,16 @@ public class DefaultSerialization implements Serialization {
 			}
 		});
 		
-		serializers.add(new Serializer<DiffOp>(DiffOp.class) {
+		serializers.add(new Serializer<Op>(Op.class) {
 
 			@Override
-			public void write(DataOutput out, DiffOp obj) throws IOException {
+			public void write(DataOutput out, Op obj) throws IOException {
 				obj.serialize(getInstance(), Streams.asStream(out));
 			}
 
 			@Override
-			public DiffOp read(DataInput in) throws IOException {
-				DiffOp op = new DiffOp();
+			public Op read(DataInput in) throws IOException {
+				Op op = new Op();
 				op.deserialize(getInstance(), Streams.asStream(in));
 				return op;
 				 

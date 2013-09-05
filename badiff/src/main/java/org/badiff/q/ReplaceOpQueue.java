@@ -1,10 +1,10 @@
 package org.badiff.q;
 
-import org.badiff.DiffOp;
+import org.badiff.Op;
 
 /**
- * {@link OpQueue} that is pre-populated with two {@link DiffOp}s, one
- * to {@link DiffOp#DELETE} a {@code byte[]} and one to {@link DiffOp#INSERT}
+ * {@link OpQueue} that is pre-populated with two {@link Op}s, one
+ * to {@link Op#DELETE} a {@code byte[]} and one to {@link Op#INSERT}
  * a {@code byte[]}
  * @author robin
  *
@@ -12,14 +12,14 @@ import org.badiff.DiffOp;
 public class ReplaceOpQueue extends OpQueue {
 
 	/**
-	 * Create an {@link OpQueue} populated with a {@link DiffOp#DELETE}
-	 * and a {@link DiffOp#INSERT}
+	 * Create an {@link OpQueue} populated with a {@link Op#DELETE}
+	 * and a {@link Op#INSERT}
 	 * @param orig
 	 * @param target
 	 */
 	public ReplaceOpQueue(byte[] orig, byte[] target) {
-		offer(new DiffOp(DiffOp.DELETE, orig.length, orig));
-		offer(new DiffOp(DiffOp.INSERT, target.length, target));
+		offer(new Op(Op.DELETE, orig.length, orig));
+		offer(new Op(Op.INSERT, target.length, target));
 	}
 
 }
