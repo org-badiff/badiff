@@ -8,8 +8,6 @@ import org.badiff.Op;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
-import org.badiff.patch.MemoryPatch;
-import org.badiff.patch.PatchOp;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -29,9 +27,7 @@ public class KryoSerialization implements Serialization {
 		
 		kryo.register(byte[].class);
 		kryo.register(Op.class, new DiffOpSerializer());
-		kryo.register(PatchOp.class, new SerializedSerializer<PatchOp>());
 		kryo.register(MemoryDiff.class, new SerializedSerializer<MemoryDiff>());
-		kryo.register(MemoryPatch.class, new SerializedSerializer<MemoryPatch>());
 	}
 	
 	public KryoSerialization(Kryo kryo) {

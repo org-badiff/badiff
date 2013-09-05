@@ -15,8 +15,6 @@ import java.util.List;
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
 import org.badiff.imp.MemoryDiff;
-import org.badiff.patch.MemoryPatch;
-import org.badiff.patch.PatchOp;
 import org.badiff.util.Streams;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -178,37 +176,6 @@ public class DefaultSerialization implements Serialization {
 			}
 		});
 		
-		serializers.add(new Serializer<MemoryPatch>(MemoryPatch.class) {
-
-			@Override
-			public void write(DataOutput out, MemoryPatch obj)
-					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
-			}
-
-			@Override
-			public MemoryPatch read(DataInput in) throws IOException {
-				MemoryPatch mp = new MemoryPatch();
-				mp.deserialize(getInstance(), Streams.asStream(in));
-				return mp;
-			}
-		});
-
-		serializers.add(new Serializer<PatchOp>(PatchOp.class) {
-
-			@Override
-			public void write(DataOutput out, PatchOp obj)
-					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
-			}
-
-			@Override
-			public PatchOp read(DataInput in) throws IOException {
-				PatchOp op = new PatchOp();
-				op.deserialize(getInstance(), Streams.asStream(in));
-				return op;
-			}
-		});
 	}
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
