@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -71,10 +73,18 @@ public class ParallelGraphOpQueueTest {
 		
 		random.close();
 		
-		InputStream oin = new FileInputStream(orig);
-		InputStream tin = new FileInputStream(target);
+		System.out.println("Mapping input to RAM...");
 		
-		OpQueue q = new StreamChunkingOpQueue(oin, tin);
+		FileInputStream oin = new FileInputStream(orig);
+		FileInputStream tin = new FileInputStream(target);
+		
+		MappedByteBuffer obuf = oin.getChannel().map(MapMode.READ_ONLY, 0, orig.length());
+		MappedByteBuffer tbuf = oin.getChannel().map(MapMode.READ_ONLY, 0, target.length());
+		
+		obuf.load();
+		tbuf.load();
+		
+		OpQueue q = new BufferChunkingOpQueue(obuf, tbuf);
 		q = new ParallelGraphOpQueue(q);
 		
 		FileDiff fd = new FileDiff(File.createTempFile("filediff", ".diff"));
