@@ -42,6 +42,7 @@ public class CoalescingOpQueue extends FilterOpQueue {
 			// bump the pair into the ready queue
 			ready.offerLast(insert);
 			ready.offerLast(delete);
+			return;
 		}
 		if(pending.peekFirst().getOp() == Op.NEXT) {
 			if(pending.size() == 1 && !shiftPending())
@@ -54,6 +55,7 @@ public class CoalescingOpQueue extends FilterOpQueue {
 					break;
 			}
 			ready.offerLast(next);
+			return;
 		}
 	}
 
