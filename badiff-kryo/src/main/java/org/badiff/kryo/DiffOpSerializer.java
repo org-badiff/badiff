@@ -7,7 +7,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-public class OpSerializer extends Serializer<DiffOp> {
+public class DiffOpSerializer extends Serializer<DiffOp> {
 
 	@Override
 	public void write(Kryo kryo, Output output, DiffOp object) {

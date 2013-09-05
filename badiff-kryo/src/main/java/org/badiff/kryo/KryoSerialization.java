@@ -21,7 +21,7 @@ public class KryoSerialization extends Kryo implements Serialization {
 		
 		register(byte[].class);
 		
-		register(DiffOp.class, new OpSerializer());
+		register(DiffOp.class, new DiffOpSerializer());
 	}
 
 	@Override
