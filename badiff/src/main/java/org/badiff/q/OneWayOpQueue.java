@@ -2,6 +2,11 @@ package org.badiff.q;
 
 import org.badiff.DiffOp;
 
+/**
+ * {@link OpQueue} that strips the {@link DiffOp#getData()} from {@link DiffOp#DELETE}s
+ * @author robin
+ *
+ */
 public class OneWayOpQueue extends FilterOpQueue {
 
 	public OneWayOpQueue(OpQueue source) {

@@ -7,6 +7,7 @@ import org.badiff.imp.MemoryDiff;
 import org.badiff.imp.MemoryPatch;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
+import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Serials;
 
@@ -60,6 +61,18 @@ public class ByteArrayDiffs {
 		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
 		return Diffs.apply(md, orig);
 	}
+
+	/**
+	 * Compute and return a one-way (unidirectional) diff from {@code orig} to {@code target}
+	 * @param orig
+	 * @param target
+	 * @return
+	 */
+	public byte[] udiff(byte[] orig, byte[] target) {
+		MemoryDiff md = new MemoryDiff();
+		md.store(new OneWayOpQueue(Diffs.improved(Diffs.queue(orig, target))));
+		return Serials.serialize(serial, MemoryDiff.class, md);
+	}
 	
 	/**
 	 * Apply the inverse of {@code diff} to {@code target} and return the result
@@ -70,6 +83,28 @@ public class ByteArrayDiffs {
 	public byte[] undo(byte[] target, byte[] diff) {
 		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
 		return Diffs.apply(new UndoOpQueue(md.queue()), target);
+	}
+
+	/**
+	 * Compute and return a one-way (unidirectional) diff given any diff
+	 * @param diff
+	 * @return
+	 */
+	public byte[] udiff(byte[] diff) {
+		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+		md.store(new OneWayOpQueue(md.queue()));
+		return Serials.serialize(serial, MemoryDiff.class, md);
+	}
+	
+	/**
+	 * Compute and return an "undo" diff from a two-way diff
+	 * @param diff
+	 * @return
+	 */
+	public byte[] undo(byte[] diff) {
+		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+		md.store(new UndoOpQueue(md.queue()));
+		return Serials.serialize(serial, MemoryDiff.class, md);
 	}
 
 }
