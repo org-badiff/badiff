@@ -98,6 +98,9 @@ public class ParallelGraphOpQueueTest {
 		
 		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");
 		
+		tin.close();
+		oin.close();
+		
 		fd.delete();
 		orig.delete();
 		target.delete();
