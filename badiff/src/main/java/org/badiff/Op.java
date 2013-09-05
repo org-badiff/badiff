@@ -119,7 +119,8 @@ public class Op implements Applyable, Serialized {
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
 		serial.writeObject(out, Byte.class, op);
-		serial.writeObject(out, Integer.class, run);
+		if(op != STOP)
+			serial.writeObject(out, Integer.class, run);
 		if(op == INSERT || op == DELETE)
 			serial.writeObject(out, byte[].class, data);
 	}
@@ -128,7 +129,8 @@ public class Op implements Applyable, Serialized {
 	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
 		op = serial.readObject(in, Byte.class);
-		run = serial.readObject(in, Integer.class);
+		if(op != STOP)
+			run = serial.readObject(in, Integer.class);
 		if(op == INSERT || op == DELETE)
 			data = serial.readObject(in, byte[].class);
 	}
