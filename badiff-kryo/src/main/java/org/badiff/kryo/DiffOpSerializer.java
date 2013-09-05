@@ -17,10 +17,6 @@ public class DiffOpSerializer extends Serializer<DiffOp> {
 			kryo.writeObject(output, object.getData());
 		if(object.getOp() == DiffOp.DELETE) {
 			byte[] data = object.getData();
-			@SuppressWarnings("unchecked")
-			boolean strip = kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
-			if(strip)
-				data = null;
 			kryo.writeObjectOrNull(output, data, byte[].class);
 		}
 	}

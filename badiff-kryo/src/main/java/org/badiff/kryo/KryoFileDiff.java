@@ -37,15 +37,6 @@ public class KryoFileDiff extends FileDiff {
 		return kryo;
 	}
 	
-	public KryoFileDiff stripDeletes(boolean strip) {
-		kryo.stripDeletes(strip);
-		return this;
-	}
-
-	public boolean stripDeletes() {
-		return kryo.stripDeletes();
-	}
-	
 	private Object readResolve() throws ObjectStreamException {
 		kryo = new KryoSerialization();
 		return this;

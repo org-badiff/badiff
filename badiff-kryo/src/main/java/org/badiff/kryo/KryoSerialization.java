@@ -16,8 +16,6 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 public class KryoSerialization implements Serialization {
-	public static final String STRIP_DELETES = KryoSerialization.class.getName() + ".strip_deletes";
-	
 	private Kryo kryo;
 	
 	public KryoSerialization() {
@@ -62,20 +60,6 @@ public class KryoSerialization implements Serialization {
 		else
 			input = new Input(in, 1); // act like unbuffered stream
 		return readObject(input, type);
-	}
-
-	@SuppressWarnings("unchecked")
-	public KryoSerialization stripDeletes(boolean strip) {
-		if(strip)
-			kryo.getContext().put(KryoSerialization.STRIP_DELETES, true);
-		else
-			kryo.getContext().remove(KryoSerialization.STRIP_DELETES);
-		return this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public boolean stripDeletes() {
-		return kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
 	}
 
 }
