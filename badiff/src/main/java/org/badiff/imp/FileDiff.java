@@ -94,10 +94,14 @@ public class FileDiff extends File implements Diff, Serialized {
 	@Override
 	public void store(Iterator<Op> ops) throws IOException {
 		FileOutputStream out = new FileOutputStream(this);
-		while(ops.hasNext()) {
-			serial.writeObject(out, Op.class, ops.next());
+		try {
+			while(ops.hasNext()) {
+				serial.writeObject(out, Op.class, ops.next());
+			}
+			serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+		} finally {
+			out.close();
 		}
-		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 	}
 	
 	private class FileOpQueue extends OpQueue {
