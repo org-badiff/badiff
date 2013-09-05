@@ -98,16 +98,6 @@ public abstract class FileDiff extends File implements Diff {
 		return count;
 	}
 	
-	private Object writeReplace() throws ObjectStreamException {
-		try {
-			Diff mdiff = new MemoryDiff();
-			mdiff.store(this.queue());
-			return mdiff;
-		} catch(IOException ioe) {
-			throw new WriteAbortedException(ioe.getMessage(), ioe);
-		}
-	}
-
 	private class FileOpQueue extends OpQueue {
 		private InputStream self;
 		private long count;

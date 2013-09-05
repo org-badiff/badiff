@@ -168,10 +168,4 @@ public abstract class FilePatch extends File implements Patch {
 		}
 	}
 
-	private Object writeReplace() throws ObjectStreamException {
-		Patch mpatch = new MemoryPatch();
-		mpatch.store(this);
-		return mpatch;
-	}
-
 }
