@@ -9,6 +9,7 @@
 	<modules>
 		<module>../badiff</module>
 		<module>../badiff-kryo</module>
+		<module>../badiff-examples</module>
 	</modules>
 	
 	<build>
