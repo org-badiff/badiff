@@ -12,7 +12,6 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.badiff.FileDiffs;
 import org.badiff.imp.FileDiff;
 import org.badiff.util.Streams;
 import org.junit.Assert;
