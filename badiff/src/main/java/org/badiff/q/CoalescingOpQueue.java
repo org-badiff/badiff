@@ -31,7 +31,7 @@ public class CoalescingOpQueue extends FilterOpQueue {
 
 			Op insert = pending.pollFirst();
 			if(pending.peekFirst().getOp() != Op.DELETE) {
-				pending.offerFirst(insert);
+				ready.offerLast(insert);
 				return;
 			}
 			Op delete = pending.pollFirst();
