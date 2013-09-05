@@ -73,14 +73,14 @@ public abstract class FileDiff extends File implements Diff {
 		FileOutputStream out = new FileOutputStream(tmp);
 		while(q.hasNext()) {
 			DiffOp e = q.next();
-			serialization().writeObject(out, e);
+			serialization().writeObject(out, DiffOp.class, e);
 			count++;
 		}
 		out.close();
 		
 		out = new FileOutputStream(this);
 		InputStream in = new FileInputStream(tmp);
-		serialization().writeObject(out, count);
+		serialization().writeObject(out, Long.class, count);
 		Streams.copy(in, out);
 		in.close();
 		out.close();
@@ -159,9 +159,9 @@ public abstract class FileDiff extends File implements Diff {
 		@Override
 		public void serialize(Serialization serial, OutputStream out)
 				throws IOException {
-			serial.writeObject(out, thiz.getClass());
-			serial.writeObject(out, i);
-			serial.writeObject(out, thiz.length());
+			serial.writeObject(out, Class.class, thiz.getClass());
+			serial.writeObject(out, Long.class, i);
+			serial.writeObject(out, Long.class, thiz.length());
 			InputStream in = new FileInputStream(thiz);
 			Streams.copy(in, out);
 			in.close();

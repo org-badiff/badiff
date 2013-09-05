@@ -102,9 +102,10 @@ public class PatchOp implements FileApplyable, Serialized {
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		serial.writeObject(out, op);
-		serial.writeObject(out, diff.getClass());
-		serial.writeObject(out, diff);
+		serial.writeObject(out, Byte.class, op);
+		serial.writeObject(out, Class.class, diff == null ? null : diff.getClass());
+		if(diff != null)
+			serial.writeObject(out, Diff.class, diff);
 	}
 
 	@Override
@@ -112,6 +113,7 @@ public class PatchOp implements FileApplyable, Serialized {
 			throws IOException {
 		op = serial.readObject(in, Byte.class);
 		Class<? extends Diff> type = serial.readObject(in, Class.class);
-		diff = serial.readObject(in, type);
+		if(type != null)
+			diff = serial.readObject(in, type);
 	}
 }

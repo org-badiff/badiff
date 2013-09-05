@@ -129,7 +129,7 @@ public abstract class FilePatch extends File implements Patch {
 				File tmp = File.createTempFile(path.replaceAll(".*/", ""), ".patchop");
 				FileOutputStream out = new FileOutputStream(tmp);
 				try {
-					serialization().writeObject(out, other.get(path));
+					serialization().writeObject(out, PatchOp.class, other.get(path));
 				} finally {
 					out.close();
 				}
@@ -145,10 +145,10 @@ public abstract class FilePatch extends File implements Patch {
 			
 			FileOutputStream out = new FileOutputStream(this);
 			try {
-				serialization().writeObject(out, offsets.size());
+				serialization().writeObject(out, Integer.class, offsets.size());
 				for(String path : offsets.keySet()) {
-					serialization().writeObject(out, path);
-					serialization().writeObject(out, offsets.get(path));
+					serialization().writeObject(out, String.class, path);
+					serialization().writeObject(out, Long.class, offsets.get(path));
 				}
 
 				for(String path : tmps.keySet()) {

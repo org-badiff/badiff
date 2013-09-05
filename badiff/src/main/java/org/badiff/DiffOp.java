@@ -70,9 +70,9 @@ public class DiffOp implements Applyable, Serialized {
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		serial.writeObject(out, op);
-		serial.writeObject(out, run);
-		serial.writeObject(out, data);
+		serial.writeObject(out, Byte.class, op);
+		serial.writeObject(out, Integer.class, run);
+		serial.writeObject(out, byte[].class, data);
 	}
 
 	@Override

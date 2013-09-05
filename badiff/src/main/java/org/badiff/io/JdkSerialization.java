@@ -15,7 +15,8 @@ public class JdkSerialization implements Serialization {
 	private JdkSerialization() {}
 
 	@Override
-	public void writeObject(OutputStream out, Object object) throws IOException {
+	public <T> void writeObject(OutputStream out, Class<T> type, T object) throws IOException {
+		type.cast(object);
 		ObjectOutputStream oo = new ObjectOutputStream(new NonClosingOutputStream(out));
 		oo.writeObject(object);
 		oo.close();

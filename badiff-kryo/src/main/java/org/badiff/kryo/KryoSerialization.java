@@ -6,32 +6,43 @@ import java.io.OutputStream;
 
 import org.badiff.DiffOp;
 import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-public class KryoSerialization extends Kryo implements Serialization {
+public class KryoSerialization implements Serialization {
 	public static final String STRIP_DELETES = KryoSerialization.class.getName() + ".strip_deletes";
 	
+	private Kryo kryo;
+	
 	public KryoSerialization() {
-		setRegistrationRequired(true);
-		setReferences(false);
-		setAutoReset(true);
+		this(new Kryo());
 		
-		register(byte[].class);
+		kryo.setRegistrationRequired(false);
+		kryo.setReferences(false);
+		kryo.setAutoReset(true);
 		
-		register(DiffOp.class, new DiffOpSerializer());
+
+		kryo.addDefaultSerializer(Serialized.class, SerializedSerializer.class);
+		
+		kryo.register(byte[].class);
+		kryo.register(DiffOp.class, new DiffOpSerializer());
+	}
+	
+	public KryoSerialization(Kryo kryo) {
+		this.kryo = kryo;
 	}
 
 	@Override
-	public void writeObject(OutputStream out, Object object) throws IOException {
+	public <T> void writeObject(OutputStream out, Class<T> type, T object) throws IOException {
 		if(out instanceof Output)
-			writeObject((Output) out, object);
+			kryo.writeObjectOrNull((Output) out, object, type);
 		else {
 			Output output = new Output(out);
 			try {
-				writeObject(output, object);
+				kryo.writeObjectOrNull(output, object, type);
 			} finally {
 				output.flush();
 			}
@@ -51,15 +62,15 @@ public class KryoSerialization extends Kryo implements Serialization {
 	@SuppressWarnings("unchecked")
 	public KryoSerialization stripDeletes(boolean strip) {
 		if(strip)
-			getContext().put(KryoSerialization.STRIP_DELETES, true);
+			kryo.getContext().put(KryoSerialization.STRIP_DELETES, true);
 		else
-			getContext().remove(KryoSerialization.STRIP_DELETES);
+			kryo.getContext().remove(KryoSerialization.STRIP_DELETES);
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
 	public boolean stripDeletes() {
-		return getContext().containsKey(KryoSerialization.STRIP_DELETES);
+		return kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
 	}
 
 }
