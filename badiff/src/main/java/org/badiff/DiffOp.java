@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-public class Op implements Applyable, Serializable {
+public class DiffOp implements Applyable, Serializable {
 	private static final long serialVersionUID = 0;
 	
 	public static final byte STOP = 0x0;
@@ -18,7 +18,7 @@ public class Op implements Applyable, Serializable {
 	private int run;
 	private byte[] data;
 	
-	public Op(byte op, int run, byte[] data) {
+	public DiffOp(byte op, int run, byte[] data) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
 		if(run < 0 || data != null && run > data.length)

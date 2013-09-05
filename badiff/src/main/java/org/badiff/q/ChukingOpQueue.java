@@ -1,7 +1,7 @@
 package org.badiff.q;
 
 import org.badiff.Diff;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class ChukingOpQueue extends FilterOpQueue {
 
@@ -22,17 +22,17 @@ public class ChukingOpQueue extends FilterOpQueue {
 			return;
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		if(pending.peekFirst().getOp() != Op.DELETE)
+		if(pending.peekFirst().getOp() != DiffOp.DELETE)
 			return;
 		if(pending.size() == 1 && !shiftPending())
 			return;
 		
-		Op delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != Op.INSERT) {
+		DiffOp delete = pending.pollFirst();
+		if(pending.peekFirst().getOp() != DiffOp.INSERT) {
 			pending.offerFirst(delete);
 			return;
 		}
-		Op insert = pending.pollFirst();
+		DiffOp insert = pending.pollFirst();
 		
 		byte[] ddata = delete.getData();
 		byte[] idata = insert.getData();
@@ -44,13 +44,13 @@ public class ChukingOpQueue extends FilterOpQueue {
 			if(dpos < ddata.length) {
 				byte[] data = new byte[Math.min(chunk, ddata.length - dpos)];
 				System.arraycopy(ddata, dpos, data, 0, data.length);
-				pending.offerLast(new Op(Op.DELETE, data.length, data));
+				pending.offerLast(new DiffOp(DiffOp.DELETE, data.length, data));
 				dpos += data.length;
 			}
 			if(ipos < idata.length) {
 				byte[] data = new byte[Math.min(chunk, idata.length - ipos)];
 				System.arraycopy(idata, ipos, data, 0, data.length);
-				pending.offerLast(new Op(Op.INSERT, data.length, data));
+				pending.offerLast(new DiffOp(DiffOp.INSERT, data.length, data));
 				ipos += data.length;
 			}
 		}

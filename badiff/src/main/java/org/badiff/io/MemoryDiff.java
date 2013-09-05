@@ -8,22 +8,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.badiff.Diff;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
 public class MemoryDiff implements Diff {
-	protected List<Op> ops = new ArrayList<Op>();
+	protected List<DiffOp> ops = new ArrayList<DiffOp>();
 
 	@Override
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
-		for(Op e : ops)
+		for(DiffOp e : ops)
 			e.apply(orig, target);
 	}
 
 	@Override
-	public void store(Iterator<Op> ops) {
+	public void store(Iterator<DiffOp> ops) {
 		this.ops.clear();
 		while(ops.hasNext())
 			this.ops.add(ops.next());
@@ -35,12 +35,12 @@ public class MemoryDiff implements Diff {
 	}
 
 	private class MemoryOpQueue extends ListOpQueue {
-		private MemoryOpQueue(List<Op> ops) {
+		private MemoryOpQueue(List<DiffOp> ops) {
 			super(ops);
 		}
 	
 		@Override
-		public boolean offer(Op e) {
+		public boolean offer(DiffOp e) {
 			throw new UnsupportedOperationException();
 		}
 	}

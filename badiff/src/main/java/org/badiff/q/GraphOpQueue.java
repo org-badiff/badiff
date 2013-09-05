@@ -1,7 +1,7 @@
 package org.badiff.q;
 
 import org.badiff.Graph;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class GraphOpQueue extends FilterOpQueue {
 	
@@ -22,20 +22,20 @@ public class GraphOpQueue extends FilterOpQueue {
 			return;
 		if(pending.size() == 0 && !shiftPending())
 			return;
-		if(pending.peekFirst().getOp() != Op.DELETE)
+		if(pending.peekFirst().getOp() != DiffOp.DELETE)
 			return;
 		if(pending.size() == 1 && !shiftPending())
 			return;
 		
-		Op delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != Op.INSERT) {
+		DiffOp delete = pending.pollFirst();
+		if(pending.peekFirst().getOp() != DiffOp.INSERT) {
 			pending.offerFirst(delete);
 			return;
 		}
-		Op insert = pending.pollFirst();
+		DiffOp insert = pending.pollFirst();
 		
 		graph.compute(delete.getData(), insert.getData());
-		for(Op e : graph.rlist())
+		for(DiffOp e : graph.rlist())
 			pending.offerFirst(e);
 	}
 		

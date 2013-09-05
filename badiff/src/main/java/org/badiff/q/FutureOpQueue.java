@@ -3,7 +3,7 @@ package org.badiff.q;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class FutureOpQueue extends OpQueue {
 	protected Future<OpQueue> source;
@@ -13,7 +13,7 @@ public class FutureOpQueue extends OpQueue {
 	}
 
 	@Override
-	public boolean offer(Op e) {
+	public boolean offer(DiffOp e) {
 		try {
 			return source.get().offer(e);
 		} catch(InterruptedException ie) {
@@ -36,7 +36,7 @@ public class FutureOpQueue extends OpQueue {
 	
 	protected boolean shiftPending() {
 		try {
-			Op e = source.get().poll();
+			DiffOp e = source.get().poll();
 			if(e != null)
 				pending.offerLast(e);
 			return e != null;

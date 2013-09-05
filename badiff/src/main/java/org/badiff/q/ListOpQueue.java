@@ -2,12 +2,12 @@ package org.badiff.q;
 
 import java.util.List;
 
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class ListOpQueue extends OpQueue {
 
-	public ListOpQueue(List<Op> ops) {
-		for(Op e : ops)
+	public ListOpQueue(List<DiffOp> ops) {
+		for(DiffOp e : ops)
 			super.offer(e);
 	}
 

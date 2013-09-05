@@ -3,7 +3,7 @@ package org.badiff.q;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class ChainOpQueue extends OpQueue {
 	
@@ -25,7 +25,7 @@ public class ChainOpQueue extends OpQueue {
 	@Override
 	protected void shift() {
 		while(pending.size() == 0 && chain.size() > 0) {
-			Op e = chain.peekFirst().poll();
+			DiffOp e = chain.peekFirst().poll();
 			if(e == null) {
 				chain.pollFirst();
 				continue;

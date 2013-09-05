@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.badiff.Graph;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class ParallelGraphOpQueue extends FilterOpQueue {
 	
@@ -36,28 +36,28 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	@Override
 	protected void filter() {
 		while(pool.getActiveCount() < pool.getCorePoolSize()) {
-			Op e = input.poll();
+			DiffOp e = input.poll();
 			if(e == null)
 				break;
-			if(e.getOp() != Op.DELETE) {
+			if(e.getOp() != DiffOp.DELETE) {
 				chain().getChain().peekLast().offer(e);
 				continue;
 			}
-			final Op delete = e;
+			final DiffOp delete = e;
 			e = input.poll();
-			if(e.getOp() != Op.INSERT) {
+			if(e.getOp() != DiffOp.INSERT) {
 				chain().getChain().peekLast().offer(delete);
 				chain().getChain().peekLast().offer(e);
 				continue;
 			}
-			final Op insert = e;
+			final DiffOp insert = e;
 			
 			Callable<OpQueue> task = new Callable<OpQueue>() {
 				@Override
 				public OpQueue call() throws Exception {
 					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
 					graphed = new GraphOpQueue(graphed, graphs.get());
-					List<Op> ops = new ArrayList<Op>();
+					List<DiffOp> ops = new ArrayList<DiffOp>();
 					graphed.drainTo(ops);
 					graphed = new ListOpQueue(ops);
 					return graphed;

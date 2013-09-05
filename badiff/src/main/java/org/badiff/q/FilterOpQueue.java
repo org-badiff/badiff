@@ -1,6 +1,6 @@
 package org.badiff.q;
 
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
 public class FilterOpQueue extends OpQueue {
 	protected OpQueue source;
@@ -10,7 +10,7 @@ public class FilterOpQueue extends OpQueue {
 	}
 	
 	@Override
-	public boolean offer(Op e) {
+	public boolean offer(DiffOp e) {
 		return source.offer(e);
 	}
 	
@@ -26,7 +26,7 @@ public class FilterOpQueue extends OpQueue {
 	}
 	
 	protected boolean shiftPending() {
-		Op e = source.poll();
+		DiffOp e = source.poll();
 		if(e != null)
 			pending.offerLast(e);
 		return e != null;

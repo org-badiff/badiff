@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.badiff.Diff;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 import org.badiff.io.RuntimeIOException;
 
 public class StreamChunkingOpQueue extends OpQueue {
@@ -30,9 +30,9 @@ public class StreamChunkingOpQueue extends OpQueue {
 			byte[] tbuf = readChunk(target);
 			
 			if(obuf != null)
-				pending.offerLast(new Op(Op.DELETE, obuf.length, obuf));
+				pending.offerLast(new DiffOp(DiffOp.DELETE, obuf.length, obuf));
 			if(tbuf != null)
-				pending.offerLast(new Op(Op.INSERT, tbuf.length, tbuf));
+				pending.offerLast(new DiffOp(DiffOp.INSERT, tbuf.length, tbuf));
 		}
 		super.shift();
 	}

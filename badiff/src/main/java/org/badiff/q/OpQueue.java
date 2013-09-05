@@ -10,16 +10,16 @@ import java.util.List;
 
 import org.badiff.Applyable;
 import org.badiff.Diff;
-import org.badiff.Op;
+import org.badiff.DiffOp;
 
-public class OpQueue implements Applyable, Iterator<Op> {
+public class OpQueue implements Applyable, Iterator<DiffOp> {
 
-	protected Op iterNext;
-	protected Deque<Op> ready = new ArrayDeque<Op>();
-	protected Deque<Op> pending = new ArrayDeque<Op>();
+	protected DiffOp iterNext;
+	protected Deque<DiffOp> ready = new ArrayDeque<DiffOp>();
+	protected Deque<DiffOp> pending = new ArrayDeque<DiffOp>();
 
-	public Op poll() {
-		Op e = ready.pollFirst();
+	public DiffOp poll() {
+		DiffOp e = ready.pollFirst();
 		if(e == null) {
 			shift();
 			e = ready.pollFirst();
@@ -27,18 +27,18 @@ public class OpQueue implements Applyable, Iterator<Op> {
 		return e;
 	}
 	
-	public boolean offer(Op e) {
+	public boolean offer(DiffOp e) {
 		return pending.offerLast(e);
 	}
 	
-	public <T extends List<Op>> T drainTo(T c) {
-		for(Op e = poll(); e != null; e = poll())
+	public <T extends List<DiffOp>> T drainTo(T c) {
+		for(DiffOp e = poll(); e != null; e = poll())
 			c.add(e);
 		return c;
 	}
 	
 	public <T extends OpQueue> T drainTo(T q) {
-		for(Op e = poll(); e != null; e = poll())
+		for(DiffOp e = poll(); e != null; e = poll())
 			q.offer(e);
 		return q;
 	}
@@ -53,7 +53,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 	
 	protected boolean shiftReady() {
-		Op e = pending.pollFirst();
+		DiffOp e = pending.pollFirst();
 		if(e != null)
 			ready.offerLast(e);
 		return e != null;
@@ -61,7 +61,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
-		for(Op e = poll(); e != null; e = poll())
+		for(DiffOp e = poll(); e != null; e = poll())
 			e.apply(orig, target);
 	}
 
@@ -73,7 +73,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 
 	@Override
-	public Op next() {
+	public DiffOp next() {
 		if(iterNext == null)
 			iterNext = poll();
 		try {

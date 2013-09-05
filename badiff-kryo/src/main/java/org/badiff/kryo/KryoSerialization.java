@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.badiff.Op;
+import org.badiff.DiffOp;
 import org.badiff.io.Serialization;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -21,7 +21,7 @@ public class KryoSerialization extends Kryo implements Serialization {
 		
 		register(byte[].class);
 		
-		register(Op.class, new OpSerializer());
+		register(DiffOp.class, new OpSerializer());
 	}
 
 	@Override
