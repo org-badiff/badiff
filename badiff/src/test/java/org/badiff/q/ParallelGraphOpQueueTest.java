@@ -12,7 +12,6 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.badiff.FileDiffs;
 import org.badiff.imp.FileDiff;
 import org.badiff.util.Streams;
 import org.junit.Assert;
@@ -98,6 +97,9 @@ public class ParallelGraphOpQueueTest {
 		long end = System.nanoTime();
 		
 		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");
+		
+		tin.close();
+		oin.close();
 		
 		fd.delete();
 		orig.delete();
