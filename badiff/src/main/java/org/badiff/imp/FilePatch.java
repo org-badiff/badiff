@@ -1,4 +1,4 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +13,8 @@ import java.util.TreeMap;
 
 import org.badiff.Patch;
 import org.badiff.PatchOp;
+import org.badiff.io.RuntimeIOException;
+import org.badiff.io.Serialization;
 import org.badiff.util.Streams;
 
 public abstract class FilePatch extends File implements Patch {

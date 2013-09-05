@@ -1,9 +1,11 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.File;
 import java.util.Arrays;
 
 import org.badiff.Diffs;
+import org.badiff.imp.FileDiff;
+import org.badiff.imp.JdkFileDiff;
 import org.junit.Assert;
 import org.junit.Test;
 

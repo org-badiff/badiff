@@ -6,8 +6,8 @@ import java.io.OutputStream;
 
 import org.badiff.DiffOp;
 import org.badiff.PatchOp;
-import org.badiff.io.MemoryDiff;
-import org.badiff.io.MemoryPatch;
+import org.badiff.imp.MemoryDiff;
+import org.badiff.imp.MemoryPatch;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 

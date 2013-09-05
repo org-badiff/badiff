@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.ObjectStreamException;
 import java.net.URI;
 
-import org.badiff.io.FileDiff;
+import org.badiff.imp.FileDiff;
 import org.badiff.io.Serialization;
 
 public class KryoFileDiff extends FileDiff {

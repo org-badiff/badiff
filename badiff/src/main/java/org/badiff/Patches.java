@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.badiff.imp.MemoryDiff;
+import org.badiff.imp.MemoryPatch;
 import org.badiff.io.EmptyInputStream;
-import org.badiff.io.MemoryDiff;
-import org.badiff.io.MemoryPatch;
 import org.badiff.util.Files;
 
 public class Patches {

@@ -1,7 +1,10 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.File;
 import java.net.URI;
+
+import org.badiff.io.JdkSerialization;
+import org.badiff.io.Serialization;
 
 public class JdkFilePatch extends FilePatch {
 	private static final long serialVersionUID = 0;

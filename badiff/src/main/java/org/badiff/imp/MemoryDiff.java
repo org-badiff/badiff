@@ -1,4 +1,4 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.badiff.Diff;
 import org.badiff.DiffOp;
+import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 

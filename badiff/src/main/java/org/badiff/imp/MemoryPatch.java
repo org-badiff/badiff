@@ -1,4 +1,4 @@
-package org.badiff.io;
+package org.badiff.imp;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import java.util.TreeMap;
 
 import org.badiff.Patch;
 import org.badiff.PatchOp;
+import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
 
 public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch, Serialized {
 	private static final long serialVersionUID = 0;

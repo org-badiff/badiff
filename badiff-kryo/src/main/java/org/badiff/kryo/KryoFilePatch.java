@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.ObjectStreamException;
 import java.net.URI;
 
-import org.badiff.io.FilePatch;
+import org.badiff.imp.FilePatch;
 import org.badiff.io.Serialization;
 
 public class KryoFilePatch extends FilePatch {
