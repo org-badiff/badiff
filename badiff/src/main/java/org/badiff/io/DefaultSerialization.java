@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.badiff.Op;
+import org.badiff.imp.FileDiff;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.patch.MemoryPatch;
 import org.badiff.patch.PatchOp;
@@ -155,6 +157,22 @@ public class DefaultSerialization implements Serialization {
 			@Override
 			public MemoryDiff read(DataInput in) throws IOException {
 				MemoryDiff md = new MemoryDiff();
+				md.deserialize(getInstance(), Streams.asStream(in));
+				return md;
+			}
+		});
+		
+		serializers.add(new Serializer<FileDiff>(FileDiff.class) {
+
+			@Override
+			public void write(DataOutput out, FileDiff obj)
+					throws IOException {
+				obj.serialize(getInstance(), Streams.asStream(out));
+			}
+
+			@Override
+			public FileDiff read(DataInput in) throws IOException {
+				FileDiff md = new FileDiff(File.createTempFile("FileDiff", ".tmp"));
 				md.deserialize(getInstance(), Streams.asStream(in));
 				return md;
 			}

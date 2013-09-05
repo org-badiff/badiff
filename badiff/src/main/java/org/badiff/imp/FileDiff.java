@@ -14,6 +14,7 @@ import org.badiff.Op;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
@@ -24,7 +25,7 @@ import org.badiff.util.Streams;
  * @author robin
  *
  */
-public class FileDiff extends File implements Diff {
+public class FileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 	
 	protected Serialization serial = DefaultSerialization.getInstance();
@@ -88,65 +89,25 @@ public class FileDiff extends File implements Diff {
 	
 	@Override
 	public OpQueue queue() throws IOException {
-		return new FileOpQueue(this);
+		return new FileOpQueue();
 	}
 	
 	@Override
 	public void store(Iterator<Op> ops) throws IOException {
-		write(ops);
-	}
-	
-	/**
-	 * Write the argument operations to this {@link FileDiff}
-	 * @param q
-	 * @return The number of operations written
-	 * @throws IOException
-	 */
-	public long write(Iterator<Op> q) throws IOException {
-		long count = 0;
-		File tmp = File.createTempFile(getName(), ".tmp");
-		
-		FileOutputStream out = new FileOutputStream(tmp);
-		while(q.hasNext()) {
-			Op e = q.next();
-			serial.writeObject(out, Op.class, e);
-			count++;
+		FileOutputStream out = new FileOutputStream(this);
+		while(ops.hasNext()) {
+			serial.writeObject(out, Op.class, ops.next());
 		}
-		out.close();
-		
-		out = new FileOutputStream(this);
-		InputStream in = new FileInputStream(tmp);
-		serial.writeObject(out, Long.class, count);
-		Streams.copy(in, out);
-		in.close();
-		out.close();
-		
-		tmp.delete();
-		return count;
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 	}
 	
-	private static class FileOpQueue extends OpQueue {
-		private FileDiff thiz;
+	private class FileOpQueue extends OpQueue {
 		private InputStream self;
-		private long count;
-		private long i;
 		private boolean closed;
 		
-		/*
-		 * Required for deserialization
-		 */
-		@SuppressWarnings("unused")
-		public FileOpQueue() {
-		}
-		
-		public FileOpQueue(FileDiff thiz) throws IOException {
-			this.thiz = thiz;
-			self = new FileInputStream(thiz);
-			count = thiz.serial.readObject(self, Long.class);
-			i = 0;
+		public FileOpQueue() throws IOException {
+			self = new FileInputStream(FileDiff.this);
 			closed = false;
-			if(count == 0)
-				close();
 		}
 		
 		@Override
@@ -156,16 +117,16 @@ public class FileDiff extends File implements Diff {
 		
 		@Override
 		protected void shift() {
-			if(!closed && i < count) {
+			if(!closed) {
 				try {
-					super.offer(thiz.serial.readObject(self, Op.class));
-					i++;
+					Op e = serial.readObject(self, Op.class);
+					if(e.getOp() != Op.STOP)
+						super.offer(e);
+					else
+						close();
 				} catch(IOException ioe) {
 					close();
 					throw new RuntimeIOException(ioe);
-				} finally {
-					if(i == count)
-						close();
 				}
 			}
 			super.shift();
@@ -179,6 +140,29 @@ public class FileDiff extends File implements Diff {
 			} finally {
 				closed = true;
 			}
+		}
+	}
+
+	@Override
+	public void serialize(Serialization serial, OutputStream out)
+			throws IOException {
+		Iterator<Op> ops = queue();
+		while(ops.hasNext()) {
+			serial.writeObject(out, Op.class, ops.next());
+		}
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+	}
+
+	@Override
+	public void deserialize(Serialization serial, InputStream in)
+			throws IOException {
+		FileOutputStream out = new FileOutputStream(this);
+		try {
+			for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
+				this.serial.writeObject(out, Op.class, e);
+			this.serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+		} finally {
+			out.close();
 		}
 	}
 }

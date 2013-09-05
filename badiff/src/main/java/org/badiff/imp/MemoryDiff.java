@@ -57,17 +57,16 @@ public class MemoryDiff implements Diff, Serialized {
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		serial.writeObject(out, Integer.class, ops.size());
-		for(Op op : ops)
-			serial.writeObject(out, Op.class, op);
+		for(Op e : ops)
+			serial.writeObject(out, Op.class, e);
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 	}
 
 	@Override
 	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
-		int size = serial.readObject(in, Integer.class);
-		for(int i = 0; i < size; i++)
-			ops.add(serial.readObject(in, Op.class));
+		for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
+			ops.add(e);
 	}
 
 }
