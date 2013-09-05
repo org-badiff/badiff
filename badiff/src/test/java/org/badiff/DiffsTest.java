@@ -18,7 +18,6 @@ public class DiffsTest {
 		diff = new GraphOpQueue(diff, 1024);
 		
 		MemoryDiff md = new MemoryDiff(diff);
-		System.out.println(md);
 		
 		byte[] result = Diffs.apply(md, orig.getBytes());
 		

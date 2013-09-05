@@ -1,5 +1,8 @@
 package org.badiff.q;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.badiff.Op;
 import org.badiff.alg.Graph;
 
@@ -39,8 +42,10 @@ public class GraphOpQueue extends FilterOpQueue {
 		Op insert = pending.pollFirst();
 		
 		graph.compute(delete.getData(), insert.getData());
-		for(Op e : graph.rlist())
-			pending.offerFirst(e);
+		List<Op> rlist = graph.rlist();
+		Collections.reverse(rlist);
+		for(Op e : rlist)
+			ready.offerLast(e);
 	}
 		
 	

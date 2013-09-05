@@ -66,14 +66,14 @@ public class Graph {
 					lengths[pos] = (short) (1 + lengths[pos - xval.length - 1]);
 					continue;
 				}
-				short dlen = x > 0 ? lengths[pos-1] : Short.MAX_VALUE;
-				short ilen = y > 0 ? lengths[pos - xval.length] : Short.MAX_VALUE;
+				short dlen = x > 0 ? (short)(1 + lengths[pos-1]) : Short.MAX_VALUE;
+				short ilen = y > 0 ? (short)(1 + lengths[pos - xval.length]) : Short.MAX_VALUE;
 				if(dlen <= ilen) {
 					flags[pos] = Op.DELETE;
-					lengths[pos] = (short) (dlen + 1);
-				} else {
+					lengths[pos] = dlen;
+				} else if(ilen < lengths[pos]) {
 					flags[pos] = Op.INSERT;
-					lengths[pos] = (short) (ilen + 1);
+					lengths[pos] = ilen;
 				}
 				
 			}
