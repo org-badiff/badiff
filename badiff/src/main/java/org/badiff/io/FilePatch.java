@@ -156,6 +156,7 @@ public abstract class FilePatch extends File implements Patch {
 						Streams.copy(in, out);
 					} finally {
 						in.close();
+						tmps.get(path).delete();
 					}
 				}
 			} finally {
