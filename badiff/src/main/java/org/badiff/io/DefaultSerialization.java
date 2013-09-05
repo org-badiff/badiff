@@ -10,8 +10,11 @@ import java.io.NotSerializableException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.badiff.DiffOp;
+import org.badiff.PatchOp;
 import org.badiff.imp.MemoryDiff;
+import org.badiff.imp.MemoryPatch;
 import org.badiff.util.Streams;
 
 public class DefaultSerialization implements Serialization {
@@ -43,7 +46,7 @@ public class DefaultSerialization implements Serialization {
 			public void write(DataOutput out, Class obj) throws IOException {
 				for(int i = 0; i < serializers.size(); i++) {
 					if(serializers.get(i).type() == obj) {
-						out.writeInt(i);
+						out.writeByte(i);
 						return;
 					}
 				}
@@ -52,7 +55,7 @@ public class DefaultSerialization implements Serialization {
 
 			@Override
 			public Class read(DataInput in) throws IOException {
-				return serializers.get(in.readInt()).type();
+				return serializers.get(in.readByte()).type();
 			}
 		});
 		serializers.add(new Serializer<Byte>(Byte.class) {
@@ -150,6 +153,39 @@ public class DefaultSerialization implements Serialization {
 				return md;
 			}
 		});
+		
+		serializers.add(new Serializer<MemoryPatch>(MemoryPatch.class) {
+
+			@Override
+			public void write(DataOutput out, MemoryPatch obj)
+					throws IOException {
+				obj.serialize(getInstance(), Streams.asStream(out));
+			}
+
+			@Override
+			public MemoryPatch read(DataInput in) throws IOException {
+				MemoryPatch mp = new MemoryPatch();
+				mp.deserialize(getInstance(), Streams.asStream(in));
+				return mp;
+			}
+		});
+
+		serializers.add(new Serializer<PatchOp>(PatchOp.class) {
+
+			@Override
+			public void write(DataOutput out, PatchOp obj)
+					throws IOException {
+				obj.serialize(getInstance(), Streams.asStream(out));
+			}
+
+			@Override
+			public PatchOp read(DataInput in) throws IOException {
+				PatchOp op = new PatchOp();
+				op.deserialize(getInstance(), Streams.asStream(in));
+				return op;
+			}
+		});
+
 	}
 	
 	private DefaultSerialization() {}

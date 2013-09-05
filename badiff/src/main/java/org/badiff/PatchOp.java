@@ -46,6 +46,11 @@ public class PatchOp implements FileApplyable, Serialized {
 	 */
 	private Diff diff;
 	
+	/*
+	 * Required for deserialization
+	 */
+	public PatchOp() {}
+	
 	/**
 	 * Create a new {@link PatchOp}
 	 * @param op
