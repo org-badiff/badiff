@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.alg.Graph;
 
@@ -26,6 +27,10 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 */
 	protected OpQueue input;
 	/**
+	 * The chunk size
+	 */
+	protected int chunk;
+	/**
 	 * Thread pool for parallelization
 	 */
 	protected ThreadPoolExecutor pool;
@@ -35,7 +40,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 */
 	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
 		protected Graph initialValue() {
-			return new Graph(2049 * 2049);
+			return new Graph((chunk+1) * (chunk+1));
 		}
 	};
 
@@ -45,7 +50,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 */
 	public ParallelGraphOpQueue(OpQueue source) {
-		this(source, Runtime.getRuntime().availableProcessors());
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK);
 	}
 	
 	/**
@@ -53,9 +58,10 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 * @param workers
 	 */
-	public ParallelGraphOpQueue(OpQueue source, int workers) {
+	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk) {
 		super(new ChainOpQueue(new OpQueue()));
 		this.input = source;
+		this.chunk = chunk;
 		pool = new ThreadPoolExecutor(workers, workers, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		
 	}
