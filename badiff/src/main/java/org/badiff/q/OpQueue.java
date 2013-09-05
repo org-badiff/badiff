@@ -76,7 +76,11 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	public Op next() {
 		if(iterNext == null)
 			iterNext = poll();
-		return iterNext;
+		try {
+			return iterNext;
+		} finally {
+			iterNext = null;
+		}
 	}
 
 	@Override
