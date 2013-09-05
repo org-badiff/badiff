@@ -1,4 +1,4 @@
-package org.badiff.imp;
+package org.badiff.io;
 
 import java.io.File;
 import java.util.Arrays;
@@ -9,7 +9,7 @@ import org.badiff.io.DefaultFileDiff;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JdkFileDiffTest {
+public class DefaultFileDiffTest {
 
 	@Test
 	public void testWriteRead() throws Exception {
