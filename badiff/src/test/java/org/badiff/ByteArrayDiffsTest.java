@@ -4,22 +4,22 @@ import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
 import org.junit.Test;
 
-public class ByteArrayDiffTest {
+public class ByteArrayDiffsTest {
 	
 	protected Serialization serial;
 	
-	public ByteArrayDiffTest() {
+	public ByteArrayDiffsTest() {
 		this(DefaultSerialization.getInstance());
 	}
 	
-	protected ByteArrayDiffTest(Serialization serial) {
+	protected ByteArrayDiffsTest(Serialization serial) {
 		this.serial = serial;
 		
 	}
 
 	@Test
 	public void testDiff() throws Exception {
-		ByteArrayDiff badiff = new ByteArrayDiff(serial);
+		ByteArrayDiffs badiff = new ByteArrayDiffs(serial);
 		
 		String orig = "Hello world!";
 		String target = "Hellish cruel world!";

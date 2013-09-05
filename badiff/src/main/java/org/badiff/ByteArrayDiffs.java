@@ -16,7 +16,7 @@ import org.badiff.util.Serials;
  * @author robin
  *
  */
-public class ByteArrayDiff {
+public class ByteArrayDiffs {
 
 	/**
 	 * The {@link Serialization} to use for persistence
@@ -24,17 +24,17 @@ public class ByteArrayDiff {
 	protected Serialization serial;
 	
 	/**
-	 * Create a new {@link ByteArrayDiff} utilities instance
+	 * Create a new {@link ByteArrayDiffs} utilities instance
 	 */
-	public ByteArrayDiff() {
+	public ByteArrayDiffs() {
 		this(DefaultSerialization.getInstance());
 	}
 	
 	/**
-	 * Create a new {@link ByteArrayDiff} utilities instance with a specified {@link Serialization}
+	 * Create a new {@link ByteArrayDiffs} utilities instance with a specified {@link Serialization}
 	 * @param serial
 	 */
-	public ByteArrayDiff(Serialization serial) {
+	public ByteArrayDiffs(Serialization serial) {
 		this.serial = serial;
 	}
 	
