@@ -14,7 +14,7 @@ import org.junit.Test;
 public class FileDiffsTest {
 	@Test
 	public void testPerformanceBig() throws Exception {
-		final int SIZE = 24 * 1024 * 1024;
+		final int SIZE = 50 * 1024 * 1024;
 		
 		File orig = File.createTempFile("orig", ".tmp");
 		orig.deleteOnExit();
@@ -34,7 +34,7 @@ public class FileDiffsTest {
 		FileDiffs util = new FileDiffs();
 		
 		long start = System.nanoTime();
-		FileDiff fd = util.diff(orig, target);
+		FileDiff fd = util.mdiff(orig, target);
 		long end = System.nanoTime();
 		
 		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");

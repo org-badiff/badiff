@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 
 import org.badiff.imp.FileDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
+import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.OneWayOpQueue;
+import org.badiff.q.OpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Diffs;
 
@@ -52,6 +56,32 @@ public class FileDiffs {
 			InputStream tin = new FileInputStream(target);
 			try {
 				fd.store(Diffs.improved(Diffs.queue(oin, tin)));
+			} finally {
+				tin.close();
+			}
+		} finally {
+			oin.close();
+		}
+		return fd;
+	}
+	
+	/**
+	 * Compute and return a diff between {@code orig} and {@code target} using
+	 * memory-mapped files
+	 * @param orig
+	 * @param target
+	 * @return
+	 * @throws IOException
+	 */
+	public FileDiff mdiff(File orig, File target) throws IOException {
+		FileDiff fd = new FileDiff(File.createTempFile(orig.getName(), ".diff"));
+		FileInputStream oin = new FileInputStream(orig);
+		try {
+			FileInputStream tin = new FileInputStream(target);
+			try {
+				MappedByteBuffer obuf = oin.getChannel().map(MapMode.READ_ONLY, 0, orig.length());
+				MappedByteBuffer tbuf = tin.getChannel().map(MapMode.READ_ONLY, 0, target.length());
+				fd.store(Diffs.improved(new BufferChunkingOpQueue(obuf, tbuf)));
 			} finally {
 				tin.close();
 			}
