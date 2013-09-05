@@ -13,6 +13,11 @@ import org.badiff.imp.MemoryPatch;
 import org.badiff.io.EmptyInputStream;
 import org.badiff.util.Files;
 
+/**
+ * Utility methods for dealing with patches
+ * @author robin
+ *
+ */
 public class Patches {
 
 	public static PatchOp patchOp(File orig, File target) throws IOException {

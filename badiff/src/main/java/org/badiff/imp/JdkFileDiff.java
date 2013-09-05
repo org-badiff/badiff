@@ -6,6 +6,11 @@ import java.net.URI;
 import org.badiff.io.JdkSerialization;
 import org.badiff.io.Serialization;
 
+/**
+ * {@link FileDiff} that uses {@link JdkSerialization}
+ * @author robin
+ *
+ */
 public class JdkFileDiff extends FileDiff {
 	private static final long serialVersionUID = 0;
 

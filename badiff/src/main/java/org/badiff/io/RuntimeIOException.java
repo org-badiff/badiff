@@ -2,6 +2,11 @@ package org.badiff.io;
 
 import java.io.IOException;
 
+/**
+ * {@link RuntimeException} wrapper around {@link IOException}
+ * @author robin
+ *
+ */
 public class RuntimeIOException extends RuntimeException {
 	private static final long serialVersionUID = 0;
 	

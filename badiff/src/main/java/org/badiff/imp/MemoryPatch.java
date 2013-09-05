@@ -11,6 +11,12 @@ import org.badiff.PatchOp;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
+/**
+ * Implementation of {@link Patch} that lives entirely in memory, backed
+ * by a {@link TreeMap}
+ * @author robin
+ *
+ */
 public class MemoryPatch extends TreeMap<String, PatchOp> implements Patch, Serialized {
 	private static final long serialVersionUID = 0;
 

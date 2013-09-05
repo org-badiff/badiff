@@ -13,17 +13,45 @@ import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.util.Streams;
 
+/**
+ * An operation in a {@link Patch} that can be applied to a {@link File}
+ * @author robin
+ *
+ */
 public class PatchOp implements FileApplyable, Serialized {
 	private static final long serialVersionUID = 0;
 	
+	/**
+	 * Do nothing to the file
+	 */
 	public static final byte SKIP = 0x0; // no diff
+	/**
+	 * Delete the file
+	 */
 	public static final byte DELETE = 0x1; // no diff
+	/**
+	 * Create the file by applying a {@link Diff} to an empty {@link InputStream}
+	 */
 	public static final byte CREATE = 0x2; // has diff
+	/**
+	 * Apply a {@link Diff} to the file
+	 */
 	public static final byte DIFF = 0x3; // has diff
 	
+	/**
+	 * The operation
+	 */
 	private byte op;
+	/**
+	 * The diff
+	 */
 	private Diff diff;
 	
+	/**
+	 * Create a new {@link PatchOp}
+	 * @param op
+	 * @param diff
+	 */
 	public PatchOp(byte op, Diff diff) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
@@ -33,10 +61,20 @@ public class PatchOp implements FileApplyable, Serialized {
 		this.diff = diff;
 	}
 	
+	/**
+	 * Return the operation for this {@link PatchOp}, one of {@link #SKIP}, {@link #DELETE},
+	 * {@link #CREATE}, or {@link #DIFF}
+	 * @return
+	 */
 	public byte getOp() {
 		return op;
 	}
 	
+	/**
+	 * Returns the diff for this {@link PatchOp}, or {@code null}.  Diffs are required
+	 * for {@link #CREATE} and {@link #DIFF} operations.
+	 * @return
+	 */
 	public Diff getDiff() {
 		return diff;
 	}

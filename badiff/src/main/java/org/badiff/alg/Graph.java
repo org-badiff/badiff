@@ -6,18 +6,49 @@ import java.util.List;
 
 import org.badiff.DiffOp;
 
+/**
+ * Fast graph that can compute the optimal diff between two byte arrays.
+ * Requires O(n^2) memory and time.  Does the computation by computing the
+ * shortest path across a graph connected by available {@link DiffOp} operations.
+ * 
+ * For performance reasons the graph is stored in a byte[] with path lengths in 
+ * a short[], rather than having individual objects for each node in the graph.
+ * @author robin
+ *
+ */
 public class Graph {
+	/**
+	 * The operation type
+	 */
 	protected byte[] flags;
+	/**
+	 * The path length
+	 */
 	protected short[] lengths;
+	/**
+	 * The original byte sequence
+	 */
 	protected byte[] xval;
+	/**
+	 * The target byte sequence
+	 */
 	protected byte[] yval;
 	
+	/**
+	 * Create a new {@link Graph} with the argument buffer size
+	 * @param size
+	 */
 	public Graph(int size) {
 		flags = new byte[size];
 		lengths = new short[size];
 		lengths[0] = Short.MIN_VALUE;
 	}
 	
+	/**
+	 * Compute the {@link DiffOp} graph for the argument original and target byte arrays.
+	 * @param orig
+	 * @param target
+	 */
 	public void compute(byte[] orig, byte[] target) {
 		xval = new byte[orig.length + 1];
 		yval = new byte[target.length + 1];

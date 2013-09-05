@@ -9,18 +9,50 @@ import java.io.Serializable;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
+/**
+ * A single run-length-encoded operation in a {@link Diff}.
+ * @author robin
+ *
+ */
 public class DiffOp implements Applyable, Serialized {
 	private static final long serialVersionUID = 0;
 	
+	/**
+	 * Stop diffing
+	 */
 	public static final byte STOP = 0x0;
+	/**
+	 * Delete some bytes
+	 */
 	public static final byte DELETE = 0x1;
+	/**
+	 * Insert some bytes
+	 */
 	public static final byte INSERT = 0x2;
+	/**
+	 * Copy some bytes
+	 */
 	public static final byte NEXT = 0x3;
 	
+	/**
+	 * The operation
+	 */
 	private byte op;
+	/**
+	 * The run-length of the operation
+	 */
 	private int run;
+	/**
+	 * The data for the operation
+	 */
 	private byte[] data;
 	
+	/**
+	 * Create a new {@link DiffOp}
+	 * @param op
+	 * @param run
+	 * @param data
+	 */
 	public DiffOp(byte op, int run, byte[] data) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
@@ -33,6 +65,7 @@ public class DiffOp implements Applyable, Serialized {
 		this.data = data;
 	}
 
+	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		switch(op) {
 		case DELETE:
@@ -55,14 +88,27 @@ public class DiffOp implements Applyable, Serialized {
 		}
 	}
 
+	/**
+	 * Returns the operation, one of {@link #STOP}, {@link #DELETE}, {@link #INSERT}, or {@link #NEXT}
+	 * @return
+	 */
 	public byte getOp() {
 		return op;
 	}
 	
+	/**
+	 * Return the run-length of this operation
+	 * @return
+	 */
 	public int getRun() {
 		return run;
 	}
 	
+	/**
+	 * Return the data for this operation.  Only {@link #INSERT} and {@link #DELETE} have data.
+	 * Only {@link #INSERT} is guaranteed to have data; {@link #DELETE} may have {@code null}. 
+	 * @return
+	 */
 	public byte[] getData() {
 		return data;
 	}

@@ -15,6 +15,12 @@ import org.badiff.io.Serialized;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
+/**
+ * Implementation of {@link Diff} that lives entirely in memory, backed
+ * by a {@link List} of {@link DiffOp}.
+ * @author robin
+ *
+ */
 public class MemoryDiff implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 	

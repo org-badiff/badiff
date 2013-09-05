@@ -4,6 +4,11 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * {@link FilterInputStream} which doesn't close its wrapped {@link InputStream}
+ * @author robin
+ *
+ */
 public class NonClosingInputStream extends FilterInputStream {
 
 	public NonClosingInputStream(InputStream in) {

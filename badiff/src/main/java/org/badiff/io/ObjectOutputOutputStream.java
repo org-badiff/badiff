@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
 
+/**
+ * {@link OutputStream} that reads from an {@link ObjectOutput}
+ * @author robin
+ *
+ */
 public class ObjectOutputOutputStream extends OutputStream {
 
 	protected ObjectOutput out;

@@ -6,6 +6,11 @@ import java.net.URI;
 import org.badiff.io.JdkSerialization;
 import org.badiff.io.Serialization;
 
+/**
+ * {@link FilePatch} that uses {@link JdkSerialization}
+ * @author robin
+ *
+ */
 public class JdkFilePatch extends FilePatch {
 	private static final long serialVersionUID = 0;
 

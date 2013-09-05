@@ -6,6 +6,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+/**
+ * {@link Serialization} that uses the JDK serialization mechanism.
+ * This is slow and bloated but universally available and requires no extra jars.
+ * @author robin
+ *
+ */
 public class JdkSerialization implements Serialization {
 	private static final JdkSerialization instance = new JdkSerialization();
 	public static JdkSerialization getInstance() {

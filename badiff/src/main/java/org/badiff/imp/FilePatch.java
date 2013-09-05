@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectStreamException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
@@ -17,9 +16,18 @@ import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.util.Streams;
 
+
+/**
+ * Implementation of {@link Patch} that is backed by a {@link File}.
+ * This implementation is abstract so that subclasses can provide their
+ * own {@link Serialization} mechanism
+ */
 public abstract class FilePatch extends File implements Patch {
 	private static final long serialVersionUID = 0;
 	
+	/**
+	 * Return the {@link Serialization} mechanism for this {@link Patch}
+	 */
 	protected abstract Serialization serialization();
 	
 	public FilePatch(String pathname) {

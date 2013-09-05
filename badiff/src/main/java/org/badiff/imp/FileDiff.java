@@ -23,9 +23,20 @@ import org.badiff.io.Serialized;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
+/**
+ * {@link Diff} that is backed by a {@link File}.  Extends {@link File} to
+ * make it easy to work with.  This class is abstract so that subclasses can
+ * provide their own {@link Serialization} mechanism.
+ * @author robin
+ *
+ */
 public abstract class FileDiff extends File implements Diff {
 	private static final long serialVersionUID = 0;
 	
+	/**
+	 * Returns the {@link Serialization} mechanism for this {@link FileDiff}
+	 * @return
+	 */
 	protected abstract Serialization serialization();
 
 	public FileDiff(File parent, String child) {
@@ -70,6 +81,12 @@ public abstract class FileDiff extends File implements Diff {
 		write(ops);
 	}
 	
+	/**
+	 * Write the argument operations to this {@link FileDiff}
+	 * @param q
+	 * @return The number of operations written
+	 * @throws IOException
+	 */
 	public long write(Iterator<DiffOp> q) throws IOException {
 		long count = 0;
 		File tmp = File.createTempFile(getName(), ".tmp");
