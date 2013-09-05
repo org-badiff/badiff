@@ -4,9 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.badiff.io.EmptyInputStream;
 import org.badiff.io.MemoryDiff;
+import org.badiff.io.MemoryPatch;
+import org.badiff.util.Files;
 
 public class Patches {
 
@@ -30,6 +36,24 @@ public class Patches {
 		tin.close();
 		oin.close();
 		return new PatchOp(PatchOp.DIFF, diff);
+	}
+	
+	public static Patch patch(File origRoot, File targetRoot) throws IOException {
+		List<String> origPaths = Files.listPaths("", origRoot);
+		List<String> destPaths = Files.listPaths("", targetRoot);
+		
+		Set<String> paths = new TreeSet<String>();
+		paths.addAll(origPaths);
+		paths.addAll(destPaths);
+		
+		Patch patch = new MemoryPatch();
+		for(String path : paths) {
+			File orig = new File(origRoot, path);
+			File target = new File(targetRoot, path);
+			patch.put(path, patchOp(orig, target));
+		}
+		
+		return patch;
 	}
 	
 	private Patches() {
