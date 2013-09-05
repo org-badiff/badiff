@@ -71,7 +71,7 @@ public class Graph {
 				if(dlen <= ilen) {
 					flags[pos] = Op.DELETE;
 					lengths[pos] = dlen;
-				} else if(ilen < lengths[pos]) {
+				} else {
 					flags[pos] = Op.INSERT;
 					lengths[pos] = ilen;
 				}
