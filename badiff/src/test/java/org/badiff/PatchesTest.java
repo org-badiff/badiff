@@ -1,6 +1,9 @@
 package org.badiff;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 
 import org.badiff.util.Files;
 import org.junit.Assert;
@@ -18,11 +21,17 @@ public class PatchesTest {
 		new File(origRoot, "retained").createNewFile();
 		new File(targetRoot, "retained").createNewFile();
 		
+		OutputStream out = new FileOutputStream(new File(targetRoot, "retained"));
+		out.write("Howdy".getBytes());
+		out.close();
+		
 		Patch patch = Patches.patch(origRoot, targetRoot);
 		
 		Assert.assertEquals(PatchOp.DELETE, patch.get("deleted").getOp());
 		Assert.assertEquals(PatchOp.CREATE, patch.get("created").getOp());
 		Assert.assertEquals(PatchOp.DIFF, patch.get("retained").getOp());
+		
+		Assert.assertTrue(Arrays.equals("Howdy".getBytes(), Diffs.apply(patch.get("retained").getDiff(), new byte[0])));
 	}
 
 }
