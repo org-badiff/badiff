@@ -6,7 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-public class DiffOp implements Applyable, Serializable {
+import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
+
+public class DiffOp implements Applyable, Serialized {
 	private static final long serialVersionUID = 0;
 	
 	public static final byte STOP = 0x0;
@@ -62,5 +65,21 @@ public class DiffOp implements Applyable, Serializable {
 	
 	public byte[] getData() {
 		return data;
+	}
+
+	@Override
+	public void serialize(Serialization serial, OutputStream out)
+			throws IOException {
+		serial.writeObject(out, op);
+		serial.writeObject(out, run);
+		serial.writeObject(out, data);
+	}
+
+	@Override
+	public void deserialize(Serialization serial, InputStream in)
+			throws IOException {
+		op = serial.readObject(in, Byte.class);
+		run = serial.readObject(in, Integer.class);
+		data = serial.readObject(in, byte[].class);
 	}
 }

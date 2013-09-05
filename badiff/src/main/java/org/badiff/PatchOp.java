@@ -9,9 +9,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 import org.badiff.io.EmptyInputStream;
+import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
 import org.badiff.util.Streams;
 
-public class PatchOp implements FileApplyable, Serializable {
+public class PatchOp implements FileApplyable, Serialized {
 	private static final long serialVersionUID = 0;
 	
 	public static final byte SKIP = 0x0; // no diff
@@ -95,5 +97,21 @@ public class PatchOp implements FileApplyable, Serializable {
 				throw new IOException("Unable to replace " + orig);
 			break;
 		}
+	}
+
+	@Override
+	public void serialize(Serialization serial, OutputStream out)
+			throws IOException {
+		serial.writeObject(out, op);
+		serial.writeObject(out, diff.getClass());
+		serial.writeObject(out, diff);
+	}
+
+	@Override
+	public void deserialize(Serialization serial, InputStream in)
+			throws IOException {
+		op = serial.readObject(in, Byte.class);
+		Class<? extends Diff> type = serial.readObject(in, Class.class);
+		diff = serial.readObject(in, type);
 	}
 }

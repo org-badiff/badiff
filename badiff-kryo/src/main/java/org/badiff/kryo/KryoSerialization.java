@@ -26,17 +26,25 @@ public class KryoSerialization extends Kryo implements Serialization {
 
 	@Override
 	public void writeObject(OutputStream out, Object object) throws IOException {
-		Output output = new Output(out);
-		try {
-			writeObject(output, object);
-		} finally {
-			output.flush();
+		if(out instanceof Output)
+			writeObject((Output) out, object);
+		else {
+			Output output = new Output(out);
+			try {
+				writeObject(output, object);
+			} finally {
+				output.flush();
+			}
 		}
 	}
 
 	@Override
 	public <T> T readObject(InputStream in, Class<T> type) throws IOException {
-		Input input = new Input(in, 1); // act like unbuffered stream
+		Input input;
+		if(in instanceof Input)
+			input = (Input) in;
+		else
+			input = new Input(in, 1); // act like unbuffered stream
 		return readObject(input, type);
 	}
 
