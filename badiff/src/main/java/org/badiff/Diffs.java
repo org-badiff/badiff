@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.badiff.io.RuntimeIOException;
-import org.badiff.q.ChukingOpQueue;
+import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
@@ -32,7 +32,7 @@ public class Diffs {
 	}
 	
 	public static OpQueue improved(OpQueue q) {
-		q = new ChukingOpQueue(q);
+		q = new ChunkingOpQueue(q);
 		q = new ParallelGraphOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		return q;
