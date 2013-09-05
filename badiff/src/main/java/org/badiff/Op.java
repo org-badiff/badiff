@@ -72,8 +72,8 @@ public class Op implements Applyable, Serialized {
 	public String toString() {
 		switch(op) {
 		case STOP: return "!";
-		case DELETE: return "-" + run + (data == null ? "" : ":" + new String(data));
-		case INSERT: return "+" + run + (data == null ? "" : ":" + new String(data));
+		case DELETE: return "-" + run;
+		case INSERT: return "+" + run;
 		case NEXT: return ">" + run;
 		}
 		return "?";
