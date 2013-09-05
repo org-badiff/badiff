@@ -12,7 +12,7 @@ import org.badiff.util.Streams;
 import org.junit.Test;
 
 public class FileDiffsTest {
-	@Test
+//	@Test
 	public void testPerformanceBig() throws Exception {
 		final int SIZE = 50 * 1024 * 1024;
 		
