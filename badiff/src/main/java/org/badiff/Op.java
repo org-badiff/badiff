@@ -120,7 +120,8 @@ public class Op implements Applyable, Serialized {
 			throws IOException {
 		serial.writeObject(out, Byte.class, op);
 		serial.writeObject(out, Integer.class, run);
-		serial.writeObject(out, byte[].class, data);
+		if(op == INSERT || op == DELETE)
+			serial.writeObject(out, byte[].class, data);
 	}
 
 	@Override
@@ -128,6 +129,7 @@ public class Op implements Applyable, Serialized {
 			throws IOException {
 		op = serial.readObject(in, Byte.class);
 		run = serial.readObject(in, Integer.class);
-		data = serial.readObject(in, byte[].class);
+		if(op == INSERT || op == DELETE)
+			data = serial.readObject(in, byte[].class);
 	}
 }
