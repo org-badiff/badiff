@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.badiff.DiffOp;
+import org.badiff.PatchOp;
+import org.badiff.io.MemoryDiff;
+import org.badiff.io.MemoryPatch;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
@@ -24,11 +27,13 @@ public class KryoSerialization implements Serialization {
 		kryo.setReferences(false);
 		kryo.setAutoReset(true);
 		
-
 		kryo.addDefaultSerializer(Serialized.class, SerializedSerializer.class);
 		
 		kryo.register(byte[].class);
 		kryo.register(DiffOp.class, new DiffOpSerializer());
+		kryo.register(PatchOp.class);
+		kryo.register(MemoryDiff.class);
+		kryo.register(MemoryPatch.class);
 	}
 	
 	public KryoSerialization(Kryo kryo) {

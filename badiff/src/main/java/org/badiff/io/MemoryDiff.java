@@ -13,7 +13,7 @@ import org.badiff.DiffOp;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
-public class MemoryDiff implements Diff, Serializable {
+public class MemoryDiff implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 	
 	protected List<DiffOp> ops = new ArrayList<DiffOp>();
@@ -46,6 +46,22 @@ public class MemoryDiff implements Diff, Serializable {
 		public boolean offer(DiffOp e) {
 			throw new UnsupportedOperationException();
 		}
+	}
+
+	@Override
+	public void serialize(Serialization serial, OutputStream out)
+			throws IOException {
+		serial.writeObject(out, Integer.class, ops.size());
+		for(DiffOp op : ops)
+			serial.writeObject(out, DiffOp.class, op);
+	}
+
+	@Override
+	public void deserialize(Serialization serial, InputStream in)
+			throws IOException {
+		int size = serial.readObject(in, Integer.class);
+		for(int i = 0; i < size; i++)
+			ops.add(serial.readObject(in, DiffOp.class));
 	}
 
 }
