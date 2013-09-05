@@ -3,6 +3,7 @@ package org.badiff.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +13,9 @@ import org.badiff.DiffOp;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
-public class MemoryDiff implements Diff {
+public class MemoryDiff implements Diff, Serializable {
+	private static final long serialVersionUID = 0;
+	
 	protected List<DiffOp> ops = new ArrayList<DiffOp>();
 
 	@Override
