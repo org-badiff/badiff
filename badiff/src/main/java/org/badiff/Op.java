@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
@@ -67,6 +68,17 @@ public class Op implements Applyable, Serialized {
 		this.data = data;
 	}
 
+	@Override
+	public String toString() {
+		switch(op) {
+		case STOP: return "!";
+		case DELETE: return "-" + run + (data == null ? "" : ":" + new String(data));
+		case INSERT: return "+" + run + (data == null ? "" : ":" + new String(data));
+		case NEXT: return ">" + run;
+		}
+		return "?";
+	}
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		switch(op) {

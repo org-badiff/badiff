@@ -24,6 +24,13 @@ public class MemoryDiff implements Diff, Serialized {
 	
 	protected List<Op> ops = new ArrayList<Op>();
 
+	public MemoryDiff() {}
+	
+	public MemoryDiff(Iterator<Op> ops) {
+		this();
+		store(ops);
+	}
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
@@ -43,17 +50,11 @@ public class MemoryDiff implements Diff, Serialized {
 		return new MemoryOpQueue(ops);
 	}
 
-	private class MemoryOpQueue extends ListOpQueue {
-		private MemoryOpQueue(List<Op> ops) {
-			super(ops);
-		}
-	
-		@Override
-		public boolean offer(Op e) {
-			throw new UnsupportedOperationException();
-		}
+	@Override
+	public String toString() {
+		return ops.toString();
 	}
-
+	
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
@@ -67,6 +68,17 @@ public class MemoryDiff implements Diff, Serialized {
 			throws IOException {
 		for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
 			ops.add(e);
+	}
+
+	private class MemoryOpQueue extends ListOpQueue {
+		private MemoryOpQueue(List<Op> ops) {
+			super(ops);
+		}
+	
+		@Override
+		public boolean offer(Op e) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 }

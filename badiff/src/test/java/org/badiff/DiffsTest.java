@@ -1,5 +1,7 @@
 package org.badiff;
 
+import org.badiff.imp.MemoryDiff;
+import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Diffs;
 import org.junit.Assert;
@@ -9,12 +11,17 @@ public class DiffsTest {
 
 	@Test
 	public void testDiff() throws Exception {
-		String orig = "Hello";
-		String target = "World";
+		String orig = "Hello world!";
+		String target = "Hellish cruel world!";
 		
-		OpQueue diff = Diffs.improved(Diffs.queue(orig.getBytes(), target.getBytes()));
+		OpQueue diff = Diffs.queue(orig.getBytes(), target.getBytes());
+		diff = new GraphOpQueue(diff, 1024);
 		
-		byte[] result = Diffs.apply(diff, orig.getBytes());
+		MemoryDiff md = new MemoryDiff(diff);
+		System.out.println(md);
+		
+		byte[] result = Diffs.apply(md, orig.getBytes());
+		
 		
 		Assert.assertEquals(target, new String(result));
 	}

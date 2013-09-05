@@ -58,10 +58,13 @@ public class Graph {
 		
 		for(int y = 0; y < yval.length; y++) {
 			for(int x = 0; x < xval.length; x++) {
+				if(x == 0 && y == 0)
+					continue;
 				int pos = x + y * xval.length;
 				if(x > 0 && y > 0 && xval[x] == yval[y]) {
 					flags[pos] = Op.NEXT;
 					lengths[pos] = (short) (1 + lengths[pos - xval.length - 1]);
+					continue;
 				}
 				short dlen = x > 0 ? lengths[pos-1] : Short.MAX_VALUE;
 				short ilen = y > 0 ? lengths[pos - xval.length] : Short.MAX_VALUE;
