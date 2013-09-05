@@ -31,7 +31,7 @@ public class KryoSerialization implements Serialization {
 		
 		kryo.register(byte[].class);
 		kryo.register(DiffOp.class, new DiffOpSerializer());
-		kryo.register(PatchOp.class, new PatchOpSerializer());
+		kryo.register(PatchOp.class, new SerializedSerializer<PatchOp>());
 		kryo.register(MemoryDiff.class, new SerializedSerializer<MemoryDiff>());
 		kryo.register(MemoryPatch.class, new SerializedSerializer<MemoryPatch>());
 	}

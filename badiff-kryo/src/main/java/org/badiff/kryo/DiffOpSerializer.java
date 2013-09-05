@@ -16,11 +16,12 @@ public class DiffOpSerializer extends Serializer<DiffOp> {
 		if(object.getOp() == DiffOp.INSERT)
 			kryo.writeObject(output, object.getData());
 		if(object.getOp() == DiffOp.DELETE) {
+			byte[] data = object.getData();
 			@SuppressWarnings("unchecked")
-			boolean strip = object.getData() == null || kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
-			output.writeBoolean(strip);
-			if(!strip)
-				kryo.writeObject(output, object.getData());
+			boolean strip = kryo.getContext().containsKey(KryoSerialization.STRIP_DELETES);
+			if(strip)
+				data = null;
+			kryo.writeObjectOrNull(output, data, byte[].class);
 		}
 	}
 
@@ -32,9 +33,7 @@ public class DiffOpSerializer extends Serializer<DiffOp> {
 		if(op == DiffOp.INSERT)
 			data = kryo.readObject(input, byte[].class);
 		if(op == DiffOp.DELETE) {
-			boolean stripped = input.readBoolean();
-			if(!stripped)
-				data = kryo.readObject(input, byte[].class);
+			data = kryo.readObjectOrNull(input, byte[].class);
 		}
 		return new DiffOp(op, run, data);
 	}
