@@ -7,6 +7,7 @@ import org.badiff.imp.MemoryDiff;
 import org.badiff.imp.MemoryPatch;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
+import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Serials;
 
 /**
@@ -58,6 +59,17 @@ public class ByteArrayDiff {
 	public byte[] apply(byte[] orig, byte[] diff) {
 		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
 		return Diffs.apply(md, orig);
+	}
+	
+	/**
+	 * Apply the inverse of {@code diff} to {@code target} and return the result
+	 * @param target
+	 * @param diff
+	 * @return
+	 */
+	public byte[] undo(byte[] target, byte[] diff) {
+		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+		return Diffs.apply(new UndoOpQueue(md.queue()), target);
 	}
 
 	/**
