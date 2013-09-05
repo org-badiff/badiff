@@ -104,7 +104,7 @@ public class FileDiffs {
 	public File undo(File target, Diff diff) throws IOException {
 		File orig = File.createTempFile(target.getName(), ".orig");
 		Diffs.apply(new UndoOpQueue(diff.queue()), target, orig);
-		return target;
+		return orig;
 	}
 	
 	/**
