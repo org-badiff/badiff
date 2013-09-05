@@ -1,8 +1,10 @@
-package org.badiff;
+package org.badiff.alg;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.badiff.DiffOp;
 
 public class Graph {
 	protected byte[] flags;

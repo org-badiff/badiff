@@ -8,8 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.badiff.Graph;
 import org.badiff.DiffOp;
+import org.badiff.alg.Graph;
 
 public class ParallelGraphOpQueue extends FilterOpQueue {
 	

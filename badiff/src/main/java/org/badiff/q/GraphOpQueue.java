@@ -1,7 +1,7 @@
 package org.badiff.q;
 
-import org.badiff.Graph;
 import org.badiff.DiffOp;
+import org.badiff.alg.Graph;
 
 public class GraphOpQueue extends FilterOpQueue {
 	
