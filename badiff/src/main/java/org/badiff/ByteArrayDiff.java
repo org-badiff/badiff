@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.imp.MemoryPatch;
 import org.badiff.io.DefaultSerialization;
-import org.badiff.io.JdkSerialization;
 import org.badiff.io.Serialization;
 import org.badiff.util.Serials;
 

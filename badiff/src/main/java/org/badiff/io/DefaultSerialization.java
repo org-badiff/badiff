@@ -9,10 +9,7 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.badiff.DiffOp;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.util.Streams;

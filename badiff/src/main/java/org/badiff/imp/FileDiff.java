@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 import org.badiff.Diff;
 import org.badiff.DiffOp;
-import org.badiff.io.JdkSerialization;
+import org.badiff.io.DefaultSerialization;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
@@ -166,13 +166,13 @@ public abstract class FileDiff extends File implements Diff {
 
 		@Override
 		public void writeExternal(ObjectOutput out) throws IOException {
-			serialize(JdkSerialization.getInstance(), Streams.asStream(out));
+			serialize(DefaultSerialization.getInstance(), Streams.asStream(out));
 		}
 
 		@Override
 		public void readExternal(ObjectInput in) throws IOException,
 				ClassNotFoundException {
-			deserialize(JdkSerialization.getInstance(), Streams.asStream(in));
+			deserialize(DefaultSerialization.getInstance(), Streams.asStream(in));
 		}
 
 		@Override
