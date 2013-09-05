@@ -104,7 +104,8 @@ public class OpQueue implements Applyable, Iterator<DiffOp> {
 	 * Override this method to provide lazy sequences that populate {@link #pending} on demand.
 	 */
 	protected void shift() {
-		shiftReady();
+		if(ready.size() == 0)
+			shiftReady();
 	}
 	
 	/**
