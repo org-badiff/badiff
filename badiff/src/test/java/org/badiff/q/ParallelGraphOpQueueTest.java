@@ -2,9 +2,17 @@ package org.badiff.q;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.badiff.FileDiffs;
+import org.badiff.imp.FileDiff;
+import org.badiff.util.Streams;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,6 +48,50 @@ public class ParallelGraphOpQueueTest {
 		System.out.println("Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");
 		
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
+	}
+	
+	@Test
+	public void testPerformanceBig() throws Exception {
+		final int SIZE = 24 * 1024 * 1024;
+		
+		File orig = File.createTempFile("orig", ".tmp");
+		orig.deleteOnExit();
+		
+		File target = File.createTempFile("target", ".tmp");
+		target.deleteOnExit();
+		
+		InputStream random = new FileInputStream("/dev/urandom");
+		
+		OutputStream out;
+		
+		System.out.println("Creating random input files");
+		
+		Streams.copy(random, out = new FileOutputStream(orig), SIZE); out.close();
+		Streams.copy(random, out = new FileOutputStream(target), SIZE); out.close();
+		
+		random.close();
+		
+		InputStream oin = new FileInputStream(orig);
+		InputStream tin = new FileInputStream(target);
+		
+		OpQueue q = new StreamChunkingOpQueue(oin, tin);
+		q = new ParallelGraphOpQueue(q);
+		
+		FileDiff fd = new FileDiff(File.createTempFile("filediff", ".diff"));
+		
+		System.out.println("Starting diff");
+		
+		long start = System.nanoTime();
+		
+		fd.store(q);
+		
+		long end = System.nanoTime();
+		
+		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");
+		
+		fd.delete();
+		orig.delete();
+		target.delete();
 	}
 
 }

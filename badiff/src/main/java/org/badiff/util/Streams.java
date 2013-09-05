@@ -49,6 +49,8 @@ public class Streams {
 				r = in.read(buf, 0, (int) Math.min(buf.length, length - count))) {
 			out.write(buf, 0, r);
 			count += r;
+			if(count == length)
+				break;
 		}
 		return count;
 	}
