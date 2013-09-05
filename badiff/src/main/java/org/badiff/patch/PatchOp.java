@@ -19,7 +19,6 @@ import org.badiff.util.Streams;
  *
  */
 public class PatchOp implements FileApplyable, Serialized {
-	private static final long serialVersionUID = 0;
 	
 	/**
 	 * Do nothing to the file

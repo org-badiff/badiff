@@ -21,7 +21,6 @@ import org.badiff.q.OpQueue;
  *
  */
 public class MemoryDiff implements Diff, Serialized {
-	private static final long serialVersionUID = 0;
 	
 	protected List<Op> ops = new ArrayList<Op>();
 

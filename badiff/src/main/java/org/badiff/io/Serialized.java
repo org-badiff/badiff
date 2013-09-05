@@ -3,14 +3,13 @@ package org.badiff.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 
 /**
  * Interface for objects which can be serialized and deserialized with a {@link Serialization}
  * @author robin
  *
  */
-public interface Serialized extends Serializable {
+public interface Serialized {
 	/**
 	 * Serialize this object
 	 * @param serial

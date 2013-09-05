@@ -13,7 +13,6 @@ import org.badiff.io.Serialized;
  *
  */
 public class Op implements Applyable, Serialized {
-	private static final long serialVersionUID = 0;
 	
 	/**
 	 * Stop diffing
