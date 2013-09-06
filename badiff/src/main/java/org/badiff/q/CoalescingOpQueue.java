@@ -44,6 +44,25 @@ public class CoalescingOpQueue extends FilterOpQueue {
 			ready.offerLast(delete);
 			return;
 		}
+		if(pending.peekFirst().getOp() == Op.DELETE) {
+			if(pending.size() == 1 && !shiftPending())
+				return;
+
+			Op delete = pending.pollFirst();
+			if(pending.peekFirst().getOp() != Op.INSERT) {
+				ready.offerLast(delete);
+				return;
+			}
+			Op insert = pending.pollFirst();
+
+			if(Arrays.equals(delete.getData(), insert.getData()))
+				return;
+
+			// bump the pair into the ready queue
+			ready.offerLast(delete);
+			ready.offerLast(insert);
+			return;
+		}
 		if(pending.peekFirst().getOp() == Op.NEXT) {
 			if(pending.size() == 1 && !shiftPending())
 				return;
