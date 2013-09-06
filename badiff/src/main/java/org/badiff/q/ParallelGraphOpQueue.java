@@ -83,6 +83,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 			}
 			final Op delete = e;
 			e = input.poll();
+			if(e == null) {
+				chain().getChain().peekLast().offer(delete);
+				pool.shutdown();
+				break;
+			}
 			if(e.getOp() != Op.INSERT) {
 				chain().getChain().peekLast().offer(delete);
 				chain().getChain().peekLast().offer(e);

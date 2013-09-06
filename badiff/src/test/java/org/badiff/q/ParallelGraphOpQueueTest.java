@@ -51,9 +51,9 @@ public class ParallelGraphOpQueueTest {
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}
 	
-//	@Test
+	@Test
 	public void testPerformanceBig() throws Exception {
-		final int SIZE = 24 * 1024 * 1024;
+		final int SIZE = 50 * 1024 * 1024;
 		
 		File orig = File.createTempFile("orig", ".tmp");
 		orig.deleteOnExit();
@@ -96,7 +96,7 @@ public class ParallelGraphOpQueueTest {
 		
 		long end = System.nanoTime();
 		
-		System.out.println("Computed FileDiff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");
+		System.out.println("Computed parallel graph diff for " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms");
 		
 		tin.close();
 		oin.close();
