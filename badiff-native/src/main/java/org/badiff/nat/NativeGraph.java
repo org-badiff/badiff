@@ -7,7 +7,7 @@ import java.util.List;
 import org.badiff.Op;
 import org.badiff.alg.Graph;
 
-public class NativeGraph extends Graph {
+public class NativeGraph {
 	private static final byte STOP = Op.STOP;
 	private static final byte DELETE = Op.DELETE;
 	private static final byte INSERT = Op.INSERT;
@@ -36,17 +36,14 @@ public class NativeGraph extends Graph {
 	private int bufSize;
 	
 	public NativeGraph(int bufSize) {
-		super(1);
 		this.bufSize = bufSize;
 		new0(bufSize);
 	}
 	
-	@Override
 	public void compute(byte[] orig, byte[] target) {
 		compute0(orig, target);
 	}
 	
-	@Override
 	public List<Op> rlist() {
 		if(!walk0())
 			throw new IllegalStateException("Graph not computed");
