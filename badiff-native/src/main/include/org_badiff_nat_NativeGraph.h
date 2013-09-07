@@ -17,6 +17,14 @@ extern "C" {
 #define org_badiff_nat_NativeGraph_NEXT 3L
 /*
  * Class:     org_badiff_nat_NativeGraph
+ * Method:    new0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_new0
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     org_badiff_nat_NativeGraph
  * Method:    compute0
  * Signature: ([B[B)V
  */

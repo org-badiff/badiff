@@ -16,7 +16,7 @@ public class NativeParallelGraphOpQueue extends ParallelGraphOpQueue {
 
 	@Override
 	protected Graph newGraph() {
-		return new NativeGraph();
+		return new NativeGraph((chunk + 1) * (chunk + 1));
 	}
 	
 }

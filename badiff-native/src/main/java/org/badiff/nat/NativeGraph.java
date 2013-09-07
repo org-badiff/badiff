@@ -13,6 +13,16 @@ public class NativeGraph extends Graph {
 	private static final byte INSERT = Op.INSERT;
 	private static final byte NEXT = Op.NEXT;
 	
+	static {
+		try {
+			System.loadLibrary("badiff-native-1.0.2-SNAPSHOT");
+		} catch(Throwable t) {
+			throw new RuntimeException(t);
+		}
+	}
+	
+	private native void new0(int bufSize);
+	
 	private native void compute0(byte[] orig, byte[] target);
 
 	private native boolean walk0();
@@ -24,13 +34,13 @@ public class NativeGraph extends Graph {
 	
 	private long data;
 	
-	public NativeGraph() {
+	public NativeGraph(int bufSize) {
 		super(1);
+		new0(bufSize);
 	}
 	
 	@Override
 	public void compute(byte[] orig, byte[] target) {
-		free0();
 		compute0(orig, target);
 	}
 	

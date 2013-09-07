@@ -17,8 +17,8 @@
 #define NEXT org_badiff_nat_NativeGraph_NEXT
 
 struct GraphData {
-	char **flags;
-	unsigned short int **lengths;
+	char *flags;
+	unsigned short int *lengths;
 	int x_size;
 	int y_size;
 	signed char *x;
@@ -27,22 +27,16 @@ struct GraphData {
 	int w_y;
 };
 
-static struct GraphData *allocate_data(signed char *x, int x_len, signed char *y, int y_len) {
-	struct GraphData *data = malloc(sizeof(struct GraphData));
-
+static struct GraphData *allocate_data(struct GraphData *data, signed char *x, int x_len, signed char *y, int y_len) {
 	int x_size = x_len + 1, y_size = y_len + 1;
-	int i;
 
 	data->x_size = x_size;
 	data->y_size = y_size;
 
-	data->flags = malloc(y_size * sizeof(char*));
-	data->lengths = malloc(y_size * sizeof(unsigned short*));
-
-	for(i = 0; i < y_size; i++) {
-		data->flags[i] = malloc(x_size);
-		data->lengths[i] = malloc(x_size * sizeof(unsigned short));
-	}
+	if(data->x != NULL)
+		free(data->x);
+	if(data->y != NULL)
+		free(data->y);
 
 	data->x = malloc(x_size); memcpy(1 + data->x, x, x_len);
 	data->y = malloc(y_size); memcpy(1 + data->y, y, y_len);
@@ -52,17 +46,13 @@ static struct GraphData *allocate_data(signed char *x, int x_len, signed char *y
 
 
 static void free_data(struct GraphData *data) {
-	int i;
-
 	if(data == NULL)
 		return;
-	free(data->y);
-	free(data->x);
 
-	for(i = data->y_size - 1; i >= 0; i--) {
-		free(data->lengths[i]);
-		free(data->flags[i]);
-	}
+	if(data->x != NULL)
+		free(data->x);
+	if(data->y != NULL)
+		free(data->y);
 
 	free(data->lengths);
 	free(data->flags);
@@ -89,8 +79,8 @@ static void compute(struct GraphData *_data) {
 	int x, y;
 
 	for(y = 0; y < data.y_size; y++) {
-		char *flags = data.flags[y];
-		unsigned short *lengths = data.lengths[y];
+		char *flags = data.flags + y * data.x_size;
+		unsigned short *lengths = data.lengths + y * data.x_size;
 
 		for(x = 0; x < data.x_size; x++) {
 			if(x == 0 && y == 0) {
@@ -100,11 +90,11 @@ static void compute(struct GraphData *_data) {
 			}
 			if(x > 0 && y > 0 && data.x[x] == data.y[y]) {
 				flags[x] = NEXT;
-				lengths[x] = 1 + data.lengths[y-1][x-1];
+				lengths[x] = 1 + lengths[x-1-data.x_size];
 				continue;
 			}
 			unsigned short dlen = (x > 0) ? 1 + lengths[x-1] : 65535;
-			unsigned short ilen = (y > 0) ? 1 + data.lengths[y-1][x] : 65535;
+			unsigned short ilen = (y > 0) ? 1 + data.lengths[x - data.x_size] : 65535;
 			if(dlen <= ilen) {
 				flags[x] = DELETE;
 				lengths[x] = dlen;
@@ -118,17 +108,34 @@ static void compute(struct GraphData *_data) {
 
 /*
  * Class:     org_badiff_nat_NativeGraph
+ * Method:    new0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_new0
+  (JNIEnv *env, jobject this, jint bufSize) {
+	struct GraphData *data = malloc(sizeof(struct GraphData));
+
+	data->x = NULL;
+	data->y = NULL;
+
+	data->flags = malloc(bufSize);
+	data->lengths = malloc(bufSize * sizeof(unsigned short));
+
+	set_data(env, this, data);
+}
+
+
+/*
+ * Class:     org_badiff_nat_NativeGraph
  * Method:    compute0
  * Signature: ([B[B)V
  */
 JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_compute0
 (JNIEnv *env, jobject this, jbyteArray orig, jbyteArray target)
 {
-	struct GraphData *data;
+	struct GraphData *data = get_data(env, this);
 	int x_len, y_len;
 	signed char *x, *y;
-
-	free_data(get_data(env, this));
 
 	x_len = (*env)->GetArrayLength(env, orig);
 	y_len = (*env)->GetArrayLength(env, target);
@@ -136,7 +143,7 @@ JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_compute0
 	x = (*env)->GetByteArrayElements(env, orig, NULL);
 	y = (*env)->GetByteArrayElements(env, target, NULL);
 
-	data = set_data(env, this, allocate_data(x, x_len, y, y_len));
+	allocate_data(data, x, x_len, y, y_len);
 
 	(*env)->ReleaseByteArrayElements(env, orig, x, JNI_ABORT);
 	(*env)->ReleaseByteArrayElements(env, target, y, JNI_ABORT);
@@ -173,7 +180,7 @@ JNIEXPORT jbyte JNICALL Java_org_badiff_nat_NativeGraph_flag0
 {
 	struct GraphData *data = get_data(env, this);
 
-	return data->flags[data->w_y][data->w_x];
+	return data->flags[data->w_y * data->x_size + data->w_x];
 }
 
 /*
@@ -186,7 +193,7 @@ JNIEXPORT jbyte JNICALL Java_org_badiff_nat_NativeGraph_val0
 {
 	struct GraphData *data = get_data(env, this);
 
-	switch(data->flags[data->w_y][data->w_x]) {
+	switch(data->flags[data->w_y * data->x_size + data->w_x]) {
 	case DELETE:
 		return data->x[data->w_x];
 	case INSERT:
@@ -206,7 +213,7 @@ JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_prev0
 {
 	struct GraphData *data = get_data(env, this);
 
-	switch(data->flags[data->w_y][data->w_x]) {
+	switch(data->flags[data->w_y * data->x_size + data->w_x]) {
 	case DELETE:
 		data->w_x--;
 		break;
