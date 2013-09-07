@@ -71,7 +71,7 @@ public class NativeParallelGraphOpQueueTest {
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}
 	
-//	@Test
+	@Test
 	public void testPerformanceBig() throws Exception {
 		final int SIZE = 50 * 1024 * 1024;
 		
@@ -106,14 +106,13 @@ public class NativeParallelGraphOpQueueTest {
 		OpQueue q = new BufferChunkingOpQueue(obuf, tbuf);
 		q = new NativeParallelGraphOpQueue(q);
 		
-//		FileDiff fd = new FileDiff(File.createTempFile("filediff", ".diff"));
+		FileDiff fd = new FileDiff(File.createTempFile("filediff", ".diff"));
 		
 		System.out.println("Starting diff");
 		
 		long start = System.nanoTime();
 		
-//		fd.store(q);
-		q.drain();
+		fd.store(q);
 		
 		long end = System.nanoTime();
 		
@@ -122,7 +121,7 @@ public class NativeParallelGraphOpQueueTest {
 		tin.close();
 		oin.close();
 		
-//		fd.delete();
+		fd.delete();
 		orig.delete();
 		target.delete();
 	}
