@@ -30,6 +30,7 @@ public class NativeGraph extends Graph {
 	
 	@Override
 	public void compute(byte[] orig, byte[] target) {
+		free0();
 		compute0(orig, target);
 	}
 	
@@ -81,8 +82,12 @@ public class NativeGraph extends Graph {
 			ret.add(new Op(op, run, data));
 		}
 
-		free0();
-		
 		return ret;
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		free0();
 	}
 }
