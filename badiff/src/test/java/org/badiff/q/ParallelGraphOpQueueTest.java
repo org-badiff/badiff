@@ -51,7 +51,7 @@ public class ParallelGraphOpQueueTest {
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}
 	
-	@Test
+//	@Test
 	public void testPerformanceBig() throws Exception {
 		final int SIZE = 50 * 1024 * 1024;
 		

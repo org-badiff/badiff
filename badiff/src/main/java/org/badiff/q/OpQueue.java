@@ -65,6 +65,11 @@ public class OpQueue implements Applyable, Iterator<Op> {
 		return pending.offerLast(e);
 	}
 	
+	public void drain() {
+		for(Op e = poll(); e != null; e = poll())
+			;
+	}
+	
 	/**
 	 * Drain all the {@link Op}s in this object to a {@link List}
 	 * @param c
