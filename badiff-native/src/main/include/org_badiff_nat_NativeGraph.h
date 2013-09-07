@@ -7,6 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef org_badiff_nat_NativeGraph_STOP
+#define org_badiff_nat_NativeGraph_STOP 0L
+#undef org_badiff_nat_NativeGraph_DELETE
+#define org_badiff_nat_NativeGraph_DELETE 1L
+#undef org_badiff_nat_NativeGraph_INSERT
+#define org_badiff_nat_NativeGraph_INSERT 2L
+#undef org_badiff_nat_NativeGraph_NEXT
+#define org_badiff_nat_NativeGraph_NEXT 3L
 /*
  * Class:     org_badiff_nat_NativeGraph
  * Method:    compute0

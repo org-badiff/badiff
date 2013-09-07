@@ -8,6 +8,10 @@ import org.badiff.Op;
 import org.badiff.alg.Graph;
 
 public class NativeGraph extends Graph {
+	private static final byte STOP = Op.STOP;
+	private static final byte DELETE = Op.DELETE;
+	private static final byte INSERT = Op.INSERT;
+	private static final byte NEXT = Op.NEXT;
 	
 	private native void compute0(byte[] orig, byte[] target);
 

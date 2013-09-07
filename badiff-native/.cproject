@@ -29,6 +29,9 @@
 								<option defaultValue="true" id="macosx.c.link.macosx.so.debug.option.nostart.1952542917" name="Do not use standard start files (-nostartfiles)" superClass="macosx.c.link.macosx.so.debug.option.nostart" valueType="boolean"/>
 								<option defaultValue="true" id="macosx.c.link.macosx.so.debug.option.nodeflibs.533700225" name="Do not use default libraries (-nodefaultlibs)" superClass="macosx.c.link.macosx.so.debug.option.nodeflibs" valueType="boolean"/>
 								<option defaultValue="true" id="macosx.c.link.macosx.so.debug.option.shared.1043994013" name="Shared (-dynamiclib)" superClass="macosx.c.link.macosx.so.debug.option.shared" valueType="boolean"/>
+								<option id="macosx.c.link.option.libs.29601078" superClass="macosx.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="c"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.c.linker.input.922375306" superClass="cdt.managedbuild.tool.macosx.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -136,4 +139,12 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/badiff-native"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/badiff-native"/>
+		</configuration>
+	</storageModule>
 </cproject>
