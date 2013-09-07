@@ -40,7 +40,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 */
 	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
 		protected Graph initialValue() {
-			return new Graph((chunk+1) * (chunk+1));
+			return newGraph();
 		}
 	};
 
@@ -64,6 +64,10 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		this.chunk = chunk;
 		pool = new ThreadPoolExecutor(workers, workers, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		
+	}
+	
+	protected Graph newGraph() {
+		return new Graph((chunk+1) * (chunk+1));
 	}
 	
 	@Override
