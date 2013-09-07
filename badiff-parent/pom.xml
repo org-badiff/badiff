@@ -73,6 +73,13 @@
 
 	<profiles>
 		<profile>
+			<id>badiff-native</id>
+			<modules>
+				<module>../badiff-native</module>
+			</modules>
+		</profile>
+	
+		<profile>
 			<id>sign-artifacts</id>
 			<activation>
 				<property>
