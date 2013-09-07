@@ -9,7 +9,7 @@ public class NativeBadiffGraph extends Graph {
 	protected NativeGraph graph;
 	
 	public NativeBadiffGraph(int bufSize) {
-		super(bufSize);
+		super(1);
 		graph = new NativeGraph(bufSize);
 	}
 	
