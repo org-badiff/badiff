@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "org_badiff_nat_NativeGraph.h"
 
@@ -18,13 +19,15 @@
 
 struct GraphData {
 	char *flags;
-	unsigned short int *lengths;
+	unsigned short *lengths;
 	int x_size;
 	int y_size;
-	signed char *x;
-	signed char *y;
+	char *x;
+	char *y;
 	int w_x;
 	int w_y;
+	char w_f;
+	char w_v;
 };
 
 static struct GraphData *allocate_data(struct GraphData *data, signed char *x, int x_len, signed char *y, int y_len) {
@@ -74,33 +77,38 @@ static struct GraphData *set_data(JNIEnv *env, jobject this, struct GraphData *d
 	return data;
 }
 
-static void compute(struct GraphData *_data) {
-	struct GraphData data = *_data;
+static void compute(struct GraphData *data) {
+	int x_size = data->x_size, y_size = data->y_size;
+	char *xv = data->x, *yv = data->y;
+	char *flags = data->flags;
+	unsigned short *lengths = data->lengths;
+
 	int x, y;
 
-	for(y = 0; y < data.y_size; y++) {
-		char *flags = data.flags + y * data.x_size;
-		unsigned short *lengths = data.lengths + y * data.x_size;
+	int pos = -1;
+	for(y = 0; y < y_size; y++) {
+		int left_best = y;
+		for(x = 0; x < x_size; x++) {
+			pos++;
 
-		for(x = 0; x < data.x_size; x++) {
 			if(x == 0 && y == 0) {
-				flags[x] = STOP;
-				lengths[x] = 0;
+				flags[pos] = STOP;
+				lengths[pos] = 0;
 				continue;
 			}
-			if(x > 0 && y > 0 && data.x[x] == data.y[y]) {
-				flags[x] = NEXT;
-				lengths[x] = 1 + lengths[x-1-data.x_size];
+			if(x > 0 && y > 0 && xv[x] == yv[y]) {
+				flags[pos] = NEXT;
+				left_best = lengths[pos] = 1 + lengths[pos-(1+x_size)];
 				continue;
 			}
-			unsigned short dlen = (x > 0) ? 1 + lengths[x-1] : 65535;
-			unsigned short ilen = (y > 0) ? 1 + data.lengths[x - data.x_size] : 65535;
+			unsigned short dlen = (x > 0) ? 1 + left_best : 65535;
+			unsigned short ilen = (y > 0) ? 1 + lengths[pos - x_size] : 65535;
 			if(dlen <= ilen) {
-				flags[x] = DELETE;
-				lengths[x] = dlen;
+				flags[pos] = DELETE;
+				left_best = lengths[pos] = dlen;
 			} else {
-				flags[x] = INSERT;
-				lengths[x] = ilen;
+				flags[pos] = INSERT;
+				left_best = lengths[pos] = ilen;
 			}
 		}
 	}
@@ -164,8 +172,23 @@ JNIEXPORT jboolean JNICALL Java_org_badiff_nat_NativeGraph_walk0
 	if(data == NULL)
 		return JNI_FALSE;
 
-	data->w_x = data->x_size - 1;
-	data->w_y = data->y_size - 1;
+	int x_size = data->x_size;
+
+	int w_x, w_y;
+
+	w_x = data->w_x = x_size - 1;
+	w_y = data->w_y = data->y_size - 1;
+
+	char w_f;
+	w_f = data->w_f = data->flags[w_x + x_size * w_y];
+	switch(w_f) {
+	case DELETE:
+		data->w_v = data->x[w_x];
+		break;
+	case INSERT:
+		data->w_v = data->y[w_y];
+	}
+
 
 	return JNI_TRUE;
 }
@@ -180,7 +203,7 @@ JNIEXPORT jbyte JNICALL Java_org_badiff_nat_NativeGraph_flag0
 {
 	struct GraphData *data = get_data(env, this);
 
-	return data->flags[data->w_y * data->x_size + data->w_x];
+	return data->w_f;
 }
 
 /*
@@ -193,14 +216,7 @@ JNIEXPORT jbyte JNICALL Java_org_badiff_nat_NativeGraph_val0
 {
 	struct GraphData *data = get_data(env, this);
 
-	switch(data->flags[data->w_y * data->x_size + data->w_x]) {
-	case DELETE:
-		return data->x[data->w_x];
-	case INSERT:
-	case NEXT:
-		return data->y[data->w_y];
-	}
-	return -1;
+	return data->w_v;
 }
 
 /*
@@ -213,17 +229,30 @@ JNIEXPORT void JNICALL Java_org_badiff_nat_NativeGraph_prev0
 {
 	struct GraphData *data = get_data(env, this);
 
-	switch(data->flags[data->w_y * data->x_size + data->w_x]) {
+	int x_size = data->x_size;
+	int w_x = data->w_x, w_y = data->w_y;
+	char w_f;
+
+	switch(w_f = data->flags[w_y * x_size + w_x]) {
 	case DELETE:
-		data->w_x--;
+		w_x = data->w_x = w_x - 1;
 		break;
 	case INSERT:
-		data->w_y--;
+		w_y = data->w_y = w_y - 1;
 		break;
 	case NEXT:
-		data->w_x--;
-		data->w_y--;
+		w_x = data->w_x = w_x - 1;
+		w_y = data->w_y = w_y - 1;
 		break;
+	}
+
+	w_f = data->w_f = data->flags[w_x + x_size * w_y];
+	switch(w_f) {
+	case DELETE:
+		data->w_v = data->x[w_x];
+		break;
+	case INSERT:
+		data->w_v = data->y[w_y];
 	}
 
 }

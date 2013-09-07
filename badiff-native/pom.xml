@@ -28,6 +28,12 @@
 							<linkCPP>false</linkCPP>
 						</library>
 					</libraries>
+					<c>
+						<name>gcc</name>
+						<options>
+							<option>-O5</option>
+						</options>
+					</c>
 				</configuration>
 			</plugin>
 		</plugins>

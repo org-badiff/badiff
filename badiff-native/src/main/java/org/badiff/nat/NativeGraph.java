@@ -32,10 +32,12 @@ public class NativeGraph extends Graph {
 	
 	private native void free0();
 	
-	private long data;
+	private volatile long data;
+	private int bufSize;
 	
 	public NativeGraph(int bufSize) {
 		super(1);
+		this.bufSize = bufSize;
 		new0(bufSize);
 	}
 	
@@ -48,7 +50,7 @@ public class NativeGraph extends Graph {
 	public List<Op> rlist() {
 		if(!walk0())
 			throw new IllegalStateException("Graph not computed");
-		List<Op> ret = new ArrayList<Op>();
+		List<Op> ret = new ArrayList<Op>((int) Math.sqrt(bufSize));
 
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		byte op = Op.STOP;
