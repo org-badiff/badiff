@@ -29,25 +29,22 @@
  */
 package org.badiff.fmt;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
+import org.badiff.q.OpQueue;
 
 /**
- * An object which can convert a {@link Diff} to an external format for long-term storage
+ * An object which can import a diff from an external format
  * @author robin
  *
  */
-public interface OutputFormat {
+public interface InputFormat {
 	/**
-	 * Export the diff to the external format.
-	 * @param diff The diff to export
-	 * @param orig The original file to reference while exporting
-	 * @param out The output to which to write the exported diff
-	 * @throws IOException
+	 * Import the externally formatted diff
+	 * @param orig The original file
+	 * @param extDiff The diff to import
+	 * @return A badiff diff
 	 */
-	public void exportDiff(Diff diff, ByteBuffer orig, DataOutput out) throws IOException;
+	public OpQueue importDiff(ByteBuffer orig, ByteBuffer ext);
 }
