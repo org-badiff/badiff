@@ -5,16 +5,18 @@ byte array diff
 
 A pure-java byte-level diffing library for working with large inputs, taking advantage of parallel processing during optimization. badiff is pretty fast:
 
+````
  Test output running on my desktop, diffing two 50MB files with random contents
     Creating random input files
     Mapping input to RAM...
     Starting diff
     Computed parallel graph diff for 52428800 bytes in 54981ms
-
+````
 Source is available on github, and can be cloned with:
 
+````
   git clone git://github.com/org-badiff/badiff.git badiff
-
+````
 badiff has no external dependencies, but requires Java 1.6 or higher.  badiff is released under a BSD license.
 
 ###Find it on maven:
