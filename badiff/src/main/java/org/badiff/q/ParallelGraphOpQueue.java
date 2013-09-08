@@ -95,6 +95,20 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		
 	}
 	
+	/*
+	 * Offer the input to the actual input queue, not the wrapped chain
+	 * (non-Javadoc)
+	 * @see org.badiff.q.FilterOpQueue#offer(org.badiff.Op)
+	 */
+	@Override
+	public boolean offer(Op e) {
+		return input.offer(e);
+	}
+	
+	/**
+	 * Return a new {@link Graph} to be used by a thread computing graph diffs in parallel
+	 * @return
+	 */
 	protected Graph newGraph() {
 		return new Graph((chunk+1) * (chunk+1));
 	}
