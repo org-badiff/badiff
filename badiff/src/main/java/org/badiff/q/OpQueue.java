@@ -40,6 +40,7 @@ import java.util.List;
 import org.badiff.Applyable;
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.io.Input;
 
 /**
  * A unidirectional double-buffering queue of {@link Op}.
@@ -154,7 +155,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 
 	@Override
-	public void apply(InputStream orig, OutputStream target)
+	public void apply(Input orig, OutputStream target)
 			throws IOException {
 		for(Op e = poll(); e != null; e = poll())
 			e.apply(orig, target);

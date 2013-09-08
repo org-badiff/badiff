@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.badiff.Op;
+import org.badiff.io.ByteBufferInput;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +66,7 @@ public class GraphOpQueueTest {
 
 		long start = System.nanoTime();
 		q.apply(
-				new ByteArrayInputStream(orig.toByteArray()),
+				new ByteBufferInput(orig.toByteArray()),
 				result);
 		long end = System.nanoTime();
 		

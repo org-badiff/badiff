@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
+import org.badiff.io.ByteBufferInput;
 import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
@@ -81,7 +82,7 @@ public class NativeParallelGraphOpQueueTest {
 		
 		long start = System.nanoTime();
 		q.apply(
-				new ByteArrayInputStream(orig.toByteArray()),
+				new ByteBufferInput(orig.toByteArray()),
 				result);
 		long end = System.nanoTime();
 		

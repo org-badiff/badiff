@@ -36,8 +36,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 
 import org.badiff.Applyable;
+import org.badiff.io.ByteBufferInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
@@ -69,10 +72,9 @@ public class Diffs {
 	}
 	
 	public static byte[] apply(Applyable a, byte[] orig) {
-		ByteArrayInputStream in = new ByteArrayInputStream(orig);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			a.apply(in, out);
+			a.apply(new ByteBufferInput(orig), out);
 		} catch(IOException ioe) {
 			throw new RuntimeIOException(ioe);
 		}
@@ -81,10 +83,12 @@ public class Diffs {
 	
 	public static void apply(Applyable a, File orig, File target) throws IOException {
 		FileInputStream in = new FileInputStream(orig);
+		MappedByteBuffer buf = in.getChannel().map(MapMode.READ_ONLY, 0, orig.length());
+		buf.load();
 		try {
 			FileOutputStream out = new FileOutputStream(target);
 			try {
-				a.apply(in, out);
+				a.apply(new ByteBufferInput(buf), out);
 			} finally {
 				out.close();
 			}

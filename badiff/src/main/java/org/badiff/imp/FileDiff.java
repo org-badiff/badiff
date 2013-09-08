@@ -41,6 +41,7 @@ import java.util.Iterator;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.DefaultSerialization;
+import org.badiff.io.Input;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
@@ -104,7 +105,7 @@ public class FileDiff extends File implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target) throws IOException {
+	public void apply(Input orig, OutputStream target) throws IOException {
 		InputStream self = new FileInputStream(this);
 		try {
 			long count = serial.readObject(self, Long.class);

@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.badiff.io.Input;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
@@ -109,7 +110,7 @@ public class Op implements Applyable, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target) throws IOException {
+	public void apply(Input orig, OutputStream target) throws IOException {
 		switch(op) {
 		case DELETE:
 			orig.skip(run);

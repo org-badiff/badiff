@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.badiff.io.Input;
+
 /**
  * An object which can be applied to an "original" {@link InputStream} and write
  * the results to a "target" {@link OutputStream}.  Objects which implement
@@ -48,6 +50,6 @@ public interface Applyable {
 	 * @param target
 	 * @throws IOException
 	 */
-	public void apply(InputStream orig, OutputStream target) throws IOException;
+	public void apply(Input orig, OutputStream target) throws IOException;
 
 }

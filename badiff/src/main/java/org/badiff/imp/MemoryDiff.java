@@ -38,6 +38,7 @@ import java.util.List;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.io.Input;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.q.ListOpQueue;
@@ -61,7 +62,7 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target)
+	public void apply(Input orig, OutputStream target)
 			throws IOException {
 		for(Op e : ops)
 			e.apply(orig, target);
