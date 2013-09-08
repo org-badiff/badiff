@@ -37,6 +37,8 @@ import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.io.Input;
+import org.badiff.io.RuntimeIOException;
 import org.badiff.q.OpQueue;
 
 /**
@@ -46,11 +48,8 @@ import org.badiff.q.OpQueue;
  */
 public class GdiffFormat implements OutputFormat, InputFormat {
 
-	public GdiffFormat() {
-	}
-	
 	@Override
-	public void exportDiff(Diff diff, ByteBuffer orig, DataOutput out) throws IOException {
+	public void exportDiff(Diff diff, Input orig, DataOutput out) throws IOException {
 		OpQueue q = diff.queue();
 		long opos = 0;
 		for(Op e = q.poll(); e != null; e = q.poll()) {
@@ -134,17 +133,16 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 	}
 
 	@Override
-	public OpQueue importDiff(ByteBuffer orig, ByteBuffer ext) {
+	public OpQueue importDiff(Input orig, Input ext) {
 		return new GdiffOpQueue(orig, ext);
 	}
 
 	private class GdiffOpQueue extends OpQueue {
-		private ByteBuffer orig;
-		private ByteBuffer ext;
+		private Input orig;
+		private Input ext;
 		private boolean closed;
-		private int pos;
 		
-		public GdiffOpQueue(ByteBuffer orig, ByteBuffer ext) {
+		public GdiffOpQueue(Input orig, Input ext) {
 			this.orig = orig;
 			this.ext = ext;
 		}
@@ -156,86 +154,80 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 				return;
 			}
 			
-			int b = 0xff & ext.get();
-			switch(b) {
-			case 0:
-				closed = true;
-				break;
-			case 247:
-				int len = ext.getShort() & 0xffff;
-				byte[] buf = new byte[len];
-				ext.get(buf);
-				offer(new Op(Op.INSERT, len, buf));
-				break;
-			case 248:
-				len = ext.getInt();
-				buf = new byte[len];
-				ext.get(buf);
-				offer(new Op(Op.INSERT, len, buf));
-				break;
-			case 249:
-				int p = ext.getShort() & 0xffff;
-				len = 0xff & ext.get();
-				copy(p, len);
-				break;
-			case 250:
-				p = ext.getShort() & 0xffff;
-				len = 0xffff & ext.getShort();
-				copy(p, len);
-				break;
-			case 251:
-				p = ext.getShort() & 0xffff;
-				len = ext.getInt();
-				copy(p, len);
-				break;
-			case 252:
-				p = ext.getInt();
-				len = 0xff & ext.get();
-				copy(p, len);
-				break;
-			case 253:
-				p = ext.getInt();
-				len = 0xffff & ext.getShort();
-				copy(p, len);
-				break;
-			case 254:
-				p = ext.getInt();
-				len = ext.getInt();
-				copy(p, len);
-				break;
-			case 255:
-				p = (int) ext.getLong();
-				len = ext.getInt();
-				copy(p, len);
-				break;
-			default:
-				len = b;
-				buf = new byte[len];
-				ext.get(buf);
-				offer(new Op(Op.INSERT, len, buf));
-				break;
+			try {
+				int b = 0xff & ext.readByte();
+				switch(b) {
+				case 0:
+					closed = true;
+					break;
+				case 247:
+					int len = ext.readShort() & 0xffff;
+					byte[] buf = new byte[len];
+					ext.readFully(buf);
+					offer(new Op(Op.INSERT, len, buf));
+					break;
+				case 248:
+					len = ext.readInt();
+					buf = new byte[len];
+					ext.readFully(buf);
+					offer(new Op(Op.INSERT, len, buf));
+					break;
+				case 249:
+					long p = ext.readShort() & 0xffff;
+					len = 0xff & ext.readByte();
+					copy(p, len);
+					break;
+				case 250:
+					p = ext.readShort() & 0xffff;
+					len = 0xffff & ext.readShort();
+					copy(p, len);
+					break;
+				case 251:
+					p = ext.readShort() & 0xffff;
+					len = ext.readInt();
+					copy(p, len);
+					break;
+				case 252:
+					p = ext.readInt();
+					len = 0xff & ext.readByte();
+					copy(p, len);
+					break;
+				case 253:
+					p = ext.readInt();
+					len = 0xffff & ext.readShort();
+					copy(p, len);
+					break;
+				case 254:
+					p = ext.readInt();
+					len = ext.readInt();
+					copy(p, len);
+					break;
+				case 255:
+					p = ext.readLong();
+					len = ext.readInt();
+					copy(p, len);
+					break;
+				default:
+					len = b;
+					buf = new byte[len];
+					ext.readFully(buf);
+					offer(new Op(Op.INSERT, len, buf));
+					break;
+				}
+			} catch(IOException ioe) {
+				throw new RuntimeIOException(ioe);
 			}
 			
 			super.shift();
 		}
 		
-		private void copy(int p, int len) {
-			if(p >= pos) {
-				if(p > pos)
-					offer(new Op(Op.DELETE, p - pos, null));
-				offer(new Op(Op.NEXT, len, null));
-				pos = p + len;
-				return;
-			}
-			byte[] buf = new byte[len];
-			int oldpos = ext.position();
-			try {
-				ext.position(p);
-				ext.get(buf);
-			} finally {
-				ext.position(oldpos);
-			}
-			offer(new Op(Op.INSERT, len, buf));
+		private void copy(long p, int len) throws IOException {
+			long pos = orig.position();
+			if(p != pos)
+				offer(new Op(Op.DELETE, (int)(p - pos), null));
+			offer(new Op(Op.NEXT, len, null));
+			orig.seek(p + len);
+			return;
 		}
 	}
 	
