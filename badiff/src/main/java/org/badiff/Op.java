@@ -161,9 +161,8 @@ public class Op implements Applyable, Serialized {
 	@Override
 	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		serial.writeObject(out, Byte.class, op);
-		if(op != STOP)
-			serial.writeObject(out, Integer.class, run);
+		long oprun = op | (((long) run) << 2);
+		serial.writeObject(out, Long.class, oprun);
 		if(op == INSERT || op == DELETE)
 			serial.writeObject(out, byte[].class, data);
 	}
@@ -171,9 +170,9 @@ public class Op implements Applyable, Serialized {
 	@Override
 	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
-		op = serial.readObject(in, Byte.class);
-		if(op != STOP)
-			run = serial.readObject(in, Integer.class);
+		long oprun = serial.readObject(in, Long.class);
+		op = (byte)(oprun & 0x3);
+		run = (int)(oprun >>> 2);
 		if(op == INSERT || op == DELETE)
 			data = serial.readObject(in, byte[].class);
 	}
