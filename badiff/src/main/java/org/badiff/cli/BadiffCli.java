@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.badiff.imp.FileDiff;
+import org.badiff.imp.StreamQueueable;
 import org.badiff.imp.StreamStoreable;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
@@ -67,6 +68,16 @@ public class BadiffCli {
 			q.apply(patched, System.out);
 			return;
 		}
+		
+		if("strip".equals(args[0])) {
+			if(args.length != 1) {
+				help();
+				return;
+			}
+			OpQueue q = new StreamQueueable(System.in).queue();
+			q = new OneWayOpQueue(q);
+			new StreamStoreable(System.out).store(q);
+		}
 }
 
 	
@@ -84,5 +95,8 @@ public class BadiffCli {
 		
 		System.out.println("badiff reverse PATCHED DIFF");
 		System.out.println("\tWrite the original file to standard out, given a bi-directional diff");
+		
+		System.out.println("badiff strip");
+		System.out.println("\tRead an any-directional diff from standard in and write a one-way diff to standard out");
 	}
 }
