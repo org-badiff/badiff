@@ -56,7 +56,7 @@ public class BadiffCli {
 			return;
 		}
 
-		if("reverse".equals(args[0])) {
+		if("unpatch".equals(args[0])) {
 			if(args.length != 3) {
 				help();
 				return;
@@ -93,7 +93,7 @@ public class BadiffCli {
 		System.out.println("badiff patch ORIG DIFF");
 		System.out.println("\tWrite the patched file to standard out");
 		
-		System.out.println("badiff reverse PATCHED DIFF");
+		System.out.println("badiff unpatch PATCHED DIFF");
 		System.out.println("\tWrite the original file to standard out, given a bi-directional diff");
 		
 		System.out.println("badiff strip");
