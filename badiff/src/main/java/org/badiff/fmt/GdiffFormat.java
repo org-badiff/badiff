@@ -50,6 +50,13 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 
 	@Override
 	public void exportDiff(Diff diff, RandomInput orig, DataOutput out) throws IOException {
+		// magic
+		out.writeByte(0xd1);
+		out.writeByte(0xff);
+		out.writeByte(0xd1);
+		out.writeByte(0xff);
+		// version
+		out.writeByte(4);
 		OpQueue q = diff.queue();
 		long opos = 0;
 		for(Op e = q.poll(); e != null; e = q.poll()) {
@@ -133,7 +140,7 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 	}
 
 	@Override
-	public OpQueue importDiff(RandomInput orig, RandomInput ext) {
+	public OpQueue importDiff(RandomInput orig, RandomInput ext) throws IOException {
 		return new GdiffOpQueue(orig, ext);
 	}
 
@@ -142,9 +149,19 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 		private RandomInput ext;
 		private boolean closed;
 		
-		public GdiffOpQueue(RandomInput orig, RandomInput ext) {
+		public GdiffOpQueue(RandomInput orig, RandomInput ext) throws IOException {
 			this.orig = orig;
 			this.ext = ext;
+			if(ext.readByte() != (byte) 0xd1)
+				throw new IOException("invalid magic");
+			if(ext.readByte() != (byte) 0xff)
+				throw new IOException("invalid magic");
+			if(ext.readByte() != (byte) 0xd1)
+				throw new IOException("invalid magic");
+			if(ext.readByte() != (byte) 0xff)
+				throw new IOException("invalid magic");
+			if(ext.readByte() != (byte) 0x4)
+				throw new IOException("invalid version");
 		}
 		
 		@Override

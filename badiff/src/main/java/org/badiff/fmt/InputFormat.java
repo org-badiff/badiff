@@ -29,6 +29,7 @@
  */
 package org.badiff.fmt;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
@@ -47,5 +48,5 @@ public interface InputFormat {
 	 * @param extDiff The diff to import
 	 * @return A badiff diff
 	 */
-	public OpQueue importDiff(RandomInput orig, RandomInput ext);
+	public OpQueue importDiff(RandomInput orig, RandomInput ext) throws IOException;
 }
