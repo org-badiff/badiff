@@ -38,7 +38,7 @@ import java.io.InputStream;
  * @author robin
  *
  */
-public interface Input extends DataInput {
+public interface RandomInput extends DataInput {
 	/**
 	 * Returns the first position that can be {@link #seek(long)}ed
 	 * @return

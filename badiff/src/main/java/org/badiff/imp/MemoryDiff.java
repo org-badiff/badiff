@@ -38,7 +38,7 @@ import java.util.List;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.io.Input;
+import org.badiff.io.RandomInput;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.q.ListOpQueue;

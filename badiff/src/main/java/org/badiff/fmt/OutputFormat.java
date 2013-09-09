@@ -35,7 +35,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
-import org.badiff.io.Input;
+import org.badiff.io.RandomInput;
 
 /**
  * An object which can convert a {@link Diff} to an external format for long-term storage
@@ -50,5 +50,5 @@ public interface OutputFormat {
 	 * @param out The output to which to write the exported diff
 	 * @throws IOException
 	 */
-	public void exportDiff(Diff diff, Input orig, DataOutput out) throws IOException;
+	public void exportDiff(Diff diff, RandomInput orig, DataOutput out) throws IOException;
 }

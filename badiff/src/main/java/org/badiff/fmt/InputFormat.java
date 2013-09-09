@@ -32,7 +32,7 @@ package org.badiff.fmt;
 import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
-import org.badiff.io.Input;
+import org.badiff.io.RandomInput;
 import org.badiff.q.OpQueue;
 
 /**
@@ -47,5 +47,5 @@ public interface InputFormat {
 	 * @param extDiff The diff to import
 	 * @return A badiff diff
 	 */
-	public OpQueue importDiff(Input orig, Input ext);
+	public OpQueue importDiff(RandomInput orig, RandomInput ext);
 }

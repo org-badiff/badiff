@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.badiff.Op;
-import org.badiff.io.ByteBufferInput;
+import org.badiff.io.ByteBufferRandomInput;
 import org.junit.Assert;
 import org.junit.Test;
 

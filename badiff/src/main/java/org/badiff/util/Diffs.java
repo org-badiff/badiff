@@ -40,7 +40,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
 import org.badiff.Applyable;
-import org.badiff.io.ByteBufferInput;
+import org.badiff.io.ByteBufferRandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;

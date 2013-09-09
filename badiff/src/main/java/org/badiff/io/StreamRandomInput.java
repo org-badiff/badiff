@@ -35,12 +35,12 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.nio.ByteBuffer;
 
-public class StreamInput implements Input {
+public class StreamRandomInput implements RandomInput {
 	
 	protected PushbufferInputStream pin;
 	protected DataInputStream din;
 
-	public StreamInput(InputStream in, int size) {
+	public StreamRandomInput(InputStream in, int size) {
 		pin = new PushbufferInputStream(in, size);
 		din = new DataInputStream(pin);
 	}

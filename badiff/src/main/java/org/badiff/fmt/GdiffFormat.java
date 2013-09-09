@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.io.Input;
+import org.badiff.io.RandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.OpQueue;
 
@@ -49,7 +49,7 @@ import org.badiff.q.OpQueue;
 public class GdiffFormat implements OutputFormat, InputFormat {
 
 	@Override
-	public void exportDiff(Diff diff, Input orig, DataOutput out) throws IOException {
+	public void exportDiff(Diff diff, RandomInput orig, DataOutput out) throws IOException {
 		OpQueue q = diff.queue();
 		long opos = 0;
 		for(Op e = q.poll(); e != null; e = q.poll()) {
@@ -133,16 +133,16 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 	}
 
 	@Override
-	public OpQueue importDiff(Input orig, Input ext) {
+	public OpQueue importDiff(RandomInput orig, RandomInput ext) {
 		return new GdiffOpQueue(orig, ext);
 	}
 
 	private class GdiffOpQueue extends OpQueue {
-		private Input orig;
-		private Input ext;
+		private RandomInput orig;
+		private RandomInput ext;
 		private boolean closed;
 		
-		public GdiffOpQueue(Input orig, Input ext) {
+		public GdiffOpQueue(RandomInput orig, RandomInput ext) {
 			this.orig = orig;
 			this.ext = ext;
 		}

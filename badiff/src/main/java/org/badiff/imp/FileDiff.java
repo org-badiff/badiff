@@ -41,7 +41,7 @@ import java.util.Iterator;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.DefaultSerialization;
-import org.badiff.io.Input;
+import org.badiff.io.RandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;

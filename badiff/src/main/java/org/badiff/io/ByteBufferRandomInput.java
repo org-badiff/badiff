@@ -34,15 +34,15 @@ import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
-public class ByteBufferInput implements Input {
+public class ByteBufferRandomInput implements RandomInput {
 	
 	protected ByteBuffer buf;
 	
-	public ByteBufferInput(ByteBuffer buf) {
+	public ByteBufferRandomInput(ByteBuffer buf) {
 		this.buf = buf;
 	}
 	
-	public ByteBufferInput(byte[] buf) {
+	public ByteBufferRandomInput(byte[] buf) {
 		this(ByteBuffer.wrap(buf));
 	}
 

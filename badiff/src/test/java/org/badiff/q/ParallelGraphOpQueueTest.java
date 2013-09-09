@@ -42,7 +42,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.badiff.imp.FileDiff;
-import org.badiff.io.ByteBufferInput;
+import org.badiff.io.ByteBufferRandomInput;
 import org.badiff.util.Streams;
 import org.junit.Assert;
 import org.junit.Test;

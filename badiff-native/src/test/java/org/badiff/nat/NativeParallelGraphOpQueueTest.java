@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
-import org.badiff.io.ByteBufferInput;
+import org.badiff.io.ByteBufferRandomInput;
 import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
