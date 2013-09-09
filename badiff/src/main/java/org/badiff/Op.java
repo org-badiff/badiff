@@ -173,6 +173,9 @@ public class Op implements Applyable, Serialized {
 		long oprun = serial.readObject(in, Long.class);
 		op = (byte)(oprun & 0x3);
 		run = (int)(oprun >>> 2);
+		if(run == 0) { // must be reading old-format Op
+			run = serial.readObject(in, Integer.class);
+		}
 		if(op == INSERT || op == DELETE)
 			data = serial.readObject(in, byte[].class);
 	}
