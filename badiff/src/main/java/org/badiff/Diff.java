@@ -40,7 +40,7 @@ import org.badiff.q.OpQueue;
  * @author robin
  *
  */
-public interface Diff extends Applyable {
+public interface Diff extends Applyable, Storeable {
 	/**
 	 * The default size of a chunk for operations which chunk their input
 	 */
@@ -52,6 +52,7 @@ public interface Diff extends Applyable {
 	 * @param ops
 	 * @throws IOException
 	 */
+	@Override
 	public void store(Iterator<Op> ops) throws IOException;
 	
 	/**
