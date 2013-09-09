@@ -223,11 +223,22 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 		
 		private void copy(long p, int len) throws IOException {
 			long pos = orig.position();
-			if(p != pos)
-				offer(new Op(Op.DELETE, (int)(p - pos), null));
-			offer(new Op(Op.NEXT, len, null));
-			orig.seek(p + len);
-			return;
+			if(p >= pos) {
+				if(p > pos)
+					offer(new Op(Op.DELETE, (int)(p - pos), null));
+				offer(new Op(Op.NEXT, len, null));
+				orig.seek(p + len);
+				return;
+			}
+			byte[] buf = new byte[len];
+			long oldpos = ext.position();
+			try {
+				ext.seek(p);
+				ext.readFully(buf);
+			} finally {
+				ext.seek(oldpos);
+			}
+			offer(new Op(Op.INSERT, len, buf));
 		}
 	}
 	
