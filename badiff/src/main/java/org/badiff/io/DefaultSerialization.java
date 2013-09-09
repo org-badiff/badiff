@@ -209,6 +209,8 @@ public class DefaultSerialization implements Serialization {
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
 		int v = (int)(val & 0x7f);
+		if(v != val)
+			v |= 0x80;
 		out.writeByte(v);
 		if(val != v)
 			writeLong(out, val >>> 7);
