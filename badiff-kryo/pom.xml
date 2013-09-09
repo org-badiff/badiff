@@ -12,12 +12,10 @@
 		<dependency>
 			<groupId>org.badiff</groupId>
 			<artifactId>badiff</artifactId>
-			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.badiff</groupId>
 			<artifactId>badiff</artifactId>
-			<version>1.1-SNAPSHOT</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
