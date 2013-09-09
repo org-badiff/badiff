@@ -29,12 +29,8 @@
  */
 package org.badiff.fmt;
 
-import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.RandomInput;

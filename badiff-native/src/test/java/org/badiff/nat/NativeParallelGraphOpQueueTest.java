@@ -45,13 +45,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
-import org.badiff.io.ByteBufferRandomInput;
 import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
-import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.util.Streams;

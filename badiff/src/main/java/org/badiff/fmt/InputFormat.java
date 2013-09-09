@@ -30,9 +30,6 @@
 package org.badiff.fmt;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.badiff.Diff;
 import org.badiff.io.RandomInput;
 import org.badiff.q.OpQueue;
 

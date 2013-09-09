@@ -29,7 +29,6 @@
  */
 package org.badiff.io;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

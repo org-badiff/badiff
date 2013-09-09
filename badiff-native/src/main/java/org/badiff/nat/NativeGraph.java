@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.badiff.Op;
-import org.badiff.alg.Graph;
 
 public class NativeGraph {
 	private static final byte STOP = Op.STOP;

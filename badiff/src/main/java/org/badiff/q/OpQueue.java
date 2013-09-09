@@ -40,7 +40,6 @@ import java.util.List;
 import org.badiff.Applyable;
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.io.RandomInput;
 
 /**
  * A unidirectional double-buffering queue of {@link Op}.

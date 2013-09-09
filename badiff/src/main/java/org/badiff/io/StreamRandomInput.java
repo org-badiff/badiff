@@ -32,8 +32,6 @@ package org.badiff.io;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
-import java.nio.ByteBuffer;
 
 public class StreamRandomInput implements RandomInput {
 	

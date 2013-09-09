@@ -36,11 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
-
 import org.badiff.Applyable;
-import org.badiff.io.ByteBufferRandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;

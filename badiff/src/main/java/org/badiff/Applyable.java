@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.badiff.io.RandomInput;
-
 /**
  * An object which can be applied to an "original" {@link InputStream} and write
  * the results to a "target" {@link OutputStream}.  Objects which implement

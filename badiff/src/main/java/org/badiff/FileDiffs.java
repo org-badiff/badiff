@@ -37,8 +37,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
 import org.badiff.imp.FileDiff;
-import org.badiff.io.DefaultSerialization;
-import org.badiff.io.Serialization;
 import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
