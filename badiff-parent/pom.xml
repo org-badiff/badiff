@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.badiff</groupId>
 	<artifactId>badiff-parent</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -50,6 +50,11 @@
 				<version>4.11</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.badiff</groupId>
+				<artifactId>badiff</artifactId>
+				<version>1.0.2</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<url>http://badiff.org/</url>
@@ -67,6 +72,13 @@
 	</licenses>
 
 	<profiles>
+		<profile>
+			<id>badiff-native</id>
+			<modules>
+				<module>../badiff-native</module>
+			</modules>
+		</profile>
+	
 		<profile>
 			<id>sign-artifacts</id>
 			<activation>
