@@ -50,6 +50,6 @@ public interface Applyable {
 	 * @param target
 	 * @throws IOException
 	 */
-	public void apply(Input orig, OutputStream target) throws IOException;
+	public void apply(InputStream orig, OutputStream target) throws IOException;
 
 }

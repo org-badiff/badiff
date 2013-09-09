@@ -155,7 +155,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 
 	@Override
-	public void apply(Input orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
 		for(Op e = poll(); e != null; e = poll())
 			e.apply(orig, target);

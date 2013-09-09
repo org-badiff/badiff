@@ -110,7 +110,7 @@ public class Op implements Applyable, Serialized {
 	}
 	
 	@Override
-	public void apply(Input orig, OutputStream target) throws IOException {
+	public void apply(InputStream orig, OutputStream target) throws IOException {
 		switch(op) {
 		case DELETE:
 			orig.skip(run);

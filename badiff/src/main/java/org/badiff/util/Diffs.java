@@ -74,7 +74,7 @@ public class Diffs {
 	public static byte[] apply(Applyable a, byte[] orig) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			a.apply(new ByteBufferInput(orig), out);
+			a.apply(new ByteArrayInputStream(orig), out);
 		} catch(IOException ioe) {
 			throw new RuntimeIOException(ioe);
 		}
@@ -83,12 +83,10 @@ public class Diffs {
 	
 	public static void apply(Applyable a, File orig, File target) throws IOException {
 		FileInputStream in = new FileInputStream(orig);
-		MappedByteBuffer buf = in.getChannel().map(MapMode.READ_ONLY, 0, orig.length());
-		buf.load();
 		try {
 			FileOutputStream out = new FileOutputStream(target);
 			try {
-				a.apply(new ByteBufferInput(buf), out);
+				a.apply(in, out);
 			} finally {
 				out.close();
 			}

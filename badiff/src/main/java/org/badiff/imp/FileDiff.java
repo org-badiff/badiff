@@ -105,7 +105,7 @@ public class FileDiff extends File implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(Input orig, OutputStream target) throws IOException {
+	public void apply(InputStream orig, OutputStream target) throws IOException {
 		InputStream self = new FileInputStream(this);
 		try {
 			long count = serial.readObject(self, Long.class);

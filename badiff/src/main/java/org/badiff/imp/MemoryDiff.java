@@ -62,7 +62,7 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(Input orig, OutputStream target)
+	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
 		for(Op e : ops)
 			e.apply(orig, target);
