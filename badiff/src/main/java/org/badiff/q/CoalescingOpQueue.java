@@ -55,10 +55,13 @@ public class CoalescingOpQueue extends FilterOpQueue {
 		if(pending.size() == 0 && !shiftPending())
 			return;
 		if(pending.peekFirst().getOp() == Op.INSERT) {
-			if(pending.size() == 1 && !shiftPending())
-				return;
-
 			Op insert = pending.pollFirst();
+
+			if(pending.size() == 0 && !shiftPending()) {
+				ready.offerLast(insert);
+				return;
+			}
+
 			if(pending.peekFirst().getOp() != Op.DELETE) {
 				ready.offerLast(insert);
 				return;
@@ -74,10 +77,13 @@ public class CoalescingOpQueue extends FilterOpQueue {
 			return;
 		}
 		if(pending.peekFirst().getOp() == Op.DELETE) {
-			if(pending.size() == 1 && !shiftPending())
-				return;
-
 			Op delete = pending.pollFirst();
+
+			if(pending.size() == 0 && !shiftPending()) {
+				ready.offerLast(delete);
+				return;
+			}
+
 			if(pending.peekFirst().getOp() != Op.INSERT) {
 				ready.offerLast(delete);
 				return;
@@ -93,14 +99,14 @@ public class CoalescingOpQueue extends FilterOpQueue {
 			return;
 		}
 		if(pending.peekFirst().getOp() == Op.NEXT) {
-			if(pending.size() == 1 && !shiftPending())
-				return;
 			Op next = pending.pollFirst();
-			while(pending.peekFirst().getOp() == Op.NEXT) {
-				Op nextNext = pending.pollFirst();
-				next = new Op(Op.NEXT, next.getRun() + nextNext.getRun(), null);
-				if(pending.size() == 0 && !shiftPending())
-					break;
+			if(pending.size() > 0 || shiftPending()) {
+				while(pending.peekFirst().getOp() == Op.NEXT) {
+					Op nextNext = pending.pollFirst();
+					next = new Op(Op.NEXT, next.getRun() + nextNext.getRun(), null);
+					if(pending.size() == 0 && !shiftPending())
+						break;
+				}
 			}
 			ready.offerLast(next);
 			return;
