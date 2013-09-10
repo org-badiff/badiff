@@ -89,6 +89,8 @@ public class Diffs {
 				out.close();
 			}
 		} finally {
+			if(in.available() > 0)
+				throw new IOException("Not all input data consumed");
 			in.close();
 		}
 	}

@@ -148,7 +148,7 @@ public class FileDiff extends File implements Diff, Serialized {
 				try {
 					Op e = serial.readObject(self, Op.class);
 					if(e.getOp() != Op.STOP)
-						super.offer(e);
+						ready.offerLast(e);
 					else
 						close();
 				} catch(IOException ioe) {
