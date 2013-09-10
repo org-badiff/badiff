@@ -111,6 +111,7 @@ public class CoalescingOpQueue extends FilterOpQueue {
 			ready.offerLast(next);
 			return;
 		}
+		ready.offerLast(pending.pollFirst());
 	}
 
 }
