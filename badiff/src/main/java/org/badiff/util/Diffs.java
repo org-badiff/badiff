@@ -90,7 +90,7 @@ public class Diffs {
 			}
 		} finally {
 			if(in.available() > 0)
-				throw new IOException("Not all input data consumed");
+				throw new IOException("Not all input data consumed:" + orig);
 			in.close();
 		}
 	}
