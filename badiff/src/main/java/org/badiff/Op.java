@@ -89,7 +89,7 @@ public class Op implements Applyable, Serialized {
 	public Op(byte op, int run, byte[] data) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
-		if(run < 0 || data != null && run > data.length)
+		if(run < 1 || data != null && run > data.length)
 			throw new IllegalArgumentException("invalid run");
 		if(op == INSERT && data == null)
 			throw new IllegalArgumentException("invalid data");
