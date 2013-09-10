@@ -36,6 +36,7 @@ import java.io.OutputStream;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
+import org.badiff.util.Streams;
 
 /**
  * A single run-length-encoded operation in a {@link Diff}.
@@ -115,17 +116,7 @@ public class Op implements Applyable, Serialized {
 			orig.skip(run);
 			break;
 		case NEXT:
-			int count = run;
-			byte[] buf = new byte[Math.min(count, 8192)];
-			int r;
-			for(r = orig.read(buf, 0, count); r != -1; r = orig.read(buf, 0, count)) {
-				target.write(buf, 0, r);
-				count -= r;
-				if(count == 0)
-					break;
-			}
-			if(r == -1)
-				throw new EOFException("Needed " + count + " bytes");
+			Streams.copy(orig, target, run);
 			break;
 		case INSERT:
 			target.write(data, 0, run);
