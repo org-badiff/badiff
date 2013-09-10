@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.badiff</groupId>
 	<artifactId>badiff-parent</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -53,7 +53,7 @@
 			<dependency>
 				<groupId>org.badiff</groupId>
 				<artifactId>badiff</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.3</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
