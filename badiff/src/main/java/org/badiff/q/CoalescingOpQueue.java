@@ -109,8 +109,6 @@ public class CoalescingOpQueue extends FilterOpQueue {
 				}
 			}
 			ready.offerLast(next);
-			if(pending.size() > 0)
-				ready.offerLast(pending.peekFirst());
 			return;
 		}
 	}

@@ -51,6 +51,9 @@ public class DefaultFileDiffTest {
 		
 		fd.delete();
 		
+		System.out.println("target:" + new String(target));
+		System.out.println("result:" + new String(result));
+		
 		Assert.assertTrue(Arrays.equals(target, result));
 		
 	}
