@@ -209,10 +209,10 @@ public class DefaultSerialization implements Serialization {
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
 		int v = (int)(val & 0x7f);
-		if(v != val)
+		if((val >>> 7) != 0)
 			v |= 0x80;
 		out.writeByte(v);
-		if(val != v)
+		if((val >>> 7) != 0)
 			writeLong(out, val >>> 7);
 	}
 	
@@ -221,7 +221,7 @@ public class DefaultSerialization implements Serialization {
 	}
 	
 	private long readLong(DataInput in, long accum, int shift) throws IOException {
-		int b = 0xff & in.readByte();
+		long b = 0xff & in.readByte();
 		accum |= (b & 0x7f) << (shift);
 		if((b & 0x80) == 0)
 			return accum;
