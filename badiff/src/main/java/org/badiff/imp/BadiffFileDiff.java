@@ -57,8 +57,10 @@ import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
+import org.badiff.q.PumpingOpQueue;
 import org.badiff.q.RewindingOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
+import org.badiff.q.UnchunkingOpQueue;
 import org.badiff.util.Digests;
 import org.badiff.util.Streams;
 
@@ -594,9 +596,15 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
 		q = new ParallelGraphOpQueue(q);
+		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
+		q = new PumpingOpQueue(q);
 		q = new RewindingOpQueue(q);
+		q = new PumpingOpQueue(q);
 		q = new OneWayOpQueue(q);
+		q = new PumpingOpQueue(q);
+		q = new UnchunkingOpQueue(q);
+		q = new PumpingOpQueue(q);
 		tmp.store(q);
 		
 		Optional opt = new Optional();
