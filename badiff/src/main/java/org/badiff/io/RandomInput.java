@@ -31,7 +31,6 @@ package org.badiff.io;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A random-access {@link DataInput}

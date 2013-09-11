@@ -34,20 +34,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DataOutputOutputStream;
-import org.badiff.io.DefaultSerialization;
 import org.badiff.io.RandomInput;
-import org.badiff.io.Serialization;
-import org.badiff.io.Serialized;
-import org.badiff.io.SmallNumberSerialization;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 

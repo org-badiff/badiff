@@ -1,6 +1,5 @@
 package org.badiff.cli;
 
-import java.io.File;
 import java.io.FileInputStream;
 
 import org.badiff.imp.FileDiff;
