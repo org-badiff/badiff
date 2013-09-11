@@ -37,6 +37,7 @@ import org.badiff.Op;
 
 public class RewindingOpQueue extends FilterOpQueue {
 
+	protected int maxkeys;
 	protected int minlength;
 	protected long lookbehind;
 	protected long pos;
@@ -51,9 +52,14 @@ public class RewindingOpQueue extends FilterOpQueue {
 	}
 	
 	public RewindingOpQueue(OpQueue source, long lookbehind, int minlength) {
+		this(source, lookbehind, minlength, 1024);
+	}
+	
+	public RewindingOpQueue(OpQueue source, long lookbehind, int minlength, int maxkeys) {
 		super(source);
 		this.lookbehind = lookbehind;
 		this.minlength = minlength;
+		this.maxkeys = maxkeys;
 	}
 
 	@Override
@@ -71,10 +77,13 @@ public class RewindingOpQueue extends FilterOpQueue {
 			return true;
 
 		case Op.DELETE:
-			if(e.getData() != null && e.getData().length >= minlength)
+			if(e.getData() != null && e.getData().length >= minlength) {
 				deletes.put(pos, e.getData());
+				deletes.subMap(Long.MIN_VALUE, pos - lookbehind).clear();
+				while(deletes.size() > maxkeys)
+					deletes.remove(deletes.firstKey());
+			}
 			pos += e.getRun();
-			deletes.subMap(Long.MIN_VALUE, pos - lookbehind).clear();
 			prepare(e);
 			return true;
 			
