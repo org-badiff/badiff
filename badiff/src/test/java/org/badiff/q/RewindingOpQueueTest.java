@@ -1,9 +1,13 @@
 package org.badiff.q;
 
+import java.io.ByteArrayOutputStream;
+
 import org.badiff.Diff;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
+import org.badiff.io.RandomInputStream;
 import org.badiff.util.Serials;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class RewindingOpQueueTest {
@@ -25,5 +29,10 @@ public class RewindingOpQueueTest {
 		MemoryDiff rwd = new MemoryDiff(q);
 		
 		System.out.println(rwd + ": " + Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, rwd).length);
+		
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		rwd.apply(new RandomInputStream(orig.getBytes()), bout);
+		
+		Assert.assertEquals(target, new String(bout.toByteArray()));
 	}
 }

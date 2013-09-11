@@ -1,11 +1,25 @@
 package org.badiff.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class RandomInputStream extends InputStream {
 	protected RandomInput in;
 	protected long mark = -1;
+	
+	public RandomInputStream(File file) throws IOException {
+		this(new FileRandomInput(file));
+	}
+	
+	public RandomInputStream(byte[] buf) {
+		this(new ByteBufferRandomInput(buf));
+	}
+	
+	public RandomInputStream(ByteBuffer buf) {
+		this(new ByteBufferRandomInput(buf));
+	}
 	
 	public RandomInputStream(RandomInput in) {
 		this.in = in;
