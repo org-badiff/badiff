@@ -29,6 +29,7 @@
  */
 package org.badiff.q;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.badiff.Op;
@@ -48,7 +49,13 @@ public class ListOpQueue extends OpQueue {
 	 */
 	public ListOpQueue(List<Op> ops) {
 		for(Op e : ops)
-			super.offer(e);
+			prepare(e);
+	}
+	
+	public ListOpQueue(Iterator<Op> ops) {
+		while(ops.hasNext()) {
+			prepare(ops.next());
+		}
 	}
 
 }

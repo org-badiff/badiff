@@ -76,8 +76,8 @@ public class GraphOpQueueTest {
 		byte[] rbuf = result.toByteArray();
 		
 		q = new ReplaceOpQueue(tbuf, rbuf);
-		q = new ChunkingOpQueue(q);
-		q = new GraphOpQueue(q, 1024);
+		q = new ChunkingOpQueue(q, CHUNK);
+		q = new GraphOpQueue(q, CHUNK);
 		q = new CoalescingOpQueue(q);
 		List<Op> rdiff = q.drainTo(new ArrayList<Op>());
 		System.out.println(rdiff);

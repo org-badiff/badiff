@@ -68,9 +68,12 @@ public class Diffs {
 	}
 	
 	public static byte[] apply(Applyable a, byte[] orig) {
+		ByteArrayInputStream in = new ByteArrayInputStream(orig);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			a.apply(new ByteArrayInputStream(orig), out);
+			a.apply(in, out);
+			if(in.available() > 0)
+				throw new IOException("Not all byts consumed from byte[]");
 		} catch(IOException ioe) {
 			throw new RuntimeIOException(ioe);
 		}
@@ -88,7 +91,7 @@ public class Diffs {
 			}
 		} finally {
 			if(in.available() > 0)
-				throw new IOException("Not all input data consumed");
+				throw new IOException("Not all input data consumed:" + orig);
 			in.close();
 		}
 	}

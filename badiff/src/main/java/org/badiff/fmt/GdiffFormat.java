@@ -161,10 +161,9 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 		}
 		
 		@Override
-		protected void shift() {
+		protected boolean pull() {
 			if(closed) {
-				super.shift();
-				return;
+				return false;
 			}
 			
 			try {
@@ -177,13 +176,13 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 					int len = ext.readShort() & 0xffff;
 					byte[] buf = new byte[len];
 					ext.readFully(buf);
-					offer(new Op(Op.INSERT, len, buf));
+					prepare(new Op(Op.INSERT, len, buf));
 					break;
 				case 248:
 					len = ext.readInt();
 					buf = new byte[len];
 					ext.readFully(buf);
-					offer(new Op(Op.INSERT, len, buf));
+					prepare(new Op(Op.INSERT, len, buf));
 					break;
 				case 249:
 					long p = ext.readShort() & 0xffff;
@@ -224,22 +223,22 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 					len = b;
 					buf = new byte[len];
 					ext.readFully(buf);
-					offer(new Op(Op.INSERT, len, buf));
+					prepare(new Op(Op.INSERT, len, buf));
 					break;
 				}
 			} catch(IOException ioe) {
 				throw new RuntimeIOException(ioe);
 			}
 			
-			super.shift();
+			return true;
 		}
 		
 		private void copy(long p, int len) throws IOException {
 			long pos = orig.position();
 			if(p >= pos) {
 				if(p > pos)
-					offer(new Op(Op.DELETE, (int)(p - pos), null));
-				offer(new Op(Op.NEXT, len, null));
+					prepare(new Op(Op.DELETE, (int)(p - pos), null));
+				prepare(new Op(Op.NEXT, len, null));
 				orig.seek(p + len);
 				return;
 			}
@@ -251,7 +250,7 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 			} finally {
 				ext.seek(oldpos);
 			}
-			offer(new Op(Op.INSERT, len, buf));
+			prepare(new Op(Op.INSERT, len, buf));
 		}
 	}
 	
