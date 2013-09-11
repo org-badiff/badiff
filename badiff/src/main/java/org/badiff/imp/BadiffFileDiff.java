@@ -64,10 +64,10 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	public static final long FLAG_UNSPECIFIED_SERIALIZATION = 0x8;
 	
 	public static class Stats implements Serialized {
-		public long rewindCount;
-		public long nextCount;
-		public long insertCount;
-		public long deleteCount;
+		private long rewindCount;
+		private long nextCount;
+		private long insertCount;
+		private long deleteCount;
 		
 		private Stats() {}
 		
@@ -87,16 +87,52 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			insertCount = serial.readObject(in, Long.class);
 			deleteCount = serial.readObject(in, Long.class);
 		}
+
+		public long getRewindCount() {
+			return rewindCount;
+		}
+
+		public long getNextCount() {
+			return nextCount;
+		}
+
+		public long getInsertCount() {
+			return insertCount;
+		}
+
+		public long getDeleteCount() {
+			return deleteCount;
+		}
 	}
 	
 	public static class Header {
-		public byte[] magic;
-		public int version;
-		public long flags;
-		public Serialization serial;
-		public Stats stats;
+		private byte[] magic;
+		private int version;
+		private long flags;
+		private Serialization serial;
+		private Stats stats;
 		
 		private Header() {}
+
+		public byte[] getMagic() {
+			return magic;
+		}
+
+		public int getVersion() {
+			return version;
+		}
+
+		public long getFlags() {
+			return flags;
+		}
+
+		public Serialization getSerial() {
+			return serial;
+		}
+
+		public Stats getStats() {
+			return stats;
+		}
 	}
 	
 	public static Stats computeStats(Diff diff) throws IOException {
@@ -122,7 +158,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		return stats;
 	}
 	
-	protected Serialization serial = DefaultSerialization.getInstance();
+	protected Serialization serial = null;
 	
 	public BadiffFileDiff(String pathname) {
 		super(pathname);
@@ -169,7 +205,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		this.serial = serial;
 	}
 
-	protected void writeHeader(Stats stats, DataOutputStream out) throws IOException {
+	protected void writeHeader(Serialization serial, Stats stats, DataOutputStream out) throws IOException {
 		long flags = 0;
 		
 		if(stats.rewindCount > 0)
@@ -246,6 +282,10 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		return header;
 	}
 	
+	public Stats stats() throws IOException {
+		return header().stats;
+	}
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		Header header = header();
@@ -274,8 +314,12 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		// Compute the stats
 		Stats stats = computeStats(tmp);
 		
+		Serialization serial = this.serial;
+		if(serial == null)
+			serial = DefaultSerialization.getInstance();
+		
 		// Write the header
-		writeHeader(stats, out);
+		writeHeader(serial, stats, out);
 		
 		// Copy the ops
 		OpQueue q = tmp.queue();
