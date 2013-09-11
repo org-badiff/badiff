@@ -53,6 +53,7 @@ import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
 public class BadiffFileDiff extends File implements Diff, Serialized {
+	private static final long serialVersionUID = 0;
 
 	public static final byte[] MAGIC = new byte[] {0, (byte)0xde, (byte)0xee, (byte)0xef};
 	public static final int VERSION = 1;
