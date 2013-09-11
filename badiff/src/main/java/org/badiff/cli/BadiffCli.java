@@ -51,6 +51,7 @@ import org.badiff.q.OpQueue;
 import org.badiff.q.RewindingOpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Diffs;
+import org.badiff.util.Digests;
 
 public class BadiffCli {
 
@@ -67,25 +68,9 @@ public class BadiffCli {
 			}
 			File orig = new File(args[1]);
 			File target = new File(args[2]);
-			File diff = new File(args[3]);
-			
-			RandomInput ori = new FileRandomInput(orig);
-			RandomInputStream oin = new RandomInputStream(ori);
-			
-			OpQueue q = Diffs.queue(oin, new RandomInputStream(target));
-			q = Diffs.improved(q);
-			q = new RewindingOpQueue(q);
-			FileDiff tmp = new FileDiff(new File(diff.getParentFile(), diff.getName() + ".tmp"));
-			tmp.store(q);
-			
-			OutputFormat fmt = new BadiffFormat();
-			DataOutputStream out = new DataOutputStream(new FileOutputStream(diff));
-			ori.seek(0);
-			fmt.exportDiff(tmp, ori, out);
-			out.close();
-			ori.close();
-			
-			tmp.delete();
+			BadiffFileDiff diff = new BadiffFileDiff(args[3]);
+
+			diff.diff(orig, target);
 		}
 		
 		if("info".equals(args[0])) {
@@ -97,19 +82,31 @@ public class BadiffCli {
 			BadiffFileDiff.Header header = diff.header();
 			BadiffFileDiff.Stats stats = header.getStats();
 			BadiffFileDiff.Optional opt = header.getOptional();
-			System.out.println("Inserts:" + stats.getInsertCount());
-			System.out.println("Deletes:" + stats.getDeleteCount());
+			
+			field("Input Size", stats.getInputSize());
+			field("Output Size", stats.getOutputSize());
+			field("Patch Size", diff.length());
+			field("Inserts", stats.getInsertCount());
+			field("Deletes", stats.getDeleteCount());
+			field("Copies", stats.getNextCount());
+			field("Rewinds", stats.getRewindCount());
 			if(opt != null) {
-				if(opt.getPreHash() != null) {
-					System.out.println("Hash algorithm:" + opt.getHashAlgorithm());
-					System.out.println("Pre-hash:" + Arrays.toString(opt.getPreHash()));
-					System.out.println("Post-hash:" + Arrays.toString(opt.getPostHash()));
-				}
+				if(opt.getHashAlgorithm() != null)
+					field("Hash", opt.getHashAlgorithm());
+				if(opt.getPreHash() != null)
+					field("Input Hash", Digests.pretty(opt.getPreHash()));
+				if(opt.getPostHash() != null)
+					field("Output Hash", Digests.pretty(opt.getPostHash()));
 			}
 		}
 		
 	}
 
+	private static void field(String header, Object data) {
+		header = header + "....................";
+		header = header.substring(0, 20);
+		System.out.println(header + data);
+	}
 	
 	private static void help() {
 		System.out.println("Command and options required:");

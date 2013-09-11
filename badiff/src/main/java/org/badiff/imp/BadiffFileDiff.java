@@ -46,12 +46,21 @@ import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
+import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
+import org.badiff.io.RandomInput;
+import org.badiff.io.RandomInputStream;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
+import org.badiff.q.CoalescingOpQueue;
+import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
+import org.badiff.q.ParallelGraphOpQueue;
+import org.badiff.q.RewindingOpQueue;
+import org.badiff.q.StreamChunkingOpQueue;
+import org.badiff.util.Digests;
 import org.badiff.util.Streams;
 
 public class BadiffFileDiff extends File implements Diff, Serialized {
@@ -71,6 +80,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		private long nextCount;
 		private long insertCount;
 		private long deleteCount;
+		private long inputSize;
+		private long outputSize;
 		
 		private Stats() {}
 		
@@ -81,6 +92,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			serial.writeObject(out, Long.class, nextCount);
 			serial.writeObject(out, Long.class, insertCount);
 			serial.writeObject(out, Long.class, deleteCount);
+			serial.writeObject(out, Long.class, inputSize);
+			serial.writeObject(out, Long.class, outputSize);
 		}
 		@Override
 		public void deserialize(Serialization serial, InputStream in)
@@ -89,6 +102,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			nextCount = serial.readObject(in, Long.class);
 			insertCount = serial.readObject(in, Long.class);
 			deleteCount = serial.readObject(in, Long.class);
+			inputSize = serial.readObject(in, Long.class);
+			outputSize = serial.readObject(in, Long.class);
 		}
 
 		public long getRewindCount() {
@@ -105,6 +120,14 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 
 		public long getDeleteCount() {
 			return deleteCount;
+		}
+
+		public long getInputSize() {
+			return inputSize;
+		}
+
+		public long getOutputSize() {
+			return outputSize;
 		}
 	}
 	
@@ -185,23 +208,31 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	protected static Stats computeStats(Diff diff) throws IOException {
 		Stats stats = new Stats();
 		OpQueue q = diff.queue();
+		long osize = 0;
+		long tsize = 0;
 		for(Op e = q.poll(); e != null; e = q.poll()) {
 			switch(e.getOp()) {
 			case Op.DELETE:
 				stats.deleteCount++;
 				if(e.getRun() < 0)
 					stats.rewindCount++;
+				osize += e.getRun();
 				break;
 				
 			case Op.INSERT:
 				stats.insertCount++;
+				tsize += e.getRun();
 				break;
 				
 			case Op.NEXT:
 				stats.nextCount++;
+				osize += e.getRun();
+				tsize += e.getRun();
 				break;
 			}
 		}
+		stats.inputSize = osize;
+		stats.outputSize = tsize;
 		return stats;
 	}
 	
@@ -348,11 +379,42 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		return header().stats;
 	}
 	
+	public void diff(File orig, File target) throws IOException {
+		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
+		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
+		
+		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
+		
+		RandomInputStream oin = new RandomInputStream(orig);
+		RandomInputStream tin = new RandomInputStream(target);
+		
+		OpQueue q;
+		q = new StreamChunkingOpQueue(oin, tin);
+		q = new ParallelGraphOpQueue(q);
+		q = new CoalescingOpQueue(q);
+		q = new RewindingOpQueue(q);
+		q = new OneWayOpQueue(q);
+		tmp.store(q);
+		
+		Optional opt = new Optional();
+		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
+		opt.setPreHash(preHash);
+		opt.setPostHash(postHash);
+		
+		DataOutputStream self = new DataOutputStream(new FileOutputStream(this));
+		store(self, serial, opt, tmp.queue());
+		self.close();
+		
+		tmp.delete();
+		tin.close();
+		oin.close();
+	}
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		Header header = header();
 		if((header.flags & FLAG_RANDOM_ACCESS) != 0 && !(orig instanceof Random))
-			throw new IOException(this + " requires a random-access input (" + Random.class + ")");
+			throw new IOException(this + " requires a random-access original (" + Random.class + ")");
 		OpQueue q = queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
 			e.apply(orig, target);
