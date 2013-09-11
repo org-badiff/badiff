@@ -160,8 +160,11 @@ public class ByteBufferRandomInput implements RandomInput {
 	@Override
 	public int read(byte[] b) throws IOException {
 		for(int i = 0; i < b.length; i++) {
-			if(buf.remaining() == 0)
+			if(buf.remaining() == 0) {
+				if(i == 0)
+					return -1;
 				return i;
+			}
 			b[i] = buf.get();
 		}
 		return b.length;
@@ -170,8 +173,11 @@ public class ByteBufferRandomInput implements RandomInput {
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		for(int i = 0; i < len; i++) {
-			if(buf.remaining() == 0)
+			if(buf.remaining() == 0) {
+				if(i == 0)
+					return -1;
 				return i;
+			}
 			b[off + i] = buf.get();
 		}
 		return len;
