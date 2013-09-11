@@ -81,7 +81,7 @@ public class BadiffCli {
 			BadiffFileDiff diff = new BadiffFileDiff(args[1]);
 			File orig = new File(args[2]);
 			File target = new File(args[3]);
-
+			
 			diff.apply(orig, target);
 		}
 		
