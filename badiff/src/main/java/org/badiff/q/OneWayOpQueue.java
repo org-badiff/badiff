@@ -43,15 +43,14 @@ public class OneWayOpQueue extends FilterOpQueue {
 	}
 
 	@Override
-	protected void filter() {
-		if(ready.size() > 0)
-			return;
-		if(pending.size() == 0 && !shiftPending())
-			return;
-		Op e = pending.pollFirst();
+	protected boolean pull() {
+		if(!require(1))
+			return flush();
+		Op e = filtering.remove(0);
 		if(e.getOp() == Op.DELETE)
 			e = new Op(Op.DELETE, e.getRun(), null);
-		ready.offerLast(e);
+		prepare(e);
+		return true;
 	}
 
 }

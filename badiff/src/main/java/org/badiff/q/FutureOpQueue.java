@@ -56,44 +56,23 @@ public class FutureOpQueue extends OpQueue {
 
 	@Override
 	public boolean offer(Op e) {
-		try {
-			return source.get().offer(e);
-		} catch(InterruptedException ie) {
-			throw new RuntimeException(ie);
-		} catch(ExecutionException ee) {
-			throw new RuntimeException(ee);
-		}
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	protected void shift() {
-		filter();
-		super.shift();
-	}
-	
-	/**
-	 * Called when an element should be moved from {@link #source} to {@link OpQueue#pending}
-	 */
-	protected void filter() {
-		if(pending.size() == 0)
-			shiftPending();
-	}
-	
-	/**
-	 * Actually move an element from {@link #source} to {@link OpQueue#pending}
-	 * @return
-	 */
-	protected boolean shiftPending() {
+	protected boolean pull() {
 		try {
-			Op e = source.get().poll();
-			if(e != null)
-				pending.offerLast(e);
-			return e != null;
+			Op e;
+			boolean pulled = false;
+			while((e = source.get().poll()) != null) {
+				prepare(e);
+				pulled = true;
+			}
+			return pulled;
 		} catch(InterruptedException ie) {
 			throw new RuntimeException(ie);
 		} catch(ExecutionException ee) {
 			throw new RuntimeException(ee);
 		}
 	}
-
 }

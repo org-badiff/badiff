@@ -29,6 +29,11 @@
  */
 package org.badiff.q;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import org.badiff.Op;
 
 /**
@@ -41,6 +46,11 @@ public class FilterOpQueue extends OpQueue {
 	 * The source of elements for this {@link FilterOpQueue}
 	 */
 	protected OpQueue source;
+	
+	/**
+	 * Elements from the source currently being filtered
+	 */
+	protected List<Op> filtering = new ArrayList<Op>();
 	
 	/**
 	 * Create a new {@link OpQueue} that draws elements into {@link OpQueue#pending}
@@ -59,29 +69,36 @@ public class FilterOpQueue extends OpQueue {
 		return source.offer(e);
 	}
 	
-	@Override
-	protected void shift() {
-		filter();
-		super.shift();
-	}
 	
 	/**
-	 * Called when an element should be moved from {@link #source} to {@link OpQueue#pending}
-	 */
-	protected void filter() {
-		if(pending.size() == 0)
-			shiftPending();
-	}
-	
-	/**
-	 * Actually move an element from {@link #source} to {@link OpQueue#pending}
+	 * Require that at least {@code count} elements be in the filtering buffer, polling
+	 * from {@link #source} as necessary.  Returns true if the filtering buffer contains
+	 * the required count of elements, false if not.
+	 * @param count
 	 * @return
 	 */
-	protected boolean shiftPending() {
-		Op e = source.poll();
-		if(e != null)
-			pending.offerLast(e);
-		return e != null;
+	protected boolean require(int count) {
+		while(filtering.size() < count) {
+			Op e = source.poll();
+			if(e == null)
+				return false;
+			filtering.add(e);
+		}
+		return true;
 	}
-
+	
+	protected void drop(int count) {
+		while(count-- > 0)
+			filtering.remove(0);
+	}
+	
+	protected boolean flush() {
+		boolean flushed = false;
+		while(filtering.size() > 0) {
+			prepare(filtering.remove(0));
+			flushed = true;
+		}
+		return flushed;
+	}
+	
 }

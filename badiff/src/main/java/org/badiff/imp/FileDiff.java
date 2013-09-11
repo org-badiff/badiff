@@ -105,14 +105,9 @@ public class FileDiff extends File implements Diff, Serialized {
 	
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
-		InputStream self = new FileInputStream(this);
-		try {
-			long count = serial.readObject(self, Long.class);
-			for(long i = 0; i < count; i++)
-				serial.readObject(self, Op.class).apply(orig, target);
-		} finally { 
-			self.close();
-		}
+		OpQueue q = queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			e.apply(orig, target);
 	}
 	
 	@Override
@@ -148,20 +143,21 @@ public class FileDiff extends File implements Diff, Serialized {
 		}
 		
 		@Override
-		protected void shift() {
+		protected boolean pull() {
 			if(!closed) {
 				try {
 					Op e = serial.readObject(self, Op.class);
-					if(e.getOp() != Op.STOP)
-						super.offer(e);
-					else
+					if(e.getOp() != Op.STOP) {
+						prepare(e);
+						return true;
+					} else
 						close();
 				} catch(IOException ioe) {
 					close();
 					throw new RuntimeIOException(ioe);
 				}
 			}
-			super.shift();
+			return false;
 		}
 		
 		private void close() {

@@ -71,25 +71,21 @@ public class ChunkingOpQueue extends FilterOpQueue {
 	}
 
 	@Override
-	protected void filter() {
+	protected boolean pull() {
 		/*
 		 * Look for a (DELETE,INSERT) pair at the head of the pending queue
 		 */
-		if(pending.size() >= 2)
-			return;
-		if(pending.size() == 0 && !shiftPending())
-			return;
-		if(pending.peekFirst().getOp() != Op.DELETE)
-			return;
-		if(pending.size() == 1 && !shiftPending())
-			return;
+		if(!require(2))
+			return flush();
 		
-		Op delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != Op.INSERT) {
-			pending.offerFirst(delete);
-			return;
-		}
-		Op insert = pending.pollFirst();
+		if(filtering.get(0).getOp() != Op.DELETE || filtering.get(1).getOp() != Op.INSERT)
+			return flush();
+		
+		Op delete = filtering.get(0);
+		Op insert = filtering.get(1);
+		
+		filtering.remove(1);
+		filtering.remove(0);
 		
 		/*
 		 * Chunk the delete and insert
@@ -105,16 +101,18 @@ public class ChunkingOpQueue extends FilterOpQueue {
 			if(dpos < ddata.length) {
 				byte[] data = new byte[Math.min(chunk, ddata.length - dpos)];
 				System.arraycopy(ddata, dpos, data, 0, data.length);
-				ready.offerLast(new Op(Op.DELETE, data.length, data));
+				prepare(new Op(Op.DELETE, data.length, data));
 				dpos += data.length;
 			}
 			if(ipos < idata.length) {
 				byte[] data = new byte[Math.min(chunk, idata.length - ipos)];
 				System.arraycopy(idata, ipos, data, 0, data.length);
-				ready.offerLast(new Op(Op.INSERT, data.length, data));
+				prepare(new Op(Op.INSERT, data.length, data));
 				ipos += data.length;
 			}
 		}
+		
+		return true;
 	}
 
 }
