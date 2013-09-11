@@ -66,11 +66,13 @@ public interface RandomInput extends DataInput {
 	 * @param count
 	 * @throws IOException
 	 */
-	public void skip(long count) throws IOException;
+	public long skip(long count) throws IOException;
 	
 	public int read() throws IOException;
 	
 	public int read(byte[] b) throws IOException;
 	
 	public int read(byte[] b, int off, int len) throws IOException;
+	
+	public int available() throws IOException;
 }

@@ -140,8 +140,8 @@ public class StreamRandomInput implements RandomInput {
 	}
 
 	@Override
-	public void skip(long count) throws IOException {
-		pin.skip(count);
+	public long skip(long count) throws IOException {
+		return pin.skip(count);
 	}
 
 	@Override
@@ -159,4 +159,8 @@ public class StreamRandomInput implements RandomInput {
 		return din.read(b, off, len);
 	}
 
+	@Override
+	public int available() throws IOException {
+		return pin.available();
+	}
 }

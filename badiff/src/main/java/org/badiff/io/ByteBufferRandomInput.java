@@ -144,8 +144,8 @@ public class ByteBufferRandomInput implements RandomInput {
 	}
 
 	@Override
-	public void skip(long count) throws IOException {
-		skipBytes((int) count);
+	public long skip(long count) throws IOException {
+		return skipBytes((int) count);
 	}
 
 	@Override
@@ -175,6 +175,11 @@ public class ByteBufferRandomInput implements RandomInput {
 			b[off + i] = buf.get();
 		}
 		return len;
+	}
+
+	@Override
+	public int available() throws IOException {
+		return buf.remaining();
 	}
 
 }
