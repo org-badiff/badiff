@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.badiff</groupId>
 		<artifactId>badiff-parent</artifactId>
-		<version>1.0.5</version>
+		<version>1.0.6-SNAPSHOT</version>
 		<relativePath>../badiff-parent</relativePath>
 	</parent>
 	<artifactId>badiff-native</artifactId>
