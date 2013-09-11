@@ -57,32 +57,34 @@ public class GraphOpQueue extends FilterOpQueue {
 	}
 
 	@Override
-	protected void filter() {
-		if(pending.size() == 0 && !shiftPending())
-			return;
-		if(pending.peekFirst().getOp() != Op.DELETE)
-			return;
-		if(pending.size() == 1 && !shiftPending())
-			return;
+	protected boolean pull() {
+		if(!require(2))
+			return flush();
 		
-		Op delete = pending.pollFirst();
-		if(pending.peekFirst().getOp() != Op.INSERT) {
-			ready.offerLast(delete);
-			return;
-		}
-		Op insert = pending.pollFirst();
+		Op delete = null;
+		Op insert = null;
+		
+		if(filtering.get(0).getOp() == Op.DELETE && filtering.get(1).getOp() == Op.INSERT) {
+			delete = filtering.get(0);
+			insert = filtering.get(1);
+		} else if(filtering.get(0).getOp() == Op.INSERT && filtering.get(1).getOp() == Op.DELETE) {
+			delete = filtering.get(1);
+			insert = filtering.get(0);
+		} else
+			return flush();
+		
+		filtering.remove(1);
+		filtering.remove(0);
 		
 		graph.compute(delete.getData(), insert.getData());
 		List<Op> rlist = graph.rlist();
 		
 		ListIterator<Op> oi = rlist.listIterator(rlist.size());
 		while(oi.hasPrevious()) {
-			ready.offerLast(oi.previous());
+			prepare(oi.previous());
 		}
 		
-//		Collections.reverse(rlist);
-//		for(Op e : rlist)
-//			ready.offerLast(e);
+		return true;
 	}
 		
 	

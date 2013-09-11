@@ -51,67 +51,45 @@ public class CoalescingOpQueue extends FilterOpQueue {
 	}
 
 	@Override
-	protected void filter() {
-		if(pending.size() == 0 && !shiftPending())
-			return;
-		if(pending.peekFirst().getOp() == Op.INSERT) {
-			Op insert = pending.pollFirst();
+	protected boolean pull() {
+		while(require(2)) {
+			if(filtering.get(0).getOp() == Op.INSERT && filtering.get(1).getOp() == Op.DELETE) {
+				Op insert = filtering.get(0);
+				Op delete = filtering.get(1);
 
-			if(pending.size() == 0 && !shiftPending()) {
-				ready.offerLast(insert);
-				return;
-			}
-
-			if(pending.peekFirst().getOp() != Op.DELETE) {
-				ready.offerLast(insert);
-				return;
-			}
-			Op delete = pending.pollFirst();
-
-			if(Arrays.equals(insert.getData(), delete.getData()))
-				return;
-
-			// bump the pair into the ready queue
-			ready.offerLast(insert);
-			ready.offerLast(delete);
-			return;
-		}
-		if(pending.peekFirst().getOp() == Op.DELETE) {
-			Op delete = pending.pollFirst();
-
-			if(pending.size() == 0 && !shiftPending()) {
-				ready.offerLast(delete);
-				return;
-			}
-
-			if(pending.peekFirst().getOp() != Op.INSERT) {
-				ready.offerLast(delete);
-				return;
-			}
-			Op insert = pending.pollFirst();
-
-			if(Arrays.equals(delete.getData(), insert.getData()))
-				return;
-
-			// bump the pair into the ready queue
-			ready.offerLast(delete);
-			ready.offerLast(insert);
-			return;
-		}
-		if(pending.peekFirst().getOp() == Op.NEXT) {
-			Op next = pending.pollFirst();
-			if(pending.size() > 0 || shiftPending()) {
-				while(pending.peekFirst().getOp() == Op.NEXT) {
-					Op nextNext = pending.pollFirst();
-					next = new Op(Op.NEXT, next.getRun() + nextNext.getRun(), null);
-					if(pending.size() == 0 && !shiftPending())
-						break;
+				if(Arrays.equals(insert.getData(), delete.getData())) {
+					drop(2);
+					filtering.add(0, new Op(Op.NEXT, insert.getData().length, null));
+					continue;
 				}
+
+				// bump the pair into the ready queue
+				prepare(filtering.remove(0));
+				return true;
 			}
-			ready.offerLast(next);
-			return;
+			if(filtering.get(0).getOp() == Op.DELETE && filtering.get(1).getOp() == Op.INSERT) {
+				Op delete = filtering.get(0);
+				Op insert = filtering.get(1);
+
+				if(Arrays.equals(delete.getData(), insert.getData())) {
+					drop(2);
+					filtering.add(0, new Op(Op.NEXT, insert.getData().length, null));
+					continue;
+				}
+
+				// bump the pair into the ready queue
+				prepare(filtering.remove(0));
+				return true;
+			}
+			if(filtering.get(0).getOp() == Op.NEXT && filtering.get(1).getOp() == Op.NEXT) {
+				Op n1 = filtering.remove(0);
+				Op n2 = filtering.remove(0);
+				filtering.add(0, new Op(Op.NEXT, n1.getRun() + n2.getRun(), null));
+				continue;
+			}
+			prepare(filtering.remove(0));
 		}
-		ready.offerLast(pending.pollFirst());
+		return flush();
 	}
 
 }

@@ -64,6 +64,8 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 */
 	protected ThreadPoolExecutor pool;
 	
+	protected ChainOpQueue chain;
+	
 	/**
 	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
 	 */
@@ -88,11 +90,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param workers
 	 */
 	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk) {
-		super(new ChainOpQueue(new OpQueue()));
+		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
-		pool = new ThreadPoolExecutor(workers, workers, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-		
+		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		chain = (ChainOpQueue) super.source;
 	}
 	
 	/*
@@ -114,71 +116,65 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	}
 	
 	@Override
-	protected void filter() {
-		// only do anything if there are inactive threads
-		while(pool.getActiveCount() < pool.getCorePoolSize()) {
+	protected boolean require(int count) {
+		while(filtering.size() < count) {
 			Op e = input.poll();
-			if(e == null) { 
-				// ran out of input, so we can shutdown the pool
-				pool.shutdown();
-				break;
-			}
-			// look for DELETE,INSERT
-			if(e.getOp() != Op.DELETE) {
-				chain().getChain().peekLast().offer(e);
-				continue;
-			}
-			final Op delete = e;
-			e = input.poll();
-			if(e == null) {
-				chain().getChain().peekLast().offer(delete);
-				pool.shutdown();
-				break;
-			}
-			if(e.getOp() != Op.INSERT) {
-				chain().getChain().peekLast().offer(delete);
-				chain().getChain().peekLast().offer(e);
-				continue;
-			}
-			final Op insert = e;
-			
-			// construct a task and submit it to the pool
-			Callable<OpQueue> task = new Callable<OpQueue>() {
-				@Override
-				public OpQueue call() throws Exception {
-					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
-					graphed = new GraphOpQueue(graphed, graphs.get());
-					List<Op> ops = new ArrayList<Op>();
-					graphed.drainTo(ops);
-					graphed = new ListOpQueue(ops);
-					return graphed;
-				}
-			};
-			
-			Future<OpQueue> future = pool.submit(task);
-
-			// toss the future queue onto the chain and then a new empty queue also
-			chain().offer(new FutureOpQueue(future));
-			chain().offer(new OpQueue());
-			
+			if(e == null)
+				return false;
+			filtering.add(e);
 		}
-		super.filter();
+		return true;
 	}
 	
-	/**
-	 * Returns the {@link ChainOpQueue} that holds the results of this parallel computation
-	 * @return
-	 */
-	protected ChainOpQueue chain() {
-		return (ChainOpQueue) source;
-	}
-
 	@Override
-	protected boolean shiftPending() {
-		// shutdown the pool when the OpQueue is emptied
-		boolean ret = super.shiftPending();
-		if(!ret)
-			pool.shutdown();
-		return ret;
+	protected void prepare(Op e) {
+		chain.offer(e);
+	}
+	
+	protected void prepare(Future<OpQueue> f) {
+		chain.offer(new FutureOpQueue(f));
+		chain.offer(new OpQueue());
+	}
+	
+	protected Callable<OpQueue> newTask(final Op delete, final Op insert) {
+		return new Callable<OpQueue>() {
+			@Override
+			public OpQueue call() throws Exception {
+				OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
+				graphed = new GraphOpQueue(graphed, graphs.get());
+				graphed = new ListOpQueue(graphed);
+				return graphed;
+			}
+		};
+	}
+	
+	@Override
+	protected boolean pull() {
+		while(require(2)) {
+			Op delete;
+			Op insert;
+			
+			if(filtering.get(0).getOp() == Op.DELETE && filtering.get(1).getOp() == Op.INSERT) {
+				delete = filtering.remove(0);
+				insert = filtering.remove(0);
+			} else if(filtering.get(0).getOp() == Op.INSERT && filtering.get(1).getOp() == Op.DELETE) {
+				insert = filtering.remove(0);
+				delete = filtering.remove(0);
+			} else {
+				prepare(filtering.remove(0));
+				continue;
+			}
+			
+			// construct a task and submit it to the pool
+			prepare(pool.submit(newTask(delete, insert)));
+		}
+		flush();
+		pool.shutdown();
+		
+		Op e;
+		if((e = chain.poll()) != null)
+			super.prepare(e);
+
+		return e != null;
 	}
 }

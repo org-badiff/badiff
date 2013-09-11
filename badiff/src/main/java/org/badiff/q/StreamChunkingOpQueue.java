@@ -71,20 +71,19 @@ public class StreamChunkingOpQueue extends OpQueue {
 	}
 	
 	@Override
-	protected void shift() {
-		if(pending.size() == 0) {
-			/*
-			 * Lazily offer new chunks if available
-			 */
-			byte[] obuf = readChunk(orig);
-			byte[] tbuf = readChunk(target);
-			
-			if(obuf != null)
-				pending.offerLast(new Op(Op.DELETE, obuf.length, obuf));
-			if(tbuf != null)
-				pending.offerLast(new Op(Op.INSERT, tbuf.length, tbuf));
-		}
-		super.shift();
+	protected boolean pull() {
+		/*
+		 * Lazily offer new chunks if available
+		 */
+		byte[] obuf = readChunk(orig);
+		byte[] tbuf = readChunk(target);
+
+		if(obuf != null)
+			prepare(new Op(Op.DELETE, obuf.length, obuf));
+		if(tbuf != null)
+			prepare(new Op(Op.INSERT, tbuf.length, tbuf));
+		
+		return obuf != null || tbuf != null;
 	}
 
 	/**

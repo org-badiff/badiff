@@ -51,17 +51,16 @@ public class BufferChunkingOpQueue extends OpQueue {
 	}
 	
 	@Override
-	protected void shift() {
-		if(pending.size() == 0) {
-			byte[] obuf = readChunk(orig);
-			byte[] tbuf = readChunk(target);
-			
-			if(obuf != null)
-				pending.offerLast(new Op(Op.DELETE, obuf.length, obuf));
-			if(tbuf != null)
-				pending.offerLast(new Op(Op.INSERT, tbuf.length, tbuf));
-		}
-		super.shift();
+	protected boolean pull() {
+		byte[] obuf = readChunk(orig);
+		byte[] tbuf = readChunk(target);
+
+		if(obuf != null)
+			prepare(new Op(Op.DELETE, obuf.length, obuf));
+		if(tbuf != null)
+			prepare(new Op(Op.INSERT, tbuf.length, tbuf));
+		
+		return obuf != null || tbuf != null;
 	}
 	
 	protected byte[] readChunk(ByteBuffer in) {

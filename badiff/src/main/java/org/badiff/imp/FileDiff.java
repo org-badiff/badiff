@@ -143,20 +143,21 @@ public class FileDiff extends File implements Diff, Serialized {
 		}
 		
 		@Override
-		protected void shift() {
+		protected boolean pull() {
 			if(!closed) {
 				try {
 					Op e = serial.readObject(self, Op.class);
-					if(e.getOp() != Op.STOP)
-						ready.offerLast(e);
-					else
+					if(e.getOp() != Op.STOP) {
+						prepare(e);
+						return true;
+					} else
 						close();
 				} catch(IOException ioe) {
 					close();
 					throw new RuntimeIOException(ioe);
 				}
 			}
-			super.shift();
+			return false;
 		}
 		
 		private void close() {

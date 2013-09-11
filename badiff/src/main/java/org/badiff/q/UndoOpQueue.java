@@ -38,12 +38,10 @@ public class UndoOpQueue extends FilterOpQueue {
 	}
 	
 	@Override
-	protected void filter() {
-		if(ready.size() > 0)
-			return;
-		if(pending.size() == 0 && !shiftPending())
-			return;
-		Op e = pending.pollFirst();
+	protected boolean pull() {
+		if(!require(1))
+			return flush();
+		Op e = filtering.get(0);
 		Op u;
 		if(e.getOp() == Op.DELETE)
 			u = new Op(Op.INSERT, e.getRun(), e.getData());
@@ -51,7 +49,8 @@ public class UndoOpQueue extends FilterOpQueue {
 			u = new Op(Op.DELETE, e.getRun(), e.getData());
 		else
 			u = e;
-		ready.offerLast(u);
+		prepare(u);
+		return true;
 	}
 
 }
