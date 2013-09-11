@@ -31,13 +31,10 @@ package org.badiff.fmt;
 
 import java.io.DataOutput;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.badiff.Diff;
@@ -45,7 +42,6 @@ import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.imp.BadiffFileDiff.Optional;
 import org.badiff.io.DataInputInputStream;
-import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;
 import org.badiff.io.RandomInput;

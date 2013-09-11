@@ -7,8 +7,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.naming.directory.NoSuchAttributeException;
-
 import org.badiff.io.NoopOutputStream;
 
 public class Digests {

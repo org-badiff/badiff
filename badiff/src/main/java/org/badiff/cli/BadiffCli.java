@@ -29,28 +29,8 @@
  */
 package org.badiff.cli;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Arrays;
-
-import org.badiff.Diff;
-import org.badiff.fmt.BadiffFormat;
-import org.badiff.fmt.OutputFormat;
 import org.badiff.imp.BadiffFileDiff;
-import org.badiff.imp.BadiffFileDiff.Header;
-import org.badiff.imp.FileDiff;
-import org.badiff.imp.StreamQueueable;
-import org.badiff.imp.StreamStoreable;
-import org.badiff.io.FileRandomInput;
-import org.badiff.io.RandomInput;
-import org.badiff.io.RandomInputStream;
-import org.badiff.q.OneWayOpQueue;
-import org.badiff.q.OpQueue;
-import org.badiff.q.RewindingOpQueue;
-import org.badiff.q.UndoOpQueue;
-import org.badiff.util.Diffs;
 import org.badiff.util.Digests;
 
 public class BadiffCli {

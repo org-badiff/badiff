@@ -33,12 +33,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
-
 import org.badiff.imp.FileDiff;
 import org.badiff.io.RandomInputStream;
-import org.badiff.q.BufferChunkingOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.q.UndoOpQueue;
