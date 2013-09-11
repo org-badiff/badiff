@@ -38,21 +38,22 @@ public class StreamQueueable implements Queueable {
 		}
 		
 		@Override
-		protected void shift() {
-			if(closed) {
-				super.shift();
-				return;
-			}
+		protected boolean pull() {
+			if(closed)
+				return false;
+			
 			try {
 				Op e = serial.readObject(in, Op.class);
-				if(e.getOp() == Op.STOP)
+				if(e.getOp() == Op.STOP) {
 					closed = true;
-				else
-					super.offer(e);
+					return false;
+				} else {
+					prepare(e);
+					return true;
+				}
 			} catch(IOException ioe) {
 				throw new RuntimeIOException(ioe);
 			}
-			super.shift();
 		}
 	}
 

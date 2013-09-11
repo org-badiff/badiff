@@ -76,21 +76,29 @@ public class ChainOpQueue extends OpQueue {
 	}
 	
 	@Override
-	protected void shift() {
+	public boolean offer(Op e) {
+		if(chain.size() == 0)
+			chain.offerLast(new OpQueue());
+		return chain.peekLast().offer(e);
+	}
+	
+	@Override
+	protected boolean pull() {
 		/*
 		 * If there are no pending DiffOp's, then try to draw one from
 		 * the head of the chain until either there is a pending DiffOp
 		 * or the chain is empty.
 		 */
-		while(pending.size() == 0 && chain.size() > 0) {
+		while(chain.size() > 0) {
 			Op e = chain.peekFirst().poll();
 			if(e == null) {
 				chain.pollFirst();
 				continue;
 			}
-			pending.offerLast(e);
+			prepare(e);
+			return true;
 		}
-		super.shift();
+		return false;
 	}
 
 }

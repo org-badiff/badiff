@@ -43,10 +43,10 @@ import org.badiff.Op;
 
 /**
  * A unidirectional double-buffering queue of {@link Op}.
- * Contains internally two {@link Deque} of {@link Op}: {@link #ready}
- * and {@link #pending}.  Calls to {@link #poll()} draw from {@link #ready}
- * unless it is empty, in which case they call {@link #shift()} to move
- * an element from {@link #pending} to {@link #ready}.<p>
+ * Contains internally two {@link Deque} of {@link Op}: {@link #prepared}
+ * and {@link #pending}.  Calls to {@link #poll()} draw from {@link #prepared}
+ * unless it is empty, in which case they call {@link #pull()} to move
+ * an element from {@link #pending} to {@link #prepared}.<p>
  * 
  * {@link OpQueue} also implements {@link Iterator}.  Don't mix the {@link #poll()} and {@link #offer(Op)}
  * methods with the {@link Iterator} methods.<p>
@@ -63,13 +63,9 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	 */
 	protected Op iterNext;
 	/**
-	 * The {@link Op}s which are ready to be {@link #poll()}ed
+	 * The {@link Op}s which are prepared to be {@link #poll()}ed
 	 */
-	protected Deque<Op> ready = new ArrayDeque<Op>();
-	/**
-	 * The {@link Op}s which are ready to be {@link #shift()}ed
-	 */
-	protected Deque<Op> pending = new ArrayDeque<Op>();
+	private Deque<Op> prepared = new ArrayDeque<Op>();
 
 	/**
 	 * Draw the next {@link Op} from this {@link OpQueue}, returning
@@ -77,10 +73,10 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	 * @return
 	 */
 	public Op poll() {
-		Op e = ready.pollFirst();
+		Op e = prepared.pollFirst();
 		if(e == null) {
-			shift();
-			e = ready.pollFirst();
+			pull();
+			e = prepared.pollFirst();
 		}
 		return e;
 	}
@@ -91,7 +87,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	 * @return
 	 */
 	public boolean offer(Op e) {
-		return pending.offerLast(e);
+		return prepared.offerLast(e);
 	}
 	
 	public void drain() {
@@ -134,25 +130,21 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 	
 	/**
-	 * Called when a {@link Op} should be moved from {@link #pending} to {@link #ready}.
+	 * Called when a {@link Op} should be moved from {@link #pending} to {@link #prepared}.
 	 * Override this method to provide lazy sequences that populate {@link #pending} on demand.
 	 */
-	protected void shift() {
-		if(ready.size() == 0)
-			shiftReady();
+	protected boolean pull() {
+		return false;
 	}
 	
 	/**
-	 * Actually moves a {@link Op} from {@link #pending} to {@link #ready}
-	 * @return
+	 * Call to add an element to the queue of prepared elements
+	 * @param e
 	 */
-	protected boolean shiftReady() {
-		Op e = pending.pollFirst();
-		if(e != null)
-			ready.offerLast(e);
-		return e != null;
+	protected void prepare(Op e) {
+		prepared.offerLast(e);
 	}
-
+	
 	@Override
 	public void apply(InputStream orig, OutputStream target)
 			throws IOException {
