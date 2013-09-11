@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.security.DigestOutputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -408,6 +409,54 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		tmp.delete();
 		tin.close();
 		oin.close();
+	}
+	
+	public void apply(File orig, File target) throws IOException {
+		Header header = header();
+		Optional opt = header.getOptional();
+		
+		byte[] expectedPreHash = null;
+		byte[] expectedPostHash = null;
+		if(opt != null) {
+			if(opt.getHashAlgorithm() != null && opt.getPreHash() != null)
+				expectedPreHash = opt.getPreHash();
+			if(opt.getHashAlgorithm() != null && opt.getPostHash() != null)
+				expectedPostHash = opt.getPostHash();
+		}
+		
+		if(expectedPreHash != null) {
+			byte[] actualPreHash = Digests.digest(orig, Digests.digest(opt.getHashAlgorithm()));
+			if(!Arrays.equals(expectedPreHash, actualPreHash))
+				throw new IOException(
+						"Hash mismatch on original, expected " 
+								+ Digests.pretty(expectedPreHash) + ", actual " 
+								+ Digests.pretty(actualPreHash));
+		}
+		
+		File tmp = new File(target.getParentFile(), target.getName() + ".patching");
+		OutputStream out = new FileOutputStream(tmp);
+		
+		DigestOutputStream digout = null;
+		if(expectedPostHash != null) {
+			digout = new DigestOutputStream(out, Digests.digest(opt.getHashAlgorithm()));
+			out = digout;
+		}
+		
+		RandomInputStream oin = new RandomInputStream(orig);
+		apply(oin, out);
+		out.close();
+		
+		if(digout != null) {
+			byte[] actualPostHash = digout.getMessageDigest().digest();
+			if(!Arrays.equals(expectedPostHash, actualPostHash))
+				throw new IOException(
+						"Hash mismatch on target, expected " 
+								+ Digests.pretty(expectedPostHash) + ", actual " 
+								+ Digests.pretty(actualPostHash));
+		}
+		
+		target.delete();
+		tmp.renameTo(target);
 	}
 	
 	@Override

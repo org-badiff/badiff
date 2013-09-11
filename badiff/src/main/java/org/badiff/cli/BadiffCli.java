@@ -66,11 +66,23 @@ public class BadiffCli {
 				help();
 				return;
 			}
-			File orig = new File(args[1]);
-			File target = new File(args[2]);
-			BadiffFileDiff diff = new BadiffFileDiff(args[3]);
+			BadiffFileDiff diff = new BadiffFileDiff(args[1]);
+			File orig = new File(args[2]);
+			File target = new File(args[3]);
 
 			diff.diff(orig, target);
+		}
+		
+		if("patch".equals(args[0])) {
+			if(args.length != 4) {
+				help();
+				return;
+			}
+			BadiffFileDiff diff = new BadiffFileDiff(args[1]);
+			File orig = new File(args[2]);
+			File target = new File(args[3]);
+
+			diff.apply(orig, target);
 		}
 		
 		if("info".equals(args[0])) {
