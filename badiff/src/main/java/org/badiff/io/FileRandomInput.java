@@ -21,4 +21,10 @@ public class FileRandomInput extends ByteBufferRandomInput {
 		if(load)
 			((MappedByteBuffer) super.buf).load();
 	}
+	
+	@Override
+	public void close() throws IOException {
+		in.close();
+		super.close();
+	}
 }

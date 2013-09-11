@@ -36,7 +36,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.badiff.Applyable;
+import org.badiff.io.RandomInputStream;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
@@ -68,7 +70,7 @@ public class Diffs {
 	}
 	
 	public static byte[] apply(Applyable a, byte[] orig) {
-		ByteArrayInputStream in = new ByteArrayInputStream(orig);
+		InputStream in = new RandomInputStream(orig);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			a.apply(in, out);
@@ -81,7 +83,7 @@ public class Diffs {
 	}
 	
 	public static void apply(Applyable a, File orig, File target) throws IOException {
-		FileInputStream in = new FileInputStream(orig);
+		InputStream in = new RandomInputStream(orig);
 		try {
 			FileOutputStream out = new FileOutputStream(target);
 			try {

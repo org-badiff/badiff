@@ -182,4 +182,7 @@ public class ByteBufferRandomInput implements RandomInput {
 		return buf.remaining();
 	}
 
+	@Override
+	public void close() throws IOException {
+	}
 }

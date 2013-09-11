@@ -163,4 +163,9 @@ public class StreamRandomInput implements RandomInput {
 	public int available() throws IOException {
 		return pin.available();
 	}
+	
+	@Override
+	public void close() throws IOException {
+		pin.close();
+	}
 }

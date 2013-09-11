@@ -75,4 +75,6 @@ public interface RandomInput extends DataInput {
 	public int read(byte[] b, int off, int len) throws IOException;
 	
 	public int available() throws IOException;
+	
+	public void close() throws IOException;
 }

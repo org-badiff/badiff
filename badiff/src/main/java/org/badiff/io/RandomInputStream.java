@@ -66,5 +66,10 @@ public class RandomInputStream extends InputStream {
 	public boolean markSupported() {
 		return true;
 	}
+	
+	@Override
+	public void close() throws IOException {
+		in.close();
+	}
 
 }
