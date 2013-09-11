@@ -34,13 +34,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.util.Arrays;
+
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
+import org.badiff.imp.BadiffFileDiff.Optional;
 import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DataOutputOutputStream;
+import org.badiff.io.DefaultSerialization;
+import org.badiff.io.NoopOutputStream;
 import org.badiff.io.RandomInput;
+import org.badiff.io.RandomInputStream;
 import org.badiff.q.OpQueue;
+import org.badiff.util.Digests;
 import org.badiff.util.Streams;
 
 public class BadiffFormat implements InputFormat, OutputFormat {
@@ -48,16 +59,23 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	@Override
 	public void exportDiff(Diff diff, RandomInput orig, DataOutput out)
 			throws IOException {
-		DataOutputOutputStream dout = new DataOutputOutputStream(out);
-		BadiffFileDiff bd = new BadiffFileDiff(File.createTempFile("badiff", ".tmp"));
+		Optional opt = new Optional();
 		
-		bd.store(diff.queue());
+		long opos = orig.position();
 		
-		FileInputStream bdi = new FileInputStream(bd);
-		Streams.copy(bdi, dout);
-		bdi.close();
+		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
+		DigestInputStream digin = new DigestInputStream(new RandomInputStream(orig), Digests.defaultDigest());
+		DigestOutputStream digout = new DigestOutputStream(new NoopOutputStream(), Digests.defaultDigest());
 		
-		bd.delete();
+		diff.apply(digin, digout);
+		
+		orig.seek(opos);
+		
+		opt.setPreHash(digin.getMessageDigest().digest());
+		opt.setPostHash(digout.getMessageDigest().digest());
+		
+		BadiffFileDiff.store(out, DefaultSerialization.getInstance(), opt, diff.queue());
+		
 	}
 
 	@Override
@@ -70,6 +88,21 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		FileOutputStream bdo = new FileOutputStream(bd);
 		Streams.copy(din, bdo);
 		bdo.close();
+		
+		Optional opt = bd.header().getOptional();
+		if(opt != null) {
+			if(opt.getHashAlgorithm() != null && opt.getPreHash() != null) {
+				long opos = orig.position();
+				DigestInputStream digin = new DigestInputStream(
+						new DataInputInputStream(orig),
+						Digests.digest(opt.getHashAlgorithm()));
+				Streams.copy(digin, new NoopOutputStream());
+				orig.seek(opos);
+				byte[] actualPreHash = digin.getMessageDigest().digest();
+				if(!Arrays.equals(opt.getPreHash(), actualPreHash))
+					throw new IOException("Pre-hash mismatch, expected " + Arrays.toString(opt.getPreHash()) + ", found " + Arrays.toString(actualPreHash));
+			}
+		}
 
 		return new BadiffFormatOpQueue(bd);
 		

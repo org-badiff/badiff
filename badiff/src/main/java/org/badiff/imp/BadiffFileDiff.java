@@ -30,6 +30,7 @@
 package org.badiff.imp;
 
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +44,7 @@ import java.util.Iterator;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Random;
 import org.badiff.io.RuntimeIOException;
@@ -62,6 +64,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	public static final long FLAG_DEFAULT_SERIALIZATION = 0x2;
 	public static final long FLAG_SMALL_NUMBER_SERIALIZATION = 0x4;
 	public static final long FLAG_UNSPECIFIED_SERIALIZATION = 0x8;
+	public static final long FLAG_OPTIONAL_DATA = 0x10;
 	
 	public static class Stats implements Serialized {
 		private long rewindCount;
@@ -111,6 +114,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		private long flags;
 		private Serialization serial;
 		private Stats stats;
+		private Optional optional;
 		
 		private Header() {}
 
@@ -132,6 +136,49 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 
 		public Stats getStats() {
 			return stats;
+		}
+		
+		public Optional getOptional() {
+			return optional;
+		}
+	}
+	
+	public static class Optional implements Serialized {
+		private byte[] preHash;
+		private byte[] postHash;
+		private String hashAlgorithm;
+		
+		public byte[] getPreHash() {
+			return preHash;
+		}
+		public void setPreHash(byte[] preHash) {
+			this.preHash = preHash;
+		}
+		public byte[] getPostHash() {
+			return postHash;
+		}
+		public void setPostHash(byte[] postHash) {
+			this.postHash = postHash;
+		}
+		@Override
+		public void serialize(Serialization serial, OutputStream out)
+				throws IOException {
+			serial.writeObject(out, String.class, hashAlgorithm);
+			serial.writeObject(out, byte[].class, preHash);
+			serial.writeObject(out, byte[].class, postHash);
+		}
+		@Override
+		public void deserialize(Serialization serial, InputStream in)
+				throws IOException {
+			hashAlgorithm = serial.readObject(in, String.class);
+			preHash = serial.readObject(in, byte[].class);
+			postHash = serial.readObject(in, byte[].class);
+		}
+		public String getHashAlgorithm() {
+			return hashAlgorithm;
+		}
+		public void setHashAlgorithm(String hashAlgorithm) {
+			this.hashAlgorithm = hashAlgorithm;
 		}
 	}
 	
@@ -205,7 +252,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		this.serial = serial;
 	}
 
-	protected void writeHeader(Serialization serial, Stats stats, DataOutputStream out) throws IOException {
+	protected static void writeHeader(Serialization serial, Stats stats, Optional opt, DataOutput out) throws IOException {
 		long flags = 0;
 		
 		if(stats.rewindCount > 0)
@@ -218,11 +265,19 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		else
 			flags |= FLAG_UNSPECIFIED_SERIALIZATION;
 		
+		if(opt != null)
+			flags |= FLAG_OPTIONAL_DATA;
+		
 		out.write(MAGIC);
 		out.writeInt(VERSION);
 		out.writeLong(flags);
 		
-		stats.serialize(serial, out);
+		DataOutputOutputStream dout = new DataOutputOutputStream(out);
+		
+		stats.serialize(serial, dout);
+		
+		if(opt != null)
+			opt.serialize(serial, dout);
 	}
 	
 	protected Header readHeader(DataInputStream in) throws IOException {
@@ -265,12 +320,19 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		Stats stats = new Stats();
 		stats.deserialize(serial, in);
 		
+		Optional opt = null;
+		if((flags & FLAG_OPTIONAL_DATA) != 0) {
+			opt = new Optional();
+			opt.deserialize(serial, in);
+		}
+		
 		Header header = new Header();
 		header.magic = magic;
 		header.version = version;
 		header.flags = flags;
 		header.serial = serial;
 		header.stats = stats;
+		header.optional = opt;
 		
 		return header;
 	}
@@ -299,33 +361,34 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	@Override
 	public void store(Iterator<Op> ops) throws IOException {
 		DataOutputStream out = new DataOutputStream(new FileOutputStream(this));
-		store(out, ops);
+		store(out, serial, null, ops);
 		out.close();
 	}
 	
-	public void store(DataOutputStream out, Iterator<Op> ops) throws IOException {
+	public static void store(DataOutput out, Serialization serial, Optional opt, Iterator<Op> ops) throws IOException {
 		/* 
 		 * shove the ops into a temp FileDiff first so we can compute some stats
 		 * without having them all in memory
 		 */
-		FileDiff tmp = new FileDiff(File.createTempFile(getName(), ".tmp"));
+		FileDiff tmp = new FileDiff(File.createTempFile("filediff", ".tmp"));
 		tmp.store(ops);
 		
 		// Compute the stats
 		Stats stats = computeStats(tmp);
 		
-		Serialization serial = this.serial;
 		if(serial == null)
 			serial = DefaultSerialization.getInstance();
 		
 		// Write the header
-		writeHeader(serial, stats, out);
+		writeHeader(serial, stats, opt, out);
+		
+		DataOutputOutputStream dout = new DataOutputOutputStream(out);
 		
 		// Copy the ops
 		OpQueue q = tmp.queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
-			serial.writeObject(out, Op.class, e);
-		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+			serial.writeObject(dout, Op.class, e);
+		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
 		
 		tmp.delete();
 	}
