@@ -1,0 +1,316 @@
+package org.badiff.imp;
+
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Iterator;
+
+import org.badiff.Diff;
+import org.badiff.Op;
+import org.badiff.io.DefaultSerialization;
+import org.badiff.io.RuntimeIOException;
+import org.badiff.io.Serialization;
+import org.badiff.io.Serialized;
+import org.badiff.io.SmallNumberSerialization;
+import org.badiff.q.OpQueue;
+import org.badiff.util.Streams;
+
+public class FileBadiff extends File implements Diff, Serialized {
+
+	public static final byte[] MAGIC = new byte[] {0, (byte)0xde, (byte)0xee, (byte)0xef};
+	public static final int VERSION = 1;
+
+	public static final long FLAG_RANDOM_ACCESS = 0x1;
+	public static final long FLAG_DEFAULT_SERIALIZATION = 0x2;
+	public static final long FLAG_SMALL_NUMBER_SERIALIZATION = 0x4;
+	public static final long FLAG_UNSPECIFIED_SERIALIZATION = 0x8;
+	
+	public static class Stats implements Serialized {
+		public long rewindCount;
+		public long nextCount;
+		public long insertCount;
+		public long deleteCount;
+		
+		private Stats() {}
+		
+		@Override
+		public void serialize(Serialization serial, OutputStream out)
+				throws IOException {
+			serial.writeObject(out, Long.class, rewindCount);
+			serial.writeObject(out, Long.class, nextCount);
+			serial.writeObject(out, Long.class, insertCount);
+			serial.writeObject(out, Long.class, deleteCount);
+		}
+		@Override
+		public void deserialize(Serialization serial, InputStream in)
+				throws IOException {
+			rewindCount = serial.readObject(in, Long.class);
+			nextCount = serial.readObject(in, Long.class);
+			insertCount = serial.readObject(in, Long.class);
+			deleteCount = serial.readObject(in, Long.class);
+		}
+	}
+	
+	public static class Header {
+		public byte[] magic;
+		public int version;
+		public long flags;
+		public Serialization serial;
+		public Stats stats;
+		
+		private Header() {}
+	}
+	
+	public static Stats computeStats(Diff diff) throws IOException {
+		Stats stats = new Stats();
+		OpQueue q = diff.queue();
+		for(Op e = q.poll(); e != null; e = q.poll()) {
+			switch(e.getOp()) {
+			case Op.DELETE:
+				stats.deleteCount++;
+				if(e.getRun() < 0)
+					stats.rewindCount++;
+				break;
+				
+			case Op.INSERT:
+				stats.insertCount++;
+				break;
+				
+			case Op.NEXT:
+				stats.nextCount++;
+				break;
+			}
+		}
+		return stats;
+	}
+	
+	protected Serialization serial = DefaultSerialization.getInstance();
+	
+	public FileBadiff(String pathname) {
+		super(pathname);
+	}
+
+	public FileBadiff(URI uri) {
+		super(uri);
+	}
+
+	public FileBadiff(String parent, String child) {
+		super(parent, child);
+	}
+
+	public FileBadiff(File parent, String child) {
+		super(parent, child);
+	}
+
+	public FileBadiff(File file) {
+		super(file.toURI());
+	}
+	
+	public FileBadiff(String pathname, Serialization serial) {
+		super(pathname);
+		this.serial = serial;
+	}
+
+	public FileBadiff(URI uri, Serialization serial) {
+		super(uri);
+		this.serial = serial;
+	}
+
+	public FileBadiff(String parent, String child, Serialization serial) {
+		super(parent, child);
+		this.serial = serial;
+	}
+
+	public FileBadiff(File parent, String child, Serialization serial) {
+		super(parent, child);
+		this.serial = serial;
+	}
+
+	public FileBadiff(File file, Serialization serial) {
+		super(file.toURI());
+		this.serial = serial;
+	}
+
+	protected void writeHeader(Stats stats, DataOutputStream out) throws IOException {
+		long flags = 0;
+		
+		if(stats.rewindCount > 0)
+			flags |= FLAG_RANDOM_ACCESS;
+		
+		if(serial == DefaultSerialization.getInstance())
+			flags |= FLAG_DEFAULT_SERIALIZATION;
+		else if(serial == SmallNumberSerialization.getInstance())
+			flags |= FLAG_SMALL_NUMBER_SERIALIZATION;
+		else
+			flags |= FLAG_UNSPECIFIED_SERIALIZATION;
+		
+		out.write(MAGIC);
+		out.writeInt(VERSION);
+		out.writeLong(flags);
+		
+		stats.serialize(serial, out);
+	}
+	
+	protected Header readHeader(DataInputStream in) throws IOException {
+		byte[] magic = new byte[MAGIC.length];
+		in.read(magic);
+		if(!Arrays.equals(magic, MAGIC))
+			throw new IOException("Invalid badiff magic");
+		
+		int version = in.readInt();
+		if(version < 1 || version > VERSION)
+			throw new IOException("Unrecognized version");
+		
+		long flags = in.readLong();
+		
+		Serialization serial = this.serial;
+		
+		if((flags & FLAG_DEFAULT_SERIALIZATION) != 0) {
+			if(serial != null && serial != DefaultSerialization.getInstance())
+				throw new IOException(
+						"Incompatible serialization; expected " 
+								+ serial.getClass().getSimpleName() + ", file declares " 
+								+ DefaultSerialization.getInstance().getClass().getSimpleName());
+			else if(serial == null)
+				serial = DefaultSerialization.getInstance();
+		}
+		if((flags & FLAG_SMALL_NUMBER_SERIALIZATION) != 0) {
+			if(serial != null && serial != SmallNumberSerialization.getInstance())
+				throw new IOException(
+						"Incompatible serialization; expected " 
+								+ serial.getClass().getSimpleName() + ", file declares " 
+								+ SmallNumberSerialization.getInstance().getClass().getSimpleName());
+			else if(serial == null)
+				serial = SmallNumberSerialization.getInstance();
+		}
+		if((flags & FLAG_UNSPECIFIED_SERIALIZATION) != 0) {
+			if(serial == null)
+				throw new IOException("Incompatible serialization; expected file to specify, file declares unspecified");
+		}
+		
+		Stats stats = new Stats();
+		stats.deserialize(serial, in);
+		
+		Header header = new Header();
+		header.magic = magic;
+		header.version = version;
+		header.flags = flags;
+		header.serial = serial;
+		header.stats = stats;
+		
+		return header;
+	}
+
+	@Override
+	public void apply(InputStream orig, OutputStream target) throws IOException {
+		OpQueue q = queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			e.apply(orig, target);
+	}
+
+	@Override
+	public void store(Iterator<Op> ops) throws IOException {
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(this));
+		store(out, ops);
+		out.close();
+	}
+	
+	public void store(DataOutputStream out, Iterator<Op> ops) throws IOException {
+		/* 
+		 * shove the ops into a temp FileDiff first so we can compute some stats
+		 * without having them all in memory
+		 */
+		FileDiff tmp = new FileDiff(File.createTempFile(getName(), ".tmp"));
+		tmp.store(ops);
+		
+		// Compute the stats
+		Stats stats = computeStats(tmp);
+		
+		// Write the header
+		writeHeader(stats, out);
+		
+		// Copy the ops
+		OpQueue q = tmp.queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			serial.writeObject(out, Op.class, e);
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+		
+		tmp.delete();
+	}
+
+	@Override
+	public OpQueue queue() throws IOException {
+		return new FileBadiffOpQueue();
+	}
+	
+	private class FileBadiffOpQueue extends OpQueue {
+		private Header header;
+		private DataInputStream self;
+		private boolean closed;
+		
+		public FileBadiffOpQueue() throws IOException {
+			self = new DataInputStream(new FileInputStream(FileBadiff.this));
+			header = readHeader(self);
+			closed = false;
+		}
+		
+		@Override
+		public boolean offer(Op e) {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		protected boolean pull() {
+			if(!closed) {
+				try {
+					Op e = header.serial.readObject(self, Op.class);
+					if(e.getOp() != Op.STOP) {
+						prepare(e);
+						return true;
+					} else
+						close();
+				} catch(IOException ioe) {
+					close();
+					throw new RuntimeIOException(ioe);
+				}
+			}
+			return false;
+		}
+		
+		private void close() {
+			try {
+				self.close();
+			} catch(IOException ioe) {
+				throw new RuntimeIOException(ioe);
+			} finally {
+				closed = true;
+			}
+		}
+	}
+
+	@Override
+	public void serialize(Serialization serial, OutputStream out)
+			throws IOException {
+		serial.writeObject(out, Long.class, length());
+		FileInputStream in = new FileInputStream(this);
+		Streams.copy(in, out);
+		in.close();
+	}
+
+	@Override
+	public void deserialize(Serialization serial, InputStream in)
+			throws IOException {
+		long length = serial.readObject(in, Long.class);
+		FileOutputStream out = new FileOutputStream(this);
+		Streams.copy(in, out, length);
+		out.close();
+	}
+}
