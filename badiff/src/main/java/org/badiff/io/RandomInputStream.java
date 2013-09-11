@@ -50,6 +50,10 @@ public class RandomInputStream extends InputStream implements Random {
 		this(new ByteBufferRandomInput(buf));
 	}
 	
+	public RandomInputStream(InputStream in, int bufSize) {
+		this(new StreamRandomInput(in, bufSize));
+	}
+	
 	public RandomInputStream(RandomInput in) {
 		this.in = in;
 	}
