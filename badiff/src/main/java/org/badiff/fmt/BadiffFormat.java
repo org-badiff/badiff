@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.imp.FileBadiff;
+import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
@@ -57,7 +57,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	public void exportDiff(Diff diff, RandomInput orig, DataOutput out)
 			throws IOException {
 		DataOutputOutputStream dout = new DataOutputOutputStream(out);
-		FileBadiff bd = new FileBadiff(File.createTempFile("badiff", ".tmp"));
+		BadiffFileDiff bd = new BadiffFileDiff(File.createTempFile("badiff", ".tmp"));
 		
 		bd.store(diff.queue());
 		
@@ -72,7 +72,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	public OpQueue importDiff(RandomInput orig, RandomInput ext)
 			throws IOException {
 		DataInputInputStream din = new DataInputInputStream(ext);
-		FileBadiff bd = new FileBadiff(File.createTempFile("badiff", ".tmp"));
+		BadiffFileDiff bd = new BadiffFileDiff(File.createTempFile("badiff", ".tmp"));
 		bd.deleteOnExit();
 		
 		FileOutputStream bdo = new FileOutputStream(bd);
@@ -84,10 +84,10 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	}
 
 	private class BadiffFormatOpQueue extends OpQueue {
-		private FileBadiff bd;
+		private BadiffFileDiff bd;
 		private OpQueue q;
 	
-		private BadiffFormatOpQueue(FileBadiff bd) throws IOException {
+		private BadiffFormatOpQueue(BadiffFileDiff bd) throws IOException {
 			this.bd = bd;
 			q = bd.queue();
 		}

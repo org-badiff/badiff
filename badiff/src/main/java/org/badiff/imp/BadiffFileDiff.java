@@ -53,7 +53,7 @@ import org.badiff.io.SmallNumberSerialization;
 import org.badiff.q.OpQueue;
 import org.badiff.util.Streams;
 
-public class FileBadiff extends File implements Diff, Serialized {
+public class BadiffFileDiff extends File implements Diff, Serialized {
 
 	public static final byte[] MAGIC = new byte[] {0, (byte)0xde, (byte)0xee, (byte)0xef};
 	public static final int VERSION = 1;
@@ -124,47 +124,47 @@ public class FileBadiff extends File implements Diff, Serialized {
 	
 	protected Serialization serial = DefaultSerialization.getInstance();
 	
-	public FileBadiff(String pathname) {
+	public BadiffFileDiff(String pathname) {
 		super(pathname);
 	}
 
-	public FileBadiff(URI uri) {
+	public BadiffFileDiff(URI uri) {
 		super(uri);
 	}
 
-	public FileBadiff(String parent, String child) {
+	public BadiffFileDiff(String parent, String child) {
 		super(parent, child);
 	}
 
-	public FileBadiff(File parent, String child) {
+	public BadiffFileDiff(File parent, String child) {
 		super(parent, child);
 	}
 
-	public FileBadiff(File file) {
+	public BadiffFileDiff(File file) {
 		super(file.toURI());
 	}
 	
-	public FileBadiff(String pathname, Serialization serial) {
+	public BadiffFileDiff(String pathname, Serialization serial) {
 		super(pathname);
 		this.serial = serial;
 	}
 
-	public FileBadiff(URI uri, Serialization serial) {
+	public BadiffFileDiff(URI uri, Serialization serial) {
 		super(uri);
 		this.serial = serial;
 	}
 
-	public FileBadiff(String parent, String child, Serialization serial) {
+	public BadiffFileDiff(String parent, String child, Serialization serial) {
 		super(parent, child);
 		this.serial = serial;
 	}
 
-	public FileBadiff(File parent, String child, Serialization serial) {
+	public BadiffFileDiff(File parent, String child, Serialization serial) {
 		super(parent, child);
 		this.serial = serial;
 	}
 
-	public FileBadiff(File file, Serialization serial) {
+	public BadiffFileDiff(File file, Serialization serial) {
 		super(file.toURI());
 		this.serial = serial;
 	}
@@ -297,7 +297,7 @@ public class FileBadiff extends File implements Diff, Serialized {
 		private boolean closed;
 		
 		public FileBadiffOpQueue() throws IOException {
-			self = new DataInputStream(new FileInputStream(FileBadiff.this));
+			self = new DataInputStream(new FileInputStream(BadiffFileDiff.this));
 			header = readHeader(self);
 			closed = false;
 		}
