@@ -48,15 +48,13 @@ public class ByteArrayDiffsTest {
 
 	@Test
 	public void testDiff() throws Exception {
-		ByteArrayDiffs badiff = new ByteArrayDiffs(serial);
-		
 		String orig = "Hello world!";
 		String target = "Hellish cruel world!";
 		
-		byte[] diff = badiff.diff(orig.getBytes(), target.getBytes());
+		byte[] diff = ByteArrayDiffs.diff(orig.getBytes(), target.getBytes());
 		System.out.println("diff:" + diff.length);
 		
-		byte[] udiff = badiff.udiff(orig.getBytes(), target.getBytes());
+		byte[] udiff = ByteArrayDiffs.udiff(orig.getBytes(), target.getBytes());
 		System.out.println("udiff:" + udiff.length);
 	}
 
