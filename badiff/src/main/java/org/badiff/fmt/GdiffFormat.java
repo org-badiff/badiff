@@ -31,6 +31,7 @@ package org.badiff.fmt;
 
 import java.io.DataOutput;
 import java.io.IOException;
+
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.io.RandomInput;
@@ -158,6 +159,11 @@ public class GdiffFormat implements OutputFormat, InputFormat {
 				throw new IOException("invalid magic");
 			if(ext.readByte() != (byte) 0x4)
 				throw new IOException("invalid version");
+		}
+		
+		@Override
+		public String toString() {
+			return getClass().getSimpleName();
 		}
 		
 		@Override

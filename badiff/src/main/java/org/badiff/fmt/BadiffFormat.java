@@ -122,6 +122,11 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 				bd.delete();
 			return e != null;
 		}
+		
+		@Override
+		public String toString() {
+			return bd.getName();
+		}
 	}
 	
 	

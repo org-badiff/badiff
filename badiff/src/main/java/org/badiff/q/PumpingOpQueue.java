@@ -10,11 +10,11 @@ import java.util.concurrent.ThreadFactory;
 import org.badiff.Op;
 
 public class PumpingOpQueue extends OpQueue {
-	protected static ThreadFactory workerFactory(final OpQueue source) {
+	protected ThreadFactory workerFactory(final OpQueue source) {
 		return new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
-				Thread t = new Thread(r, PumpingOpQueue.class.getSimpleName() + " for " + source);
+				Thread t = new Thread(r, PumpingOpQueue.this.toString());
 				t.setDaemon(true);
 				return t;
 			}
@@ -85,6 +85,11 @@ public class PumpingOpQueue extends OpQueue {
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " <- " + source;
 	}
 	
 }

@@ -99,4 +99,9 @@ public class FilterOpQueue extends OpQueue {
 		return flushed;
 	}
 	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " <- " + source;
+	}
+	
 }

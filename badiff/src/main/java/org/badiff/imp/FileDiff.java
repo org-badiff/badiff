@@ -169,6 +169,11 @@ public class FileDiff extends File implements Diff, Serialized {
 				closed = true;
 			}
 		}
+		
+		@Override
+		public String toString() {
+			return getName();
+		}
 	}
 
 	@Override

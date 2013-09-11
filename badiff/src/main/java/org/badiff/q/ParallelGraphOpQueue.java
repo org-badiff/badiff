@@ -32,6 +32,7 @@ package org.badiff.q;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -91,8 +92,20 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
-		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r, ParallelGraphOpQueue.this.toString());
+				t.setDaemon(true);
+				return t;
+			}
+		});
 		chain = (ChainOpQueue) super.source;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " <- " + input;
 	}
 	
 	/*

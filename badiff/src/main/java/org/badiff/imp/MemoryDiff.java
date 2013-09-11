@@ -108,6 +108,11 @@ public class MemoryDiff implements Diff, Serialized {
 		public boolean offer(Op e) {
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+		public String toString() {
+			return getClass().getSimpleName();
+		}
 	}
 
 }
