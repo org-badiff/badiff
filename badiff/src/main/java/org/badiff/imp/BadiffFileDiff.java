@@ -409,6 +409,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		oin.close();
 	}
 	
+	@SuppressWarnings("resource")
 	public void apply(File orig, File target) throws IOException {
 		Header header = header();
 		Optional opt = header.getOptional();
