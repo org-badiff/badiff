@@ -135,7 +135,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		}
 	}
 	
-	public static Stats computeStats(Diff diff) throws IOException {
+	protected static Stats computeStats(Diff diff) throws IOException {
 		Stats stats = new Stats();
 		OpQueue q = diff.queue();
 		for(Op e = q.poll(); e != null; e = q.poll()) {
