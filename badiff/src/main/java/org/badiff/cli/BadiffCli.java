@@ -107,6 +107,14 @@ public class BadiffCli {
 	
 	private static void help() {
 		System.out.println("Command and options required:");
-
+		System.out.println();
+		System.out.println("java -jar badiff.jar diff DIFF_FILE ORIG_FILE TARGET_FILE");
+		System.out.println("\tCompute the difference between ORIG_FILE and TARGET_FILE and store in DIFF_FILE");
+		System.out.println();
+		System.out.println("java -jar badiff.jar patch DIFF_FILE ORIG_FILE TARGET_FILE");
+		System.out.println("\tApply a difference from DIFF_FILE to ORIG_FILE to generate TARGET_FILE");
+		System.out.println();
+		System.out.println("java -jar badiff.jar info DIFF_FILE");
+		System.out.println("\tDisplay statistics and optional data from DIFF_FILE");
 	}
 }
