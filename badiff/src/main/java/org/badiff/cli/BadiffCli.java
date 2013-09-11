@@ -33,6 +33,11 @@ import java.io.File;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.util.Digests;
 
+/**
+ * Command-line interface for badiff
+ * @author robin
+ *
+ */
 public class BadiffCli {
 
 	public static void main(String[] args) throws Exception {

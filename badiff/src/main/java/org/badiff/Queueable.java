@@ -4,6 +4,11 @@ import java.io.IOException;
 
 import org.badiff.q.OpQueue;
 
+/**
+ * An object which can provide an {@link OpQueue}
+ * @author robin
+ *
+ */
 public interface Queueable {
 	/**
 	 * Return this object's operations.  This queue

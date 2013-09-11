@@ -50,6 +50,12 @@ import org.badiff.q.OpQueue;
 import org.badiff.util.Digests;
 import org.badiff.util.Streams;
 
+/**
+ * {@link InputFormat} and {@link OutputFormat} for badiff diffs.
+ * It's probably easier to use {@link BadiffFileDiff} than this.
+ * @author robin
+ *
+ */
 public class BadiffFormat implements InputFormat, OutputFormat {
 
 	@Override
