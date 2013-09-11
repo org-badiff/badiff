@@ -208,36 +208,24 @@ public class DefaultSerialization implements Serialization {
 	}
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
-		long v = Math.abs(val) << 1;
-		if(val < 0)
-			v |= 1;
-		writeLongP(out, v);
-	}
-	
-	private void writeLongP(DataOutput out, long val) throws IOException {
 		int v = (int)(val & 0x7f);
 		if((val >>> 7) != 0)
 			v |= 0x80;
 		out.writeByte(v);
 		if((val >>> 7) != 0)
-			writeLongP(out, val >>> 7);
+			writeLong(out, val >>> 7);
 	}
 	
 	public long readLong(DataInput in) throws IOException {
-		long v = readLongP(in, 0, 0);
-		boolean neg = (v & 1) != 0;
-		long val = v >>> 1;
-		if(neg)
-			val = -val;
-		return val;
+		return readLong(in, 0, 0);
 	}
 	
-	private long readLongP(DataInput in, long accum, int shift) throws IOException {
+	private long readLong(DataInput in, long accum, int shift) throws IOException {
 		long b = 0xff & in.readByte();
 		accum |= (b & 0x7f) << (shift);
 		if((b & 0x80) == 0)
 			return accum;
-		return readLongP(in, accum, shift + 7);
+		return readLong(in, accum, shift + 7);
 	}
 	
 	@Override
