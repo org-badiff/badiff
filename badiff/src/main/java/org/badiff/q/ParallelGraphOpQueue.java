@@ -38,11 +38,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.alg.Graph;
+import org.badiff.alg.EditGraph;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
- * applies {@link Graph} to them, in parallel.  This {@link OpQueue} is <b>PARTIALLY LAZY</b>.
+ * applies {@link EditGraph} to them, in parallel.  This {@link OpQueue} is <b>PARTIALLY LAZY</b>.
  * Partially lazy means that it will eagerly draw elements until all worker threads are active
  * any time a lazy element request is made.
  * @author robin
@@ -66,10 +66,10 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	protected ChainOpQueue chain;
 	
 	/**
-	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
+	 * Thread-local of {@link EditGraph} to avoid allocating ridonkulous amounts of memory
 	 */
-	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
-		protected Graph initialValue() {
+	protected ThreadLocal<EditGraph> graphs = new ThreadLocal<EditGraph>() {
+		protected EditGraph initialValue() {
 			return newGraph();
 		}
 	};
@@ -119,11 +119,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	}
 	
 	/**
-	 * Return a new {@link Graph} to be used by a thread computing graph diffs in parallel
+	 * Return a new {@link EditGraph} to be used by a thread computing graph diffs in parallel
 	 * @return
 	 */
-	protected Graph newGraph() {
-		return new Graph((chunk+1) * (chunk+1));
+	protected EditGraph newGraph() {
+		return new EditGraph((chunk+1) * (chunk+1));
 	}
 	
 	@Override

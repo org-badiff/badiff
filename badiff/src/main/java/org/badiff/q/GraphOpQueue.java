@@ -33,11 +33,12 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.badiff.Op;
+import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 
 /**
  * {@link OpQueue} that replaces ({@link Op#DELETE},{@link Op#INSERT}) pairs
- * with their {@link Graph}'d equivalents
+ * with their {@link EditGraph}'d equivalents
  * @author robin
  *
  */
@@ -46,7 +47,7 @@ public class GraphOpQueue extends FilterOpQueue {
 	protected Graph graph;
 
 	public GraphOpQueue(OpQueue source, int chunk) {
-		this(source, new Graph((chunk+1) * (chunk+1)));
+		this(source, new EditGraph((chunk+1) * (chunk+1)));
 	}
 	
 	public GraphOpQueue(OpQueue source, Graph graph) {
@@ -75,12 +76,9 @@ public class GraphOpQueue extends FilterOpQueue {
 		filtering.remove(0);
 		
 		graph.compute(delete.getData(), insert.getData());
-		List<Op> rlist = graph.rlist();
-		
-		ListIterator<Op> oi = rlist.listIterator(rlist.size());
-		while(oi.hasPrevious()) {
-			prepare(oi.previous());
-		}
+		OpQueue q = graph.queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			prepare(e);
 		
 		return true;
 	}

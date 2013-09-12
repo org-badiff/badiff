@@ -29,7 +29,7 @@
  */
 package org.badiff.nat;
 
-import org.badiff.alg.Graph;
+import org.badiff.alg.EditGraph;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
 
@@ -44,7 +44,7 @@ public class NativeParallelGraphOpQueue extends ParallelGraphOpQueue {
 	}
 
 	@Override
-	protected Graph newGraph() {
+	protected EditGraph newGraph() {
 		return new NativeBadiffGraph((chunk + 1) * (chunk + 1));
 	}
 	

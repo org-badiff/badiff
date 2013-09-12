@@ -32,9 +32,9 @@ package org.badiff.nat;
 import java.util.List;
 
 import org.badiff.Op;
-import org.badiff.alg.Graph;
+import org.badiff.alg.EditGraph;
 
-public class NativeBadiffGraph extends Graph {
+public class NativeBadiffGraph extends EditGraph {
 	protected NativeGraph graph;
 	
 	public NativeBadiffGraph(int bufSize) {
