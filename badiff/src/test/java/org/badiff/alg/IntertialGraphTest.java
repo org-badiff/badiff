@@ -50,7 +50,7 @@ public class IntertialGraphTest {
 		byte[] orig = "Hello world!".getBytes();
 		byte[] target = "Hellish cruel world!".getBytes();
 		
-		InnertialGraph ig = new InnertialGraph((orig.length + 1) * (target.length + 1));
+		InertialGraph ig = new InertialGraph((orig.length + 1) * (target.length + 1));
 		ig.compute(orig, target);
 		
 		MemoryDiff imd = new MemoryDiff(new OneWayOpQueue(ig.queue()));
@@ -79,7 +79,7 @@ public class IntertialGraphTest {
 		byte[] orig = "Hello world!".getBytes();
 		byte[] target = "Hellish cruel world!".getBytes();
 		
-		InnertialGraph ig = new InnertialGraph((orig.length + 1) * (target.length + 1));
+		InertialGraph ig = new InertialGraph((orig.length + 1) * (target.length + 1));
 		
 		OpQueue q = new ReplaceOpQueue(orig, target);
 		q = new GraphOpQueue(q, ig);

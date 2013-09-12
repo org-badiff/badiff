@@ -41,7 +41,7 @@ import org.badiff.Op;
 import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.alg.Graph;
-import org.badiff.alg.InnertialGraph;
+import org.badiff.alg.InertialGraph;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
@@ -67,7 +67,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	public static final GraphFactory INERTIAL_GRAPH = new GraphFactory() {
 		@Override
 		public Graph newGraph(int capacity) {
-			return new InnertialGraph(capacity);
+			return new InertialGraph(capacity);
 		}
 	};
 	

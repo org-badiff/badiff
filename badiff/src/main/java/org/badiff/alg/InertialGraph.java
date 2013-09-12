@@ -58,18 +58,18 @@ import org.badiff.q.OpQueue;
  * will be smaller.<p>
  * 
  * For example, the difference between "Hello world!" and "Hellish cruel world!" is computed by
- * the {@link InnertialGraph} as {@code [>4, -2, +10, >6]} and computed by {@link EditGraph} as
- * {@code [>2, +1, >1, +8, >1, -1, >7]}.  The {@link InnertialGraph} uses a total run length of 22
- * compared with {@link EditGraph}'s run length of 21, but the serialized length of the {@link InnertialGraph}'s
+ * the {@link InertialGraph} as {@code [>4, -2, +10, >6]} and computed by {@link EditGraph} as
+ * {@code [>2, +1, >1, +8, >1, -1, >7]}.  The {@link InertialGraph} uses a total run length of 22
+ * compared with {@link EditGraph}'s run length of 21, but the serialized length of the {@link InertialGraph}'s
  * diff is {@code 17}, versus {@code 21} for the {@link EditGraph}. <p>
  * 
- * The disadvantage of the {@link InnertialGraph} compared with the {@link EditGraph} is that
+ * The disadvantage of the {@link InertialGraph} compared with the {@link EditGraph} is that
  * it uses more memory to compute, and is slightly slower.  On the other hand, you get better diffs.
  * 
  * @author robin
  *
  */
-public class InnertialGraph implements Graph {
+public class InertialGraph implements Graph {
 	/**
 	 * The incremental cost of beginning the next operation given the 
 	 * current operation.  These costs are based on the actual serialization
@@ -100,10 +100,10 @@ public class InnertialGraph implements Graph {
 	private byte[] yval;
 
 	/**
-	 * Create a new {@link InnertialGraph} with the given buffer capacity
+	 * Create a new {@link InertialGraph} with the given buffer capacity
 	 * @param capacity
 	 */
-	public InnertialGraph(int capacity) {
+	public InertialGraph(int capacity) {
 		if(capacity < 4)
 			throw new IllegalArgumentException("capacity must be >= 4");
 
@@ -184,8 +184,7 @@ public class InnertialGraph implements Graph {
 
 	private void computeNextCost(int pos) {
 		if(!nextable[pos]) {
-			leaveNextCost[pos] = Short.MAX_VALUE;
-			return;
+			enterNextCost[pos] = Short.MAX_VALUE;
 		}
 	
 		int cost;
@@ -220,31 +219,6 @@ public class InnertialGraph implements Graph {
 
 		public GraphOpQueue() {
 			pos = xval.length * yval.length - 1;
-
-			int cost = leaveNextCost[pos];
-			byte op = Op.NEXT;
-
-			if(leaveInsertCost[pos] < cost) {
-				cost = leaveInsertCost[pos];
-				op = Op.INSERT;
-			}
-
-			if(leaveDeleteCost[pos] < cost) {
-				cost = leaveDeleteCost[pos];
-				op = Op.DELETE;
-			}
-
-			switch(op) {
-			case Op.NEXT:
-				prepare(new Op(Op.NEXT, 1, null));
-				break;
-			case Op.INSERT:
-				prepare(new Op(Op.INSERT, 1, new byte[] {yval[pos / xval.length]}));
-				break;
-			case Op.DELETE:
-				prepare(new Op(Op.DELETE, 1, new byte[] {xval[pos % xval.length]}));
-				break;
-			}
 		}
 
 		@Override
@@ -269,21 +243,20 @@ public class InnertialGraph implements Graph {
 
 			switch(op) {
 			case Op.NEXT:
-				pos = pos - 1 - xval.length;
 				e = new Op(Op.NEXT, 1, null);
+				pos = pos - 1 - xval.length;
 				break;
 			case Op.INSERT:
-				pos = pos - xval.length;
 				e = new Op(Op.INSERT, 1, new byte[] {yval[pos / xval.length]});
+				pos = pos - xval.length;
 				break;
 			case Op.DELETE:
-				pos = pos - 1;
 				e = new Op(Op.DELETE, 1, new byte[] {xval[pos % xval.length]});
+				pos = pos - 1;
 				break;
 			}
 
-			if(pos > 0)
-				prepare(e);
+			prepare(e);
 
 			return true;
 		}
