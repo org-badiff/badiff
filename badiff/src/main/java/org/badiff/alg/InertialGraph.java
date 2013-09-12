@@ -57,10 +57,10 @@ import org.badiff.q.OpQueue;
  * will be smaller.<p>
  * 
  * For example, the difference between "Hello world!" and "Hellish cruel world!" is computed by
- * the {@link InertialGraph} as {@code [>4, -2, +10, >6]} and computed by {@link EditGraph} as
- * {@code [>2, +1, >1, +8, >1, -1, >7]}.  The {@link InertialGraph} uses a total run length of 22
+ * the {@link InertialGraph} as {@code >4-1+9>7;} and computed by {@link EditGraph} as
+ * {@code >2+1>1+8>1-1>7;}.  The {@link InertialGraph} uses a total run length of 21
  * compared with {@link EditGraph}'s run length of 21, but the serialized length of the {@link InertialGraph}'s
- * diff is {@code 17}, versus {@code 21} for the {@link EditGraph}. <p>
+ * diff is {@code 16}, versus {@code 21} for the {@link EditGraph}. <p>
  * 
  * The disadvantage of the {@link InertialGraph} compared with the {@link EditGraph} is that
  * it uses more memory to compute, and is slightly slower.  On the other hand, you get better diffs.
@@ -82,7 +82,7 @@ public class InertialGraph implements Graph {
 	 * NEXT takes 2 bytes to start (op, run) and 0 bytes to continue
 	 * 
 	 */
-/*	
+
 	private static final short[][] TRANSITION_COSTS = new short[][] {
 			{0, 3, 3, 2}, // From STOP to...
 			{0, 0, 3, 2}, // From DELETE to...
@@ -90,11 +90,12 @@ public class InertialGraph implements Graph {
 			{0, 3, 3, 0}, // From NEXT to...
 //           S  D  I  N
 	};
-*/
+
 	
 	private boolean[] nextable; // Whether this position can do NEXT
 	private short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
 	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
+	private byte[] beforeDelete, beforeInsert, beforeNext; // The op type that got us to this position
 
 	private int capacity;
 	private byte[] xval;
@@ -117,6 +118,9 @@ public class InertialGraph implements Graph {
 		leaveDeleteCost = new short[capacity];
 		leaveInsertCost = new short[capacity];
 		leaveNextCost = new short[capacity];
+		beforeDelete = new byte[capacity];
+		beforeInsert = new byte[capacity];
+		beforeNext = new byte[capacity];
 		
 		leaveDeleteCost[0] = 3;
 		leaveInsertCost[0] = 3;
@@ -155,13 +159,16 @@ public class InertialGraph implements Graph {
 		int cost;
 	
 		cost = enterDeleteCost[pos] + 0; // appending a delete is free
+		beforeDelete[pos] = Op.DELETE;
 	
 		if(enterInsertCost[pos] + 3 < cost) { // costs 3 to switch from insert to delete
 			cost = enterInsertCost[pos] + 3;
+			beforeDelete[pos] = Op.INSERT;
 		}
 	
 		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to delete
 			cost = enterNextCost[pos] + 3;
+			beforeDelete[pos] = Op.NEXT;
 		}
 	
 		leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
@@ -171,13 +178,16 @@ public class InertialGraph implements Graph {
 		int cost;
 	
 		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
+		beforeInsert[pos] = Op.INSERT;
 	
 		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
 			cost = enterDeleteCost[pos] + 3;
+			beforeInsert[pos] = Op.DELETE;
 		}
 	
 		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
 			cost = enterNextCost[pos] + 3;
+			beforeInsert[pos] = Op.NEXT;
 		}
 	
 		leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
@@ -186,17 +196,22 @@ public class InertialGraph implements Graph {
 	private void computeNextCost(int pos) {
 		int cost;
 
-		if(nextable[pos])
+		if(nextable[pos]) {
 			cost = enterNextCost[pos] + 0; // appending a next is free
-		else
+			beforeNext[pos] = Op.NEXT;
+		} else {
 			cost = Short.MAX_VALUE;
+			beforeNext[pos] = Op.STOP;
+		}
 	
 		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
 			cost = enterDeleteCost[pos] + 2;
+			beforeNext[pos] = Op.DELETE;
 		}
 	
 		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
 			cost = enterInsertCost[pos] + 2;
+			beforeNext[pos] = Op.INSERT;
 		}
 	
 		leaveNextCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
@@ -215,7 +230,7 @@ public class InertialGraph implements Graph {
 
 	private class GraphOpQueue extends OpQueue {
 		private int pos;
-
+		private byte prev = Op.STOP;
 
 		public GraphOpQueue() {
 			pos = xval.length * yval.length - 1;
@@ -229,14 +244,14 @@ public class InertialGraph implements Graph {
 			byte op = Op.NEXT;
 			int cost = enterNextCost[pos];
 
-			if(enterInsertCost[pos] < cost) {
+			if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][prev] < cost) {
 				op = Op.INSERT;
-				cost = enterInsertCost[pos];
+				cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][prev];
 			}
 
-			if(enterDeleteCost[pos] < cost) {
+			if(enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][prev] < cost) {
 				op = Op.DELETE;
-				cost = enterDeleteCost[pos];
+				cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][prev];
 			}
 
 			Op e = null;
@@ -257,6 +272,8 @@ public class InertialGraph implements Graph {
 			}
 
 			prepare(e);
+			
+			prev = e.getOp();
 
 			return true;
 		}
