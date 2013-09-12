@@ -40,67 +40,64 @@ import org.badiff.q.OpQueue;
 
 public class InnertialGraph implements Graph {
 
-	private class Node {
-		public boolean nextable;
-		public short enterDeleteCost, enterInsertCost, enterNextCost;
-		public short leaveDeleteCost, leaveInsertCost, leaveNextCost;
+	private boolean[] nextable;
+	private short[] enterDeleteCost, enterInsertCost, enterNextCost;
+	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost;
 
-		public void computeDeleteCost() {
-			int cost;
+	public void computeDeleteCost(int pos) {
+		int cost;
 
-			cost = enterDeleteCost; // appending a delete is free
+		cost = enterDeleteCost[pos]; // appending a delete is free
 
-			if(enterInsertCost + 2 < cost) { // costs 3 to switch from insert to delete
-				cost = enterInsertCost + 3;
-			}
-
-			if(enterNextCost + 2 < cost) { // costs 3 to switch from next to delete
-				cost = enterNextCost + 3;
-			}
-
-			leaveDeleteCost = (short) cost;
+		if(enterInsertCost[pos] + 2 < cost) { // costs 3 to switch from insert to delete
+			cost = enterInsertCost[pos] + 3;
 		}
 
-		public void computeInsertCost() {
-			int cost;
-
-			cost = enterInsertCost + 1; // appending an insert costs 1
-
-			if(enterDeleteCost + 3 < cost) { // costs 3 to switch from delete to insert
-				cost = enterDeleteCost + 3;
-			}
-
-			if(enterNextCost + 3 < cost) { // costs 3 to switch from next to insert
-				cost = enterNextCost + 3;
-			}
-
-			leaveInsertCost = (short) cost;
+		if(enterNextCost[pos] + 2 < cost) { // costs 3 to switch from next to delete
+			cost = enterNextCost[pos] + 3;
 		}
 
-		public void computeNextCost() {
-			if(!nextable) {
-				leaveNextCost = Short.MAX_VALUE;
-				return;
-			}
+		leaveDeleteCost[pos] = (short) cost;
+	}
 
-			int cost;
+	public void computeInsertCost(int pos) {
+		int cost;
 
-			cost = enterNextCost; // appending a next is free
+		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
 
-			if(enterDeleteCost + 2 < cost) { // costs 2 to switch from delete to next
-				cost = enterDeleteCost + 2;
-			}
-
-			if(enterInsertCost + 2 < cost) { // costs 2 to switch from insert to next
-				cost = enterInsertCost + 2;
-			}
-
-			leaveNextCost = (short) cost;
+		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
+			cost = enterDeleteCost[pos] + 3;
 		}
+
+		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
+			cost = enterNextCost[pos] + 3;
+		}
+
+		leaveInsertCost[pos] = (short) cost;
+	}
+
+	public void computeNextCost(int pos) {
+		if(!nextable[pos]) {
+			leaveNextCost[pos] = Short.MAX_VALUE;
+			return;
+		}
+
+		int cost;
+
+		cost = enterNextCost[pos]; // appending a next is free
+
+		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
+			cost = enterDeleteCost[pos] + 2;
+		}
+
+		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
+			cost = enterInsertCost[pos] + 2;
+		}
+
+		leaveNextCost[pos] = (short) cost;
 	}
 
 	private int capacity;
-	private Node[] nodes;
 	private byte[] xval;
 	private byte[] yval;
 
@@ -109,19 +106,24 @@ public class InnertialGraph implements Graph {
 			throw new IllegalArgumentException("capacity must be >= 4");
 
 		this.capacity = capacity;
-		nodes = new Node[capacity];
-		for(int i = 0; i < capacity; i++)
-			nodes[i] = new Node();
 
-		nodes[0].leaveDeleteCost = 2;
-		nodes[0].leaveInsertCost = 3;
-		nodes[0].leaveNextCost = 2;
+		nextable = new boolean[capacity];
+		enterDeleteCost = new short[capacity];
+		enterInsertCost = new short[capacity];
+		enterNextCost = new short[capacity];
+		leaveDeleteCost = new short[capacity];
+		leaveInsertCost = new short[capacity];
+		leaveNextCost = new short[capacity];
+		
+		leaveDeleteCost[0] = 2;
+		leaveInsertCost[0] = 3;
+		leaveNextCost[0] = 2;
 	}
 
 	public void compute(byte[] orig, byte[] target) {
 		if((orig.length + 1) * (target.length + 1) > capacity)
 			throw new IllegalArgumentException("diff axes exceed graph capacity");
-		
+
 		xval = new byte[orig.length + 1]; System.arraycopy(orig, 0, xval, 1, orig.length);
 		yval = new byte[target.length + 1]; System.arraycopy(target, 0, yval, 1, target.length);
 
@@ -133,15 +135,14 @@ public class InnertialGraph implements Graph {
 					continue;
 
 				// mark entry costs
-				Node node = nodes[pos];
-				node.nextable = x > 0 && y > 0 && xval[x] == yval[y];
-				node.enterDeleteCost = (x == 0) ? Short.MAX_VALUE : nodes[pos-1].leaveDeleteCost;
-				node.enterInsertCost = (y == 0) ? Short.MAX_VALUE : nodes[pos-xval.length].leaveInsertCost;
-				node.enterNextCost = (x == 0 || y == 0) ? Short.MAX_VALUE : nodes[pos-1-xval.length].leaveNextCost;
+				nextable[pos] = x > 0 && y > 0 && xval[x] == yval[y];
+				enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
+				enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
+				enterNextCost[pos] = (x == 0 || y == 0) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
 
-				node.computeDeleteCost();
-				node.computeInsertCost();
-				node.computeNextCost();
+				computeDeleteCost(pos);
+				computeInsertCost(pos);
+				computeNextCost(pos);
 			}
 		}	
 	}
@@ -155,28 +156,27 @@ public class InnertialGraph implements Graph {
 		q = new CompactingOpQueue(q);
 		return q;
 	}
-	
+
 	private class GraphOpQueue extends OpQueue {
 		private int pos;
-		
-		
+
+
 		public GraphOpQueue() {
 			pos = xval.length * yval.length - 1;
-			
-			Node node = nodes[pos];
-			int cost = node.leaveNextCost;
+
+			int cost = leaveNextCost[pos];
 			byte op = Op.NEXT;
-			
-			if(node.leaveInsertCost < cost) {
-				cost = node.leaveInsertCost;
+
+			if(leaveInsertCost[pos] < cost) {
+				cost = leaveInsertCost[pos];
 				op = Op.INSERT;
 			}
-			
-			if(node.leaveDeleteCost < cost) {
-				cost = node.leaveDeleteCost;
+
+			if(leaveDeleteCost[pos] < cost) {
+				cost = leaveDeleteCost[pos];
 				op = Op.DELETE;
 			}
-			
+
 			switch(op) {
 			case Op.NEXT:
 				prepare(new Op(Op.NEXT, 1, null));
@@ -189,29 +189,27 @@ public class InnertialGraph implements Graph {
 				break;
 			}
 		}
-		
+
 		@Override
 		protected boolean pull() {
 			if(pos == 0)
 				return false;
-			
-			Node node = nodes[pos];
-			
+
 			byte op = Op.NEXT;
-			int cost = node.enterNextCost;
-			
-			if(node.enterInsertCost < cost) {
+			int cost = enterNextCost[pos];
+
+			if(enterInsertCost[pos] < cost) {
 				op = Op.INSERT;
-				cost = node.enterInsertCost;
+				cost = enterInsertCost[pos];
 			}
-			
-			if(node.enterDeleteCost < cost) {
+
+			if(enterDeleteCost[pos] < cost) {
 				op = Op.DELETE;
-				cost = node.enterDeleteCost;
+				cost = enterDeleteCost[pos];
 			}
-			
+
 			Op e = null;
-			
+
 			switch(op) {
 			case Op.NEXT:
 				pos = pos - 1 - xval.length;
@@ -226,12 +224,12 @@ public class InnertialGraph implements Graph {
 				e = new Op(Op.DELETE, 1, new byte[] {xval[pos % xval.length]});
 				break;
 			}
-			
+
 			if(pos > 0)
 				prepare(e);
-			
+
 			return true;
 		}
 	}
-	
+
 }
