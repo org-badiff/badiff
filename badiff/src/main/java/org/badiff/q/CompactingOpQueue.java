@@ -24,6 +24,8 @@ public class CompactingOpQueue extends FilterOpQueue {
 				System.arraycopy(e2.getData(), 0, data, e1.getData().length, e2.getData().length);
 			}
 			filtering.add(0, new Op(e1.getOp(), e1.getRun() + e2.getRun(), data));
+			if(!require(2))
+				return flush();
 		}
 		
 		prepare(filtering.remove(0));
