@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class EditGraphBehaviorTest {
-	@Parameters
+	@Parameters()
 	public static Iterable<Object[]> params() throws IOException {
 		List<Object[]> p = new ArrayList<Object[]>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(InertialGraphBehaviorTest.class.getResourceAsStream("edit.txt")));
