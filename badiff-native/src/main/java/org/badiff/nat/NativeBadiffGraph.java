@@ -29,16 +29,20 @@
  */
 package org.badiff.nat;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.badiff.Op;
 import org.badiff.alg.EditGraph;
+import org.badiff.alg.Graph;
+import org.badiff.q.ListOpQueue;
+import org.badiff.q.OpQueue;
 
-public class NativeBadiffGraph extends EditGraph {
+public class NativeBadiffGraph implements Graph {
 	protected NativeGraph graph;
 	
 	public NativeBadiffGraph(int bufSize) {
-		super(1);
 		graph = new NativeGraph(bufSize);
 	}
 	
@@ -48,6 +52,12 @@ public class NativeBadiffGraph extends EditGraph {
 	}
 	
 	@Override
+	public OpQueue queue() {
+		List<Op> ops = new ArrayList<Op>(rlist());
+		Collections.reverse(ops);
+		return new ListOpQueue(ops);
+	}
+	
 	public List<Op> rlist() {
 		return graph.rlist();
 	}

@@ -39,16 +39,29 @@ import java.util.concurrent.TimeUnit;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.alg.EditGraph;
+import org.badiff.alg.Graph;
+import org.badiff.alg.Graph;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
- * applies {@link EditGraph} to them, in parallel.  This {@link OpQueue} is <b>PARTIALLY LAZY</b>.
+ * applies {@link Graph} to them, in parallel.  This {@link OpQueue} is <b>PARTIALLY LAZY</b>.
  * Partially lazy means that it will eagerly draw elements until all worker threads are active
  * any time a lazy element request is made.
  * @author robin
  *
  */
 public class ParallelGraphOpQueue extends FilterOpQueue {
+	
+	public static interface GraphFactory {
+		public Graph newGraph(int capacity);
+	}
+	
+	private static final GraphFactory DEFAULT_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new EditGraph(capacity);
+		}
+	};
 	
 	/**
 	 * The real source of elements
@@ -65,12 +78,14 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected ChainOpQueue chain;
 	
+	protected GraphFactory graphFactory;
+	
 	/**
-	 * Thread-local of {@link EditGraph} to avoid allocating ridonkulous amounts of memory
+	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
 	 */
-	protected ThreadLocal<EditGraph> graphs = new ThreadLocal<EditGraph>() {
-		protected EditGraph initialValue() {
-			return newGraph();
+	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
+		protected Graph initialValue() {
+			return graphFactory.newGraph((chunk+1) * (chunk+1));
 		}
 	};
 
@@ -80,7 +95,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 */
 	public ParallelGraphOpQueue(OpQueue source) {
-		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK);
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, DEFAULT_GRAPH);
 	}
 	
 	/**
@@ -88,10 +103,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 * @param workers
 	 */
-	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk) {
+	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk, GraphFactory graphFactory) {
 		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
+		this.graphFactory = graphFactory;
 		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {
@@ -116,14 +132,6 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	@Override
 	public boolean offer(Op e) {
 		return input.offer(e);
-	}
-	
-	/**
-	 * Return a new {@link EditGraph} to be used by a thread computing graph diffs in parallel
-	 * @return
-	 */
-	protected EditGraph newGraph() {
-		return new EditGraph((chunk+1) * (chunk+1));
 	}
 	
 	@Override
