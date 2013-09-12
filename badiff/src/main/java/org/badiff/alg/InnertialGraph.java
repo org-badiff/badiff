@@ -39,6 +39,26 @@ import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
 public class InnertialGraph implements Graph {
+	/**
+	 * The incremental cost of beginning the next operation given the 
+	 * current operation.  These costs are based on the actual serialization
+	 * output.
+	 * 
+	 * Each operation requires 1 byte for the operation itself, plus 1 (or more)
+	 * bytes for the run length.  Additionally, INSERT has 1 byte for each byte in the run.
+	 * 
+	 * DELETE takes 3 bytes to start (op, run, null-array) and 0 bytes to continue
+	 * INSERT takes 3 bytes to start (op, run, data) and 1 byte to continue
+	 * NEXT takes 2 bytes to start (op, run) and 0 bytes to continue
+	 * 
+	 */
+	private short[][] TRANSITION_COSTS = new short[][] {
+			{0, 3, 3, 2}, // From STOP to...
+			{0, 0, 3, 2}, // From DELETE to...
+			{0, 3, 1, 2}, // From INSERT to...
+			{0, 3, 3, 0}, // From NEXT to...
+//           S  D  I  N
+	};
 
 	private boolean[] nextable;
 	private short[] enterDeleteCost, enterInsertCost, enterNextCost;
@@ -62,9 +82,9 @@ public class InnertialGraph implements Graph {
 		leaveInsertCost = new short[capacity];
 		leaveNextCost = new short[capacity];
 		
-		leaveDeleteCost[0] = 2;
-		leaveInsertCost[0] = 3;
-		leaveNextCost[0] = 2;
+		leaveDeleteCost[0] = TRANSITION_COSTS[Op.STOP][Op.DELETE];
+		leaveInsertCost[0] = TRANSITION_COSTS[Op.STOP][Op.INSERT];
+		leaveNextCost[0] = TRANSITION_COSTS[Op.STOP][Op.NEXT];
 	}
 
 	public void compute(byte[] orig, byte[] target) {
@@ -97,14 +117,14 @@ public class InnertialGraph implements Graph {
 	private void computeDeleteCost(int pos) {
 		int cost;
 	
-		cost = enterDeleteCost[pos]; // appending a delete is free
+		cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.DELETE]; // appending a delete is free
 	
-		if(enterInsertCost[pos] + 2 < cost) { // costs 3 to switch from insert to delete
-			cost = enterInsertCost[pos] + 3;
+		if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.DELETE] < cost) { // costs 3 to switch from insert to delete
+			cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.DELETE];
 		}
 	
-		if(enterNextCost[pos] + 2 < cost) { // costs 3 to switch from next to delete
-			cost = enterNextCost[pos] + 3;
+		if(enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.DELETE] < cost) { // costs 3 to switch from next to delete
+			cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.DELETE];
 		}
 	
 		leaveDeleteCost[pos] = (short) cost;
@@ -113,14 +133,14 @@ public class InnertialGraph implements Graph {
 	private void computeInsertCost(int pos) {
 		int cost;
 	
-		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
+		cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.INSERT]; // appending an insert costs 1
 	
-		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
-			cost = enterDeleteCost[pos] + 3;
+		if(enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.INSERT] < cost) { // costs 3 to switch from delete to insert
+			cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.INSERT];
 		}
 	
-		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
-			cost = enterNextCost[pos] + 3;
+		if(enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.INSERT] < cost) { // costs 3 to switch from next to insert
+			cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.INSERT];
 		}
 	
 		leaveInsertCost[pos] = (short) cost;
@@ -134,14 +154,14 @@ public class InnertialGraph implements Graph {
 	
 		int cost;
 	
-		cost = enterNextCost[pos]; // appending a next is free
+		cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.NEXT]; // appending a next is free
 	
-		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
-			cost = enterDeleteCost[pos] + 2;
+		if(enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.NEXT] < cost) { // costs 2 to switch from delete to next
+			cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.NEXT];
 		}
 	
-		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
-			cost = enterInsertCost[pos] + 2;
+		if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.NEXT] < cost) { // costs 2 to switch from insert to next
+			cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.NEXT];
 		}
 	
 		leaveNextCost[pos] = (short) cost;

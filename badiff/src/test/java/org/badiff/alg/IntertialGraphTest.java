@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.q.GraphOpQueue;
+import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.util.Diffs;
@@ -23,7 +24,7 @@ public class IntertialGraphTest {
 		InnertialGraph ig = new InnertialGraph((orig.length + 1) * (target.length + 1));
 		ig.compute(orig, target);
 		
-		MemoryDiff imd = new MemoryDiff(ig.queue());
+		MemoryDiff imd = new MemoryDiff(new OneWayOpQueue(ig.queue()));
 		System.out.println(imd);
 		
 		byte[] result = Diffs.apply(imd, orig);
@@ -53,6 +54,7 @@ public class IntertialGraphTest {
 		
 		OpQueue q = new ReplaceOpQueue(orig, target);
 		q = new GraphOpQueue(q, ig);
+		q = new OneWayOpQueue(q);
 		
 		MemoryDiff md = new MemoryDiff(q);
 		System.out.println(md);
