@@ -44,59 +44,6 @@ public class InnertialGraph implements Graph {
 	private short[] enterDeleteCost, enterInsertCost, enterNextCost;
 	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost;
 
-	public void computeDeleteCost(int pos) {
-		int cost;
-
-		cost = enterDeleteCost[pos]; // appending a delete is free
-
-		if(enterInsertCost[pos] + 2 < cost) { // costs 3 to switch from insert to delete
-			cost = enterInsertCost[pos] + 3;
-		}
-
-		if(enterNextCost[pos] + 2 < cost) { // costs 3 to switch from next to delete
-			cost = enterNextCost[pos] + 3;
-		}
-
-		leaveDeleteCost[pos] = (short) cost;
-	}
-
-	public void computeInsertCost(int pos) {
-		int cost;
-
-		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
-
-		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
-			cost = enterDeleteCost[pos] + 3;
-		}
-
-		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
-			cost = enterNextCost[pos] + 3;
-		}
-
-		leaveInsertCost[pos] = (short) cost;
-	}
-
-	public void computeNextCost(int pos) {
-		if(!nextable[pos]) {
-			leaveNextCost[pos] = Short.MAX_VALUE;
-			return;
-		}
-
-		int cost;
-
-		cost = enterNextCost[pos]; // appending a next is free
-
-		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
-			cost = enterDeleteCost[pos] + 2;
-		}
-
-		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
-			cost = enterInsertCost[pos] + 2;
-		}
-
-		leaveNextCost[pos] = (short) cost;
-	}
-
 	private int capacity;
 	private byte[] xval;
 	private byte[] yval;
@@ -145,6 +92,59 @@ public class InnertialGraph implements Graph {
 				computeNextCost(pos);
 			}
 		}	
+	}
+
+	private void computeDeleteCost(int pos) {
+		int cost;
+	
+		cost = enterDeleteCost[pos]; // appending a delete is free
+	
+		if(enterInsertCost[pos] + 2 < cost) { // costs 3 to switch from insert to delete
+			cost = enterInsertCost[pos] + 3;
+		}
+	
+		if(enterNextCost[pos] + 2 < cost) { // costs 3 to switch from next to delete
+			cost = enterNextCost[pos] + 3;
+		}
+	
+		leaveDeleteCost[pos] = (short) cost;
+	}
+
+	private void computeInsertCost(int pos) {
+		int cost;
+	
+		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
+	
+		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
+			cost = enterDeleteCost[pos] + 3;
+		}
+	
+		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
+			cost = enterNextCost[pos] + 3;
+		}
+	
+		leaveInsertCost[pos] = (short) cost;
+	}
+
+	private void computeNextCost(int pos) {
+		if(!nextable[pos]) {
+			leaveNextCost[pos] = Short.MAX_VALUE;
+			return;
+		}
+	
+		int cost;
+	
+		cost = enterNextCost[pos]; // appending a next is free
+	
+		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
+			cost = enterDeleteCost[pos] + 2;
+		}
+	
+		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
+			cost = enterInsertCost[pos] + 2;
+		}
+	
+		leaveNextCost[pos] = (short) cost;
 	}
 
 	public OpQueue queue() {
