@@ -143,7 +143,7 @@ public class InertialGraph implements Graph {
 				nextable[pos] = x > 0 && y > 0 && xval[x] == yval[y];
 				enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
 				enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
-				enterNextCost[pos] = (x == 0 || y == 0) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
+				enterNextCost[pos] = (!nextable[pos]) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
 
 				computeDeleteCost(pos);
 				computeInsertCost(pos);
@@ -165,7 +165,7 @@ public class InertialGraph implements Graph {
 			cost = enterNextCost[pos] + 3;
 		}
 	
-		leaveDeleteCost[pos] = (short) cost;
+		leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
 	private void computeInsertCost(int pos) {
@@ -181,17 +181,16 @@ public class InertialGraph implements Graph {
 			cost = enterNextCost[pos] + 3;
 		}
 	
-		leaveInsertCost[pos] = (short) cost;
+		leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
 	private void computeNextCost(int pos) {
-		if(!nextable[pos]) {
-			enterNextCost[pos] = Short.MAX_VALUE;
-		}
-	
 		int cost;
-	
-		cost = enterNextCost[pos] + 0; // appending a next is free
+
+		if(nextable[pos])
+			cost = enterNextCost[pos] + 0; // appending a next is free
+		else
+			cost = Short.MAX_VALUE;
 	
 		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
 			cost = enterDeleteCost[pos] + 2;
@@ -201,7 +200,7 @@ public class InertialGraph implements Graph {
 			cost = enterInsertCost[pos] + 2;
 		}
 	
-		leaveNextCost[pos] = (short) cost;
+		leaveNextCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
 	@Override
