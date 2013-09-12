@@ -31,9 +31,12 @@ package org.badiff.alg;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.badiff.Op;
+import org.badiff.q.ListOpQueue;
+import org.badiff.q.OpQueue;
 
 /**
  * Fast graph that can compute the optimal diff between two byte arrays.
@@ -107,6 +110,12 @@ public class Graph {
 				
 			}
 		}
+	}
+	
+	public OpQueue queue() {
+		List<Op> ops = rlist();
+		Collections.reverse(ops);
+		return new ListOpQueue(ops);
 	}
 	
 	/**
