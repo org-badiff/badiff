@@ -40,7 +40,6 @@ import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
-import org.badiff.alg.Graph;
 import org.badiff.alg.InertialGraph;
 
 /**

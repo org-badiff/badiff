@@ -30,7 +30,6 @@
 package org.badiff.nat;
 
 import org.badiff.Diff;
-import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
