@@ -38,6 +38,34 @@ import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
+/**
+ * {@link Graph} which computes diff path lengths based not on the literal edge count between the origin
+ * and a node but instead on the logical byte cost to serialize that edge sequence.  The general premise
+ * is that the incremental cost of continuing an {@link Op}'s run is often less than the cost of starting
+ * a new {@link Op}.<p>
+ * 
+ * The graph assigns costs for each possible {@link Op} transition.  Each {@link Op} takes at least
+ * two bytes:<p>
+ * 
+ * <ul>
+ * <li>NEXT costs 2 bytes of any run length
+ * <li>DELETE costs 3 bytes of any run length (one byte for a null array)
+ * <li>INSERT costs 2 bytes plus the run length
+ * </ul>
+ * 
+ * The result of using a weight based on serialization rather than literal edge length is that, while
+ * the sum of the runs of the path may be greater than with {@link EditGraph}, the serialized diff
+ * will be smaller.<p>
+ * 
+ * For example, the difference between "Hello world!" and "Hellish cruel world!" is computed by
+ * the {@link InnertialGraph} as {@code [>4, -2, +10, >6]} and computed by {@link EditGraph} as
+ * {@code [>2, +1, >1, +8, >1, -1, >7]}.  The {@link InnertialGraph} uses a total run length of 22
+ * compared with {@link EditGraph}'s run length of 21, but the serialized length of the {@link InnertialGraph}'s
+ * diff is {@code 17}, versus {@code 21} for the {@link EditGraph}. 
+ * 
+ * @author robin
+ *
+ */
 public class InnertialGraph implements Graph {
 	/**
 	 * The incremental cost of beginning the next operation given the 
@@ -60,14 +88,18 @@ public class InnertialGraph implements Graph {
 //           S  D  I  N
 	};
 
-	private boolean[] nextable;
-	private short[] enterDeleteCost, enterInsertCost, enterNextCost;
-	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost;
+	private boolean[] nextable; // Whether this position can do NEXT
+	private short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
+	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
 
 	private int capacity;
 	private byte[] xval;
 	private byte[] yval;
 
+	/**
+	 * Create a new {@link InnertialGraph} with the given buffer capacity
+	 * @param capacity
+	 */
 	public InnertialGraph(int capacity) {
 		if(capacity < 4)
 			throw new IllegalArgumentException("capacity must be >= 4");
@@ -87,6 +119,7 @@ public class InnertialGraph implements Graph {
 		leaveNextCost[0] = TRANSITION_COSTS[Op.STOP][Op.NEXT];
 	}
 
+	@Override
 	public void compute(byte[] orig, byte[] target) {
 		if((orig.length + 1) * (target.length + 1) > capacity)
 			throw new IllegalArgumentException("diff axes exceed graph capacity");
@@ -167,6 +200,7 @@ public class InnertialGraph implements Graph {
 		leaveNextCost[pos] = (short) cost;
 	}
 
+	@Override
 	public OpQueue queue() {
 		OpQueue rq = new GraphOpQueue();
 		List<Op> ops = new ArrayList<Op>();
