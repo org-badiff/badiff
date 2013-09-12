@@ -83,14 +83,16 @@ public class InertialGraph implements Graph {
 	 * NEXT takes 2 bytes to start (op, run) and 0 bytes to continue
 	 * 
 	 */
-	private short[][] TRANSITION_COSTS = new short[][] {
+/*	
+	private static final short[][] TRANSITION_COSTS = new short[][] {
 			{0, 3, 3, 2}, // From STOP to...
 			{0, 0, 3, 2}, // From DELETE to...
 			{0, 3, 1, 2}, // From INSERT to...
 			{0, 3, 3, 0}, // From NEXT to...
 //           S  D  I  N
 	};
-
+*/
+	
 	private boolean[] nextable; // Whether this position can do NEXT
 	private short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
 	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
@@ -117,9 +119,9 @@ public class InertialGraph implements Graph {
 		leaveInsertCost = new short[capacity];
 		leaveNextCost = new short[capacity];
 		
-		leaveDeleteCost[0] = TRANSITION_COSTS[Op.STOP][Op.DELETE];
-		leaveInsertCost[0] = TRANSITION_COSTS[Op.STOP][Op.INSERT];
-		leaveNextCost[0] = TRANSITION_COSTS[Op.STOP][Op.NEXT];
+		leaveDeleteCost[0] = 3;
+		leaveInsertCost[0] = 3;
+		leaveNextCost[0] = 2;
 	}
 
 	@Override
@@ -153,14 +155,14 @@ public class InertialGraph implements Graph {
 	private void computeDeleteCost(int pos) {
 		int cost;
 	
-		cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.DELETE]; // appending a delete is free
+		cost = enterDeleteCost[pos] + 0; // appending a delete is free
 	
-		if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.DELETE] < cost) { // costs 3 to switch from insert to delete
-			cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.DELETE];
+		if(enterInsertCost[pos] + 3 < cost) { // costs 3 to switch from insert to delete
+			cost = enterInsertCost[pos] + 3;
 		}
 	
-		if(enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.DELETE] < cost) { // costs 3 to switch from next to delete
-			cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.DELETE];
+		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to delete
+			cost = enterNextCost[pos] + 3;
 		}
 	
 		leaveDeleteCost[pos] = (short) cost;
@@ -169,14 +171,14 @@ public class InertialGraph implements Graph {
 	private void computeInsertCost(int pos) {
 		int cost;
 	
-		cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.INSERT]; // appending an insert costs 1
+		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
 	
-		if(enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.INSERT] < cost) { // costs 3 to switch from delete to insert
-			cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.INSERT];
+		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
+			cost = enterDeleteCost[pos] + 3;
 		}
 	
-		if(enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.INSERT] < cost) { // costs 3 to switch from next to insert
-			cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.INSERT];
+		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
+			cost = enterNextCost[pos] + 3;
 		}
 	
 		leaveInsertCost[pos] = (short) cost;
@@ -189,14 +191,14 @@ public class InertialGraph implements Graph {
 	
 		int cost;
 	
-		cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][Op.NEXT]; // appending a next is free
+		cost = enterNextCost[pos] + 0; // appending a next is free
 	
-		if(enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.NEXT] < cost) { // costs 2 to switch from delete to next
-			cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.NEXT];
+		if(enterDeleteCost[pos] + 2 < cost) { // costs 2 to switch from delete to next
+			cost = enterDeleteCost[pos] + 2;
 		}
 	
-		if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.NEXT] < cost) { // costs 2 to switch from insert to next
-			cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.NEXT];
+		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to next
+			cost = enterInsertCost[pos] + 2;
 		}
 	
 		leaveNextCost[pos] = (short) cost;
