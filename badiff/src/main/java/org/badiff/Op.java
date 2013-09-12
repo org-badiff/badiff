@@ -100,7 +100,7 @@ public class Op implements Applyable, Serialized {
 	@Override
 	public String toString() {
 		switch(op) {
-		case STOP: return "!";
+		case STOP: return ";";
 		case DELETE: return "-" + run;
 		case INSERT: return "+" + run;
 		case NEXT: return ">" + run;

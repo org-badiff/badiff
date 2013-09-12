@@ -81,7 +81,7 @@ public class MemoryDiff implements Diff, Serialized {
 
 	@Override
 	public String toString() {
-		return ops.toString();
+		return queue().consummerize();
 	}
 	
 	@Override
