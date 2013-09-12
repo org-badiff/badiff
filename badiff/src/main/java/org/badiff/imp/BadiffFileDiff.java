@@ -595,7 +595,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
-		q = new ParallelGraphOpQueue(q);
+		q = new ParallelGraphOpQueue(q, ParallelGraphOpQueue.INERTIAL_GRAPH);
 		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		q = new PumpingOpQueue(q);
