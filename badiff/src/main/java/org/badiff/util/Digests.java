@@ -27,40 +27,80 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Iterator;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-import org.badiff.q.OpQueue;
+import org.badiff.io.NoopOutputStream;
 
 /**
- * A byte-level difference between two inputs.  Can be applied to streams
- * via {@link Applyable}.  {@link Diff} is a <b>re-usable</b> instance of {@link Applyable}.
+ * Utility class for working with {@link MessageDigest}s
  * @author robin
  *
  */
-public interface Diff extends Applyable, Storeable, Queueable {
+public class Digests {
 	/**
-	 * The default size of a chunk for operations which chunk their input
+	 * Return a default message digest.  Tries SHA-1, then MD5, then throws an exception.
+	 * @return
 	 */
-	public final int DEFAULT_CHUNK = 1024;
+	public static MessageDigest defaultDigest() {
+		try {
+			return MessageDigest.getInstance("SHA-1");
+		} catch(NoSuchAlgorithmException nsae) {
+			try {
+				return MessageDigest.getInstance("MD5");
+			} catch(NoSuchAlgorithmException nsae2) {
+				throw new RuntimeException("Could not find SHA-1 or MD5");
+			}
+		}
+	}
 	
 	/**
-	 * Overwrite this {@link Diff}'s operations with the operations from the
-	 * argument {@link Iterator}
-	 * @param ops
-	 * @throws IOException
+	 * Returns the specified digest, or throws a {@link RuntimeException}
+	 * @param algorithm
+	 * @return
 	 */
-	@Override
-	public void store(Iterator<Op> ops) throws IOException;
+	public static MessageDigest digest(String algorithm) {
+		try {
+			return MessageDigest.getInstance(algorithm);
+		} catch(NoSuchAlgorithmException nsae) {
+			throw new RuntimeException(nsae);
+		}
+	}
 	
 	/**
-	 * Return a copy of this {@link Diff}'s operations.  This copy may
-	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(Op)}'d to.
+	 * Compute the hash of a {@link File} given a {@link MessageDigest}
+	 * @param file
+	 * @param digest
 	 * @return
 	 * @throws IOException
 	 */
-	@Override
-	public OpQueue queue() throws IOException;
+	public static byte[] digest(File file, MessageDigest digest) throws IOException {
+		DigestInputStream digin = new DigestInputStream(new FileInputStream(file), digest);
+		Streams.copy(digin, new NoopOutputStream());
+		digin.close();
+		return digin.getMessageDigest().digest();
+	}
+	
+	/**
+	 * Pretty-print a digest.
+	 * Converts a byte array into a string of hex characters.
+	 * @param digest
+	 * @return
+	 */
+	public static String pretty(byte[] digest) {
+		StringBuilder sb = new StringBuilder();
+		for(byte b : digest) {
+			sb.append(String.format("%02x", 0xff & b));
+		}
+		return sb.toString();
+	}
+	
+	private Digests() {}
+
 }

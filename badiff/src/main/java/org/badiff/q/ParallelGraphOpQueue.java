@@ -29,17 +29,19 @@
  */
 package org.badiff.q;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
+import org.badiff.alg.Graph;
+import org.badiff.alg.InertialGraph;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
@@ -50,6 +52,26 @@ import org.badiff.alg.Graph;
  *
  */
 public class ParallelGraphOpQueue extends FilterOpQueue {
+	
+	public static interface GraphFactory {
+		public Graph newGraph(int capacity);
+	}
+	
+	public static final GraphFactory EDIT_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new EditGraph(capacity);
+		}
+	};
+	
+	public static final GraphFactory INERTIAL_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new InertialGraph(capacity);
+		}
+	};
+	
+	private static final GraphFactory DEFAULT_GRAPH = EDIT_GRAPH;
 	
 	/**
 	 * The real source of elements
@@ -66,12 +88,14 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected ChainOpQueue chain;
 	
+	protected GraphFactory graphFactory;
+	
 	/**
 	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
 	 */
 	protected ThreadLocal<Graph> graphs = new ThreadLocal<Graph>() {
 		protected Graph initialValue() {
-			return newGraph();
+			return graphFactory.newGraph((chunk+1) * (chunk+1));
 		}
 	};
 
@@ -81,7 +105,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 */
 	public ParallelGraphOpQueue(OpQueue source) {
-		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK);
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, DEFAULT_GRAPH);
+	}
+	
+	public ParallelGraphOpQueue(OpQueue source, GraphFactory graphFactory) {
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, graphFactory);
 	}
 	
 	/**
@@ -89,12 +117,25 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * @param source
 	 * @param workers
 	 */
-	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk) {
+	public ParallelGraphOpQueue(OpQueue source, int workers, int chunk, GraphFactory graphFactory) {
 		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
-		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		this.graphFactory = graphFactory;
+		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r, ParallelGraphOpQueue.this.toString());
+				t.setDaemon(true);
+				return t;
+			}
+		});
 		chain = (ChainOpQueue) super.source;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " <- " + input;
 	}
 	
 	/*
@@ -105,14 +146,6 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	@Override
 	public boolean offer(Op e) {
 		return input.offer(e);
-	}
-	
-	/**
-	 * Return a new {@link Graph} to be used by a thread computing graph diffs in parallel
-	 * @return
-	 */
-	protected Graph newGraph() {
-		return new Graph((chunk+1) * (chunk+1));
 	}
 	
 	@Override

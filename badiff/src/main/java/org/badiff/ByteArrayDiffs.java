@@ -31,7 +31,6 @@ package org.badiff;
 
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
-import org.badiff.io.Serialization;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Diffs;
@@ -46,35 +45,15 @@ import org.badiff.util.Serials;
 public class ByteArrayDiffs {
 
 	/**
-	 * The {@link Serialization} to use for persistence
-	 */
-	protected Serialization serial;
-	
-	/**
-	 * Create a new {@link ByteArrayDiffs} utilities instance
-	 */
-	public ByteArrayDiffs() {
-		this(DefaultSerialization.getInstance());
-	}
-	
-	/**
-	 * Create a new {@link ByteArrayDiffs} utilities instance with a specified {@link Serialization}
-	 * @param serial
-	 */
-	public ByteArrayDiffs(Serialization serial) {
-		this.serial = serial;
-	}
-	
-	/**
 	 * Compute and return a diff between {@code orig} and {@code target}
 	 * @param orig
 	 * @param target
 	 * @return
 	 */
-	public byte[] diff(byte[] orig, byte[] target) {
+	public static byte[] diff(byte[] orig, byte[] target) {
 		MemoryDiff md = new MemoryDiff();
 		md.store(Diffs.improved(Diffs.queue(orig, target)));
-		return Serials.serialize(serial, MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -83,8 +62,8 @@ public class ByteArrayDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] apply(byte[] orig, byte[] diff) {
-		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+	public static byte[] apply(byte[] orig, byte[] diff) {
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
 		return Diffs.apply(md, orig);
 	}
 
@@ -94,10 +73,10 @@ public class ByteArrayDiffs {
 	 * @param target
 	 * @return
 	 */
-	public byte[] udiff(byte[] orig, byte[] target) {
+	public static byte[] udiff(byte[] orig, byte[] target) {
 		MemoryDiff md = new MemoryDiff();
 		md.store(new OneWayOpQueue(Diffs.improved(Diffs.queue(orig, target))));
-		return Serials.serialize(serial, MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -106,8 +85,8 @@ public class ByteArrayDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] undo(byte[] target, byte[] diff) {
-		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+	public static byte[] undo(byte[] target, byte[] diff) {
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
 		return Diffs.apply(new UndoOpQueue(md.queue()), target);
 	}
 
@@ -116,10 +95,10 @@ public class ByteArrayDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] udiff(byte[] diff) {
-		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+	public static byte[] udiff(byte[] diff) {
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
 		md.store(new OneWayOpQueue(md.queue()));
-		return Serials.serialize(serial, MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -127,10 +106,11 @@ public class ByteArrayDiffs {
 	 * @param diff
 	 * @return
 	 */
-	public byte[] undo(byte[] diff) {
-		MemoryDiff md = Serials.deserialize(serial, MemoryDiff.class, diff);
+	public static byte[] undo(byte[] diff) {
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
 		md.store(new UndoOpQueue(md.queue()));
-		return Serials.serialize(serial, MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
 	}
 
+	private ByteArrayDiffs() {}
 }

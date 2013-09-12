@@ -29,9 +29,7 @@
  */
 package org.badiff.q;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 import org.badiff.Op;
@@ -99,6 +97,11 @@ public class FilterOpQueue extends OpQueue {
 			flushed = true;
 		}
 		return flushed;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " <- " + source;
 	}
 	
 }

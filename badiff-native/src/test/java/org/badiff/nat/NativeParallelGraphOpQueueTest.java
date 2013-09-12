@@ -50,7 +50,6 @@ import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
-import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.util.Streams;

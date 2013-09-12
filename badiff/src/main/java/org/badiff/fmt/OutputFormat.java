@@ -27,40 +27,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.fmt;
 
+import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Iterator;
-
-import org.badiff.q.OpQueue;
+import org.badiff.Diff;
+import org.badiff.io.RandomInput;
 
 /**
- * A byte-level difference between two inputs.  Can be applied to streams
- * via {@link Applyable}.  {@link Diff} is a <b>re-usable</b> instance of {@link Applyable}.
+ * An object which can convert a {@link Diff} to an external format for long-term storage
  * @author robin
  *
  */
-public interface Diff extends Applyable, Storeable, Queueable {
+public interface OutputFormat {
 	/**
-	 * The default size of a chunk for operations which chunk their input
-	 */
-	public final int DEFAULT_CHUNK = 1024;
-	
-	/**
-	 * Overwrite this {@link Diff}'s operations with the operations from the
-	 * argument {@link Iterator}
-	 * @param ops
+	 * Export the diff to the external format.
+	 * @param diff The diff to export
+	 * @param orig The original file to reference while exporting
+	 * @param out The output to which to write the exported diff
 	 * @throws IOException
 	 */
-	@Override
-	public void store(Iterator<Op> ops) throws IOException;
-	
-	/**
-	 * Return a copy of this {@link Diff}'s operations.  This copy may
-	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(Op)}'d to.
-	 * @return
-	 * @throws IOException
-	 */
-	@Override
-	public OpQueue queue() throws IOException;
+	public void exportDiff(Diff diff, RandomInput orig, DataOutput out) throws IOException;
 }

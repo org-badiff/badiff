@@ -27,40 +27,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.fmt;
 
 import java.io.IOException;
-import java.util.Iterator;
-
+import org.badiff.io.RandomInput;
 import org.badiff.q.OpQueue;
 
 /**
- * A byte-level difference between two inputs.  Can be applied to streams
- * via {@link Applyable}.  {@link Diff} is a <b>re-usable</b> instance of {@link Applyable}.
+ * An object which can import a diff from an external format
  * @author robin
  *
  */
-public interface Diff extends Applyable, Storeable, Queueable {
+public interface InputFormat {
 	/**
-	 * The default size of a chunk for operations which chunk their input
+	 * Import the externally formatted diff
+	 * @param orig The original file
+	 * @param extDiff The diff to import
+	 * @return A badiff diff
 	 */
-	public final int DEFAULT_CHUNK = 1024;
-	
-	/**
-	 * Overwrite this {@link Diff}'s operations with the operations from the
-	 * argument {@link Iterator}
-	 * @param ops
-	 * @throws IOException
-	 */
-	@Override
-	public void store(Iterator<Op> ops) throws IOException;
-	
-	/**
-	 * Return a copy of this {@link Diff}'s operations.  This copy may
-	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(Op)}'d to.
-	 * @return
-	 * @throws IOException
-	 */
-	@Override
-	public OpQueue queue() throws IOException;
+	public OpQueue importDiff(RandomInput orig, RandomInput ext) throws IOException;
 }

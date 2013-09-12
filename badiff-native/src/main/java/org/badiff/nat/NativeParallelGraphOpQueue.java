@@ -29,23 +29,27 @@
  */
 package org.badiff.nat;
 
+import org.badiff.Diff;
+import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
 
 public class NativeParallelGraphOpQueue extends ParallelGraphOpQueue {
+	
+	private static GraphFactory NATIVE_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new NativeBadiffGraph(capacity);
+		}
+	};
 
 	public NativeParallelGraphOpQueue(OpQueue source, int workers, int chunk) {
-		super(source, workers, chunk);
+		super(source, workers, chunk, NATIVE_GRAPH);
 	}
 
 	public NativeParallelGraphOpQueue(OpQueue source) {
-		super(source);
-	}
-
-	@Override
-	protected Graph newGraph() {
-		return new NativeBadiffGraph((chunk + 1) * (chunk + 1));
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK);
 	}
 	
 }

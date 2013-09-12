@@ -33,14 +33,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
-
 import org.badiff.imp.FileDiff;
-import org.badiff.io.DefaultSerialization;
-import org.badiff.io.Serialization;
-import org.badiff.q.BufferChunkingOpQueue;
+import org.badiff.io.RandomInputStream;
 import org.badiff.q.OneWayOpQueue;
+import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Diffs;
 
@@ -83,13 +79,11 @@ public class FileDiffs {
 	 */
 	public static FileDiff mdiff(File orig, File target) throws IOException {
 		FileDiff fd = new FileDiff(File.createTempFile(orig.getName(), ".diff"));
-		FileInputStream oin = new FileInputStream(orig);
+		RandomInputStream oin = new RandomInputStream(orig);
 		try {
-			FileInputStream tin = new FileInputStream(target);
+			RandomInputStream tin = new RandomInputStream(target);
 			try {
-				MappedByteBuffer obuf = oin.getChannel().map(MapMode.READ_ONLY, 0, orig.length());
-				MappedByteBuffer tbuf = tin.getChannel().map(MapMode.READ_ONLY, 0, target.length());
-				fd.store(Diffs.improved(new BufferChunkingOpQueue(obuf, tbuf)));
+				fd.store(Diffs.improved(new StreamChunkingOpQueue(oin, tin)));
 			} finally {
 				tin.close();
 			}

@@ -27,92 +27,102 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff.imp;
+package org.badiff.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.nio.ByteBuffer;
 
-import org.badiff.Diff;
-import org.badiff.Op;
-import org.badiff.io.Serialization;
-import org.badiff.io.Serialized;
-import org.badiff.q.ListOpQueue;
-import org.badiff.q.OpQueue;
-
-/**
- * Implementation of {@link Diff} that lives entirely in memory, backed
- * by a {@link List} of {@link Op}.
- * @author robin
- *
- */
-public class MemoryDiff implements Diff, Serialized {
+public class RandomInputStream extends InputStream implements Random {
+	protected RandomInput in;
+	protected long mark = -1;
 	
-	protected List<Op> ops = new ArrayList<Op>();
-
-	public MemoryDiff() {}
-	
-	public MemoryDiff(Iterator<Op> ops) {
-		this();
-		store(ops);
+	public RandomInputStream(File file) throws IOException {
+		this(new FileRandomInput(file));
 	}
 	
-	@Override
-	public void apply(InputStream orig, OutputStream target)
-			throws IOException {
-		for(Op e : ops)
-			e.apply(orig, target);
+	public RandomInputStream(byte[] buf) {
+		this(new ByteBufferRandomInput(buf));
+	}
+	
+	public RandomInputStream(ByteBuffer buf) {
+		this(new ByteBufferRandomInput(buf));
+	}
+	
+	public RandomInputStream(InputStream in, int bufSize) {
+		this(new StreamRandomInput(in, bufSize));
+	}
+	
+	public RandomInputStream(RandomInput in) {
+		this.in = in;
 	}
 
 	@Override
-	public void store(Iterator<Op> ops) {
-		this.ops.clear();
-		while(ops.hasNext())
-			this.ops.add(ops.next());
+	public int read() throws IOException {
+		return in.read();
 	}
 
 	@Override
-	public OpQueue queue() {
-		return new MemoryOpQueue(ops);
+	public int read(byte[] b) throws IOException {
+		return in.read(b);
 	}
 
 	@Override
-	public String toString() {
-		return ops.toString();
+	public int read(byte[] b, int off, int len) throws IOException {
+		return in.read(b, off, len);
+	}
+
+	@Override
+	public long skip(long n) throws IOException {
+		return in.skip(n);
+	}
+
+	@Override
+	public int available() throws IOException {
+		return in.available();
+	}
+
+	@Override
+	public synchronized void mark(int readlimit) {
+		mark = in.position();
+	}
+
+	@Override
+	public synchronized void reset() throws IOException {
+		if(mark == -1)
+			throw new IOException("unset mark");
+		in.seek(mark);
+	}
+
+	@Override
+	public boolean markSupported() {
+		return true;
 	}
 	
 	@Override
-	public void serialize(Serialization serial, OutputStream out)
-			throws IOException {
-		for(Op e : ops)
-			serial.writeObject(out, Op.class, e);
-		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+	public void close() throws IOException {
+		in.close();
 	}
 
 	@Override
-	public void deserialize(Serialization serial, InputStream in)
-			throws IOException {
-		for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
-			ops.add(e);
+	public long first() {
+		return in.first();
 	}
 
-	private class MemoryOpQueue extends ListOpQueue {
-		private MemoryOpQueue(List<Op> ops) {
-			super(ops);
-		}
-	
-		@Override
-		public boolean offer(Op e) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public String toString() {
-			return getClass().getSimpleName();
-		}
+	@Override
+	public long last() {
+		return in.last();
+	}
+
+	@Override
+	public long position() {
+		return in.position();
+	}
+
+	@Override
+	public void seek(long pos) throws IOException {
+		in.seek(pos);
 	}
 
 }

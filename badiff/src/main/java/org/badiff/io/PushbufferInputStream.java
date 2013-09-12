@@ -27,40 +27,95 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.io;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+import java.nio.ByteBuffer;
 
-import org.badiff.q.OpQueue;
+public class PushbufferInputStream extends InputStream {
 
-/**
- * A byte-level difference between two inputs.  Can be applied to streams
- * via {@link Applyable}.  {@link Diff} is a <b>re-usable</b> instance of {@link Applyable}.
- * @author robin
- *
- */
-public interface Diff extends Applyable, Storeable, Queueable {
-	/**
-	 * The default size of a chunk for operations which chunk their input
-	 */
-	public final int DEFAULT_CHUNK = 1024;
+	protected PushbackInputStream in;
+	protected long pos;
+	protected ByteBuffer buf;
 	
-	/**
-	 * Overwrite this {@link Diff}'s operations with the operations from the
-	 * argument {@link Iterator}
-	 * @param ops
-	 * @throws IOException
-	 */
-	@Override
-	public void store(Iterator<Op> ops) throws IOException;
+	public PushbufferInputStream(InputStream in, int size) {
+		this.in = new PushbackInputStream(in, size);
+		this.buf = ByteBuffer.allocate(size);
+	}
 	
-	/**
-	 * Return a copy of this {@link Diff}'s operations.  This copy may
-	 * be {@link OpQueue#poll()}'d from but not {@link OpQueue#offer(Op)}'d to.
-	 * @return
-	 * @throws IOException
-	 */
+	public long position() {
+		return pos;
+	}
+	
+	public void position(long pos) throws IOException {
+		skip(pos - this.pos);
+	}
+	
+	public long first() {
+		return pos - buf.position();
+	}
+	
 	@Override
-	public OpQueue queue() throws IOException;
+	public long skip(long n) throws IOException {
+		long skipped = 0;
+		while(n > skipped) {
+			read();
+			skipped++;
+		}
+		if(n < 0) {
+			buf.position(buf.position() + (int) n);
+			byte[] b = new byte[(int) -n];
+			buf.get(b);
+			buf.position(buf.position() + (int) n);
+			in.unread(b);
+			skipped = n;
+		}
+		pos += skipped;
+		return skipped;
+	}
+
+	@Override
+	public int read() throws IOException {
+		int r = in.read();
+		if(r >= 0) {
+			if(buf.remaining() == 0) {
+				buf.get();
+				buf.compact();
+			}
+			buf.put((byte) r);
+			pos++;
+		}
+		return r;
+	}
+	
+	@Override
+	public int read(byte[] b) throws IOException {
+		int r = in.read(b);
+		if(r >= 0) {
+			if(buf.remaining() < r) {
+				buf.position(buf.limit() - r);
+				buf.compact();
+			}
+			buf.put(b, 0, r);
+			pos += r;
+		}
+		return r;
+	}
+	
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		int r = in.read(b, off, len);
+		if(r >= 0) {
+			if(buf.remaining() < r) {
+				buf.position(buf.limit() - r);
+				buf.compact();
+			}
+			buf.put(b, off, r);
+			pos += r;
+		}
+		return r;
+	}
+	
 }

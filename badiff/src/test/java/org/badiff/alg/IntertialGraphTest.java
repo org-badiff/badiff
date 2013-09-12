@@ -27,78 +27,66 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.alg;
 
 import java.io.IOException;
+import java.util.Arrays;
+
 import org.badiff.imp.MemoryDiff;
+import org.badiff.io.DefaultSerialization;
+import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OneWayOpQueue;
-import org.badiff.q.UndoOpQueue;
+import org.badiff.q.OpQueue;
+import org.badiff.q.ReplaceOpQueue;
 import org.badiff.util.Diffs;
+import org.badiff.util.Serials;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Utility methods that produce {@link MemoryDiff} objects
- * @author robin
- *
- */
-public class MemoryDiffs {
+public class IntertialGraphTest {
 
-	/**
-	 * Compute and return a diff between {@code orig} and {@code target}
-	 * @param orig
-	 * @param target
-	 * @return
-	 */
-	public static MemoryDiff diff(byte[] orig, byte[] target) {
-		return new MemoryDiff(Diffs.improved(Diffs.queue(orig, target)));
-	}
-	
-	/**
-	 * Apply {@code diff} to {@code orig} and return the result
-	 * @param orig
-	 * @param diff
-	 * @return
-	 */
-	public static byte[] apply(byte[] orig, Diff diff) {
-		return Diffs.apply(diff, orig);
-	}
-	
-	/**
-	 * Compute and return a one-way (unidirectional) diff from {@code orig} to {@code target}
-	 * @param orig
-	 * @param target
-	 * @return
-	 */
-	public static MemoryDiff udiff(byte[] orig, byte[] target) {
-		return new MemoryDiff(new OneWayOpQueue(Diffs.improved(Diffs.queue(orig, target))));
-	}
-	
-	/**
-	 * Apply the inverse of {@code diff} to {@code target} and return the result
-	 * @param target
-	 * @param diff
-	 * @return
-	 */
-	public static byte[] undo(byte[] target, Diff diff) throws IOException {
-		return Diffs.apply(new UndoOpQueue(diff.queue()), target);
-	}
-	
-	/**
-	 * Compute and return a one-way (unidirectional) diff given any diff
-	 * @param diff
-	 * @return
-	 */
-	public static MemoryDiff udiff(Diff diff) throws IOException {
-		return new MemoryDiff(new OneWayOpQueue(diff.queue()));
-	}
-	
-	/**
-	 * Compute and return an "undo" diff from a two-way diff
-	 * @param diff
-	 * @return
-	 */
-	public static MemoryDiff undo(Diff diff) throws IOException {
-		return new MemoryDiff(new UndoOpQueue(diff.queue()));
+	@Test
+	public void testGraph() {
+		byte[] orig = "Hello world!".getBytes();
+		byte[] target = "Hellish cruel world!".getBytes();
+		
+		InertialGraph ig = new InertialGraph((orig.length + 1) * (target.length + 1));
+		ig.compute(orig, target);
+		
+		MemoryDiff imd = new MemoryDiff(new OneWayOpQueue(ig.queue()));
+		System.out.println(imd);
+		
+		byte[] result = Diffs.apply(imd, orig);
+		System.out.println(new String(result));
+		
+		Assert.assertEquals(new String(target), new String(result));
+		
+		EditGraph g = new EditGraph((orig.length + 1) * (target.length + 1));
+		g.compute(orig, target);
+		
+		MemoryDiff emd = new MemoryDiff(g.queue());
+		System.out.println(emd);
+		
+		byte[] simd = Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, imd);
+		byte[] semd = Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, emd);
+		
+		System.out.println("inertial diff length:" + simd.length);
+		System.out.println("edit diff length:" + semd.length);
 	}
 
-	private MemoryDiffs() {}
+	@Test
+	public void testGraphOpQueue() throws IOException {
+		byte[] orig = "Hello world!".getBytes();
+		byte[] target = "Hellish cruel world!".getBytes();
+		
+		InertialGraph ig = new InertialGraph((orig.length + 1) * (target.length + 1));
+		
+		OpQueue q = new ReplaceOpQueue(orig, target);
+		q = new GraphOpQueue(q, ig);
+		q = new OneWayOpQueue(q);
+		
+		MemoryDiff md = new MemoryDiff(q);
+		System.out.println(md);
+	}
+	
 }

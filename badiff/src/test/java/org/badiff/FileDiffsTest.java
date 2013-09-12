@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.imp.FileDiff;
 import org.badiff.util.Streams;
-import org.junit.Test;
 
 public class FileDiffsTest {
 //	@Test

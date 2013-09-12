@@ -29,7 +29,6 @@
  */
 package org.badiff;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,7 +88,7 @@ public class Op implements Applyable, Serialized {
 	public Op(byte op, int run, byte[] data) {
 		if((op & 0x3) != op)
 			throw new IllegalArgumentException("invalid op");
-		if(run < 0 || data != null && run > data.length)
+		if(run < 1 && op != DELETE || data != null && run > data.length)
 			throw new IllegalArgumentException("invalid run");
 		if(op == INSERT && data == null)
 			throw new IllegalArgumentException("invalid data");
@@ -164,9 +163,6 @@ public class Op implements Applyable, Serialized {
 		long oprun = serial.readObject(in, Long.class);
 		op = (byte)(oprun & 0x3);
 		run = (int)(oprun >>> 2);
-		if(run == 0) { // must be reading old-format Op
-			run = serial.readObject(in, Integer.class);
-		}
 		if(op == INSERT || op == DELETE)
 			data = serial.readObject(in, byte[].class);
 	}

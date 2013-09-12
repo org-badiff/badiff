@@ -31,7 +31,7 @@ package org.badiff.q;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.alg.Graph;
+import org.badiff.alg.EditGraph;
 
 /**
  * {@link OpQueue} that lazily chunks pairs of pending
@@ -41,7 +41,7 @@ import org.badiff.alg.Graph;
  * whose {@link Op#getRun()} length is no greater than the chunk size.<p>
  * 
  * Chunking is used primarily to pre-process input to other algorithms,
- * such as {@link Graph}, into manageable sizes.
+ * such as {@link EditGraph}, into manageable sizes.
  * @author robin
  *
  */
