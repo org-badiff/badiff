@@ -242,7 +242,7 @@ public class InertialGraph implements Graph {
 				return false;
 
 			byte op = Op.NEXT;
-			int cost = enterNextCost[pos];
+			int cost = enterNextCost[pos] + TRANSITION_COSTS[Op.NEXT][prev];
 
 			if(enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][prev] < cost) {
 				op = Op.INSERT;
