@@ -44,22 +44,18 @@ public class InnertialGraph implements Graph {
 		public boolean nextable;
 		public short enterDeleteCost, enterInsertCost, enterNextCost;
 		public short leaveDeleteCost, leaveInsertCost, leaveNextCost;
-		public byte bestDeleteEntry, bestInsertEntry, bestNextEntry;
 
 		public void computeDeleteCost() {
 			int cost;
 
 			cost = enterDeleteCost; // appending a delete is free
-			bestDeleteEntry = Op.DELETE;
 
 			if(enterInsertCost + 2 < cost) { // costs 3 to switch from insert to delete
 				cost = enterInsertCost + 3;
-				bestDeleteEntry = Op.INSERT;
 			}
 
 			if(enterNextCost + 2 < cost) { // costs 3 to switch from next to delete
 				cost = enterNextCost + 3;
-				bestDeleteEntry = Op.NEXT;
 			}
 
 			leaveDeleteCost = (short) cost;
@@ -69,16 +65,13 @@ public class InnertialGraph implements Graph {
 			int cost;
 
 			cost = enterInsertCost + 1; // appending an insert costs 1
-			bestInsertEntry = Op.INSERT;
 
 			if(enterDeleteCost + 3 < cost) { // costs 3 to switch from delete to insert
 				cost = enterDeleteCost + 3;
-				bestInsertEntry = Op.DELETE;
 			}
 
 			if(enterNextCost + 3 < cost) { // costs 3 to switch from next to insert
 				cost = enterNextCost + 3;
-				bestInsertEntry = Op.NEXT;
 			}
 
 			leaveInsertCost = (short) cost;
@@ -87,23 +80,19 @@ public class InnertialGraph implements Graph {
 		public void computeNextCost() {
 			if(!nextable) {
 				leaveNextCost = Short.MAX_VALUE;
-				bestNextEntry = Op.STOP;
 				return;
 			}
 
 			int cost;
 
 			cost = enterNextCost; // appending a next is free
-			bestNextEntry = Op.NEXT;
 
 			if(enterDeleteCost + 2 < cost) { // costs 2 to switch from delete to next
 				cost = enterDeleteCost + 2;
-				bestNextEntry = Op.DELETE;
 			}
 
 			if(enterInsertCost + 2 < cost) { // costs 2 to switch from insert to next
 				cost = enterInsertCost + 2;
-				bestNextEntry = Op.INSERT;
 			}
 
 			leaveNextCost = (short) cost;
