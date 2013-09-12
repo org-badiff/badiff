@@ -41,6 +41,7 @@ import org.badiff.Op;
 import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.alg.Graph;
+import org.badiff.alg.InnertialGraph;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
@@ -56,12 +57,21 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		public Graph newGraph(int capacity);
 	}
 	
-	private static final GraphFactory DEFAULT_GRAPH = new GraphFactory() {
+	public static final GraphFactory EDIT_GRAPH = new GraphFactory() {
 		@Override
 		public Graph newGraph(int capacity) {
 			return new EditGraph(capacity);
 		}
 	};
+	
+	public static final GraphFactory INERTIAL_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new InnertialGraph(capacity);
+		}
+	};
+	
+	private static final GraphFactory DEFAULT_GRAPH = EDIT_GRAPH;
 	
 	/**
 	 * The real source of elements
@@ -96,6 +106,10 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 */
 	public ParallelGraphOpQueue(OpQueue source) {
 		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, DEFAULT_GRAPH);
+	}
+	
+	public ParallelGraphOpQueue(OpQueue source, GraphFactory graphFactory) {
+		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, graphFactory);
 	}
 	
 	/**

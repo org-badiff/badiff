@@ -61,7 +61,10 @@ import org.badiff.q.OpQueue;
  * the {@link InnertialGraph} as {@code [>4, -2, +10, >6]} and computed by {@link EditGraph} as
  * {@code [>2, +1, >1, +8, >1, -1, >7]}.  The {@link InnertialGraph} uses a total run length of 22
  * compared with {@link EditGraph}'s run length of 21, but the serialized length of the {@link InnertialGraph}'s
- * diff is {@code 17}, versus {@code 21} for the {@link EditGraph}. 
+ * diff is {@code 17}, versus {@code 21} for the {@link EditGraph}. <p>
+ * 
+ * The disadvantage of the {@link InnertialGraph} compared with the {@link EditGraph} is that
+ * it uses more memory to compute, and is slightly slower.  On the other hand, you get better diffs.
  * 
  * @author robin
  *
