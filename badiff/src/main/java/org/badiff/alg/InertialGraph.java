@@ -48,7 +48,7 @@ import org.badiff.q.OpQueue;
  * 
  * <ul>
  * <li>NEXT costs 2 bytes of any run length
- * <li>DELETE costs 3 bytes of any run length (one byte for a null array)
+ * <li>DELETE costs 2 bytes of any run length
  * <li>INSERT costs 2 bytes plus the run length
  * </ul>
  * 
@@ -84,10 +84,10 @@ public class InertialGraph implements Graph {
 	 */
 
 	private static final short[][] TRANSITION_COSTS = new short[][] {
-			{0, 3, 3, 2}, // From STOP to...
+			{0, 2, 3, 2}, // From STOP to...
 			{0, 0, 3, 2}, // From DELETE to...
-			{0, 3, 1, 2}, // From INSERT to...
-			{0, 3, 3, 0}, // From NEXT to...
+			{0, 2, 1, 2}, // From INSERT to...
+			{0, 2, 3, 0}, // From NEXT to...
 //           S  D  I  N
 	};
 
@@ -161,13 +161,13 @@ public class InertialGraph implements Graph {
 		cost = enterDeleteCost[pos] + 0; // appending a delete is free
 		beforeDelete[pos] = Op.DELETE;
 	
-		if(enterInsertCost[pos] + 3 < cost) { // costs 3 to switch from insert to delete
-			cost = enterInsertCost[pos] + 3;
+		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to delete
+			cost = enterInsertCost[pos] + 2;
 			beforeDelete[pos] = Op.INSERT;
 		}
 	
-		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to delete
-			cost = enterNextCost[pos] + 3;
+		if(enterNextCost[pos] + 2 < cost) { // costs @ to switch from next to delete
+			cost = enterNextCost[pos] + 2;
 			beforeDelete[pos] = Op.NEXT;
 		}
 	
