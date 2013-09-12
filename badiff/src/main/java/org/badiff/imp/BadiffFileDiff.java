@@ -54,6 +54,7 @@ import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
 import org.badiff.q.CoalescingOpQueue;
+import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
@@ -604,6 +605,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		q = new OneWayOpQueue(q);
 		q = new PumpingOpQueue(q);
 		q = new UnchunkingOpQueue(q);
+		q = new PumpingOpQueue(q);
+		q = new CompactingOpQueue(q);
 		q = new PumpingOpQueue(q);
 		tmp.store(q);
 		
