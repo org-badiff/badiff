@@ -110,114 +110,193 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	public static final long FLAG_OPTIONAL_DATA = 0x10;
 	
 	/**
-	 * Statistics summarizing this badiff diff
-	 * @author robin
-	 *
-	 */
-	public static class Stats implements Serialized {
-		/**
-		 * The number of rewinds (DELETE with negative run length)
-		 */
-		private long rewindCount;
-		/**
-		 * The number of NEXT operations
-		 */
-		private long nextCount;
-		/**
-		 * The number of INSERT operations
-		 */
-		private long insertCount;
-		/**
-		 * The number of DELETE operations
-		 */
-		private long deleteCount;
-		/**
-		 * The size of the input file
-		 */
-		private long inputSize;
-		/**
-		 * The size of the output file
-		 */
-		private long outputSize;
-		
-		private Stats() {}
-		
-		@Override
-		public void serialize(Serialization serial, OutputStream out)
-				throws IOException {
-			serial.writeObject(out, Long.class, rewindCount);
-			serial.writeObject(out, Long.class, nextCount);
-			serial.writeObject(out, Long.class, insertCount);
-			serial.writeObject(out, Long.class, deleteCount);
-			serial.writeObject(out, Long.class, inputSize);
-			serial.writeObject(out, Long.class, outputSize);
-		}
-		@Override
-		public void deserialize(Serialization serial, InputStream in)
-				throws IOException {
-			rewindCount = serial.readObject(in, Long.class);
-			nextCount = serial.readObject(in, Long.class);
-			insertCount = serial.readObject(in, Long.class);
-			deleteCount = serial.readObject(in, Long.class);
-			inputSize = serial.readObject(in, Long.class);
-			outputSize = serial.readObject(in, Long.class);
-		}
-
-		/**
-		 * Returns the number of rewinds (DELETE with negative run length)
-		 * @return
-		 */
-		public long getRewindCount() {
-			return rewindCount;
-		}
-
-		/**
-		 * Returns the total number of NEXT operations
-		 * @return
-		 */
-		public long getNextCount() {
-			return nextCount;
-		}
-
-		/**
-		 * Returns the total number of INSERT operations
-		 * @return
-		 */
-		public long getInsertCount() {
-			return insertCount;
-		}
-
-		/**
-		 * Returns the total number of DELETE operations
-		 * @return
-		 */
-		public long getDeleteCount() {
-			return deleteCount;
-		}
-
-		/**
-		 * Returns the expected input size
-		 * @return
-		 */
-		public long getInputSize() {
-			return inputSize;
-		}
-
-		/**
-		 * Returns the expected output size
-		 * @return
-		 */
-		public long getOutputSize() {
-			return outputSize;
-		}
-	}
-	
-	/**
 	 * A header found at the beginning of every badiff diff
 	 * @author robin
 	 *
 	 */
 	public static class Header {
+		/**
+		 * Statistics summarizing this badiff diff
+		 * @author robin
+		 *
+		 */
+		public static class Stats implements Serialized {
+			/**
+			 * The number of rewinds (DELETE with negative run length)
+			 */
+			private long rewindCount;
+			/**
+			 * The number of NEXT operations
+			 */
+			private long nextCount;
+			/**
+			 * The number of INSERT operations
+			 */
+			private long insertCount;
+			/**
+			 * The number of DELETE operations
+			 */
+			private long deleteCount;
+			/**
+			 * The size of the input file
+			 */
+			private long inputSize;
+			/**
+			 * The size of the output file
+			 */
+			private long outputSize;
+			
+			private Stats() {}
+			
+			@Override
+			public void serialize(Serialization serial, OutputStream out)
+					throws IOException {
+				serial.writeObject(out, Long.class, rewindCount);
+				serial.writeObject(out, Long.class, nextCount);
+				serial.writeObject(out, Long.class, insertCount);
+				serial.writeObject(out, Long.class, deleteCount);
+				serial.writeObject(out, Long.class, inputSize);
+				serial.writeObject(out, Long.class, outputSize);
+			}
+			@Override
+			public void deserialize(Serialization serial, InputStream in)
+					throws IOException {
+				rewindCount = serial.readObject(in, Long.class);
+				nextCount = serial.readObject(in, Long.class);
+				insertCount = serial.readObject(in, Long.class);
+				deleteCount = serial.readObject(in, Long.class);
+				inputSize = serial.readObject(in, Long.class);
+				outputSize = serial.readObject(in, Long.class);
+			}
+		
+			/**
+			 * Returns the number of rewinds (DELETE with negative run length)
+			 * @return
+			 */
+			public long getRewindCount() {
+				return rewindCount;
+			}
+		
+			/**
+			 * Returns the total number of NEXT operations
+			 * @return
+			 */
+			public long getNextCount() {
+				return nextCount;
+			}
+		
+			/**
+			 * Returns the total number of INSERT operations
+			 * @return
+			 */
+			public long getInsertCount() {
+				return insertCount;
+			}
+		
+			/**
+			 * Returns the total number of DELETE operations
+			 * @return
+			 */
+			public long getDeleteCount() {
+				return deleteCount;
+			}
+		
+			/**
+			 * Returns the expected input size
+			 * @return
+			 */
+			public long getInputSize() {
+				return inputSize;
+			}
+		
+			/**
+			 * Returns the expected output size
+			 * @return
+			 */
+			public long getOutputSize() {
+				return outputSize;
+			}
+		}
+
+		/**
+		 * Optional data for a diff.  Any field may be null.
+		 * @author robin
+		 *
+		 */
+		public static class Optional implements Serialized {
+			private Optional() {}
+			
+			/**
+			 * The expected hash of the input file
+			 */
+			private byte[] preHash;
+			/**
+			 * The expected hash of the output file
+			 */
+			private byte[] postHash;
+			/**
+			 * The algorithm used to compute hashes
+			 */
+			private String hashAlgorithm;
+			
+			/**
+			 * Returns the expected hash of the input file
+			 * @return
+			 */
+			public byte[] getPreHash() {
+				return preHash;
+			}
+			/**
+			 * Sets the expected hash of the input file
+			 * @param preHash
+			 */
+			public void setPreHash(byte[] preHash) {
+				this.preHash = preHash;
+			}
+			/**
+			 * Returns the expected hash of the output file
+			 * @return
+			 */
+			public byte[] getPostHash() {
+				return postHash;
+			}
+			/**
+			 * Sets the expected hash of the output file
+			 * @param postHash
+			 */
+			public void setPostHash(byte[] postHash) {
+				this.postHash = postHash;
+			}
+			@Override
+			public void serialize(Serialization serial, OutputStream out)
+					throws IOException {
+				serial.writeObject(out, String.class, hashAlgorithm);
+				serial.writeObject(out, byte[].class, preHash);
+				serial.writeObject(out, byte[].class, postHash);
+			}
+			@Override
+			public void deserialize(Serialization serial, InputStream in)
+					throws IOException {
+				hashAlgorithm = serial.readObject(in, String.class);
+				preHash = serial.readObject(in, byte[].class);
+				postHash = serial.readObject(in, byte[].class);
+			}
+			/**
+			 * Returns the hashing algorithm used
+			 * @return
+			 */
+			public String getHashAlgorithm() {
+				return hashAlgorithm;
+			}
+			/**
+			 * Sets the hashing algorithm used
+			 * @param hashAlgorithm
+			 */
+			public void setHashAlgorithm(String hashAlgorithm) {
+				this.hashAlgorithm = hashAlgorithm;
+			}
+		}
+
 		/**
 		 * The magic bytes
 		 */
@@ -237,13 +316,18 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		/**
 		 * Statistics about this diff
 		 */
-		private Stats stats;
+		private Header.Stats stats;
 		/**
 		 * Optional data (may be null) for this diff
 		 */
-		private Optional optional;
+		private Header.Optional optional = new Optional();
 		
-		private Header() {}
+		public Header() {}
+		
+		public Header(long flags, Serialization serial) {
+			this.flags = flags;
+			this.serial = serial;
+		}
 
 		/**
 		 * Returns the magic bytes for this diff
@@ -281,7 +365,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * Returns statistics about this diff
 		 * @return
 		 */
-		public Stats getStats() {
+		public Header.Stats getStats() {
 			return stats;
 		}
 		
@@ -289,85 +373,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * Returns optional data about this diff (may be null)
 		 * @return
 		 */
-		public Optional getOptional() {
+		public Header.Optional getOptional() {
 			return optional;
-		}
-	}
-	
-	/**
-	 * Optional data for a diff.  Any field may be null.
-	 * @author robin
-	 *
-	 */
-	public static class Optional implements Serialized {
-		/**
-		 * The expected hash of the input file
-		 */
-		private byte[] preHash;
-		/**
-		 * The expected hash of the output file
-		 */
-		private byte[] postHash;
-		/**
-		 * The algorithm used to compute hashes
-		 */
-		private String hashAlgorithm;
-		
-		/**
-		 * Returns the expected hash of the input file
-		 * @return
-		 */
-		public byte[] getPreHash() {
-			return preHash;
-		}
-		/**
-		 * Sets the expected hash of the input file
-		 * @param preHash
-		 */
-		public void setPreHash(byte[] preHash) {
-			this.preHash = preHash;
-		}
-		/**
-		 * Returns the expected hash of the output file
-		 * @return
-		 */
-		public byte[] getPostHash() {
-			return postHash;
-		}
-		/**
-		 * Sets the expected hash of the output file
-		 * @param postHash
-		 */
-		public void setPostHash(byte[] postHash) {
-			this.postHash = postHash;
-		}
-		@Override
-		public void serialize(Serialization serial, OutputStream out)
-				throws IOException {
-			serial.writeObject(out, String.class, hashAlgorithm);
-			serial.writeObject(out, byte[].class, preHash);
-			serial.writeObject(out, byte[].class, postHash);
-		}
-		@Override
-		public void deserialize(Serialization serial, InputStream in)
-				throws IOException {
-			hashAlgorithm = serial.readObject(in, String.class);
-			preHash = serial.readObject(in, byte[].class);
-			postHash = serial.readObject(in, byte[].class);
-		}
-		/**
-		 * Returns the hashing algorithm used
-		 * @return
-		 */
-		public String getHashAlgorithm() {
-			return hashAlgorithm;
-		}
-		/**
-		 * Sets the hashing algorithm used
-		 * @param hashAlgorithm
-		 */
-		public void setHashAlgorithm(String hashAlgorithm) {
-			this.hashAlgorithm = hashAlgorithm;
 		}
 	}
 	
@@ -377,8 +384,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static Stats computeStats(Diff diff) throws IOException {
-		Stats stats = new Stats();
+	protected static Header.Stats computeStats(Diff diff) throws IOException {
+		Header.Stats stats = new Header.Stats();
 		OpQueue q = diff.queue();
 		long osize = 0; // input file size
 		long tsize = 0; // output file size
@@ -467,21 +474,26 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @param out
 	 * @throws IOException
 	 */
-	protected static void writeHeader(Serialization serial, Stats stats, Optional opt, DataOutput out) throws IOException {
-		long flags = 0;
+	protected static void writeHeader(Header header, DataOutput out) throws IOException {
+		long flags;
 		
-		if(stats.rewindCount > 0)
-			flags |= FLAG_RANDOM_ACCESS;
-		
-		if(serial == DefaultSerialization.getInstance())
-			flags |= FLAG_DEFAULT_SERIALIZATION;
-		else if(serial == SmallNumberSerialization.getInstance())
-			flags |= FLAG_SMALL_NUMBER_SERIALIZATION;
-		else
-			flags |= FLAG_UNSPECIFIED_SERIALIZATION;
-		
-		if(opt != null)
-			flags |= FLAG_OPTIONAL_DATA;
+		if(header.flags != 0)
+			flags = header.flags;
+		else {
+			flags = 0;
+			if(header.stats.rewindCount > 0)
+				flags |= FLAG_RANDOM_ACCESS;
+
+			if(header.serial == DefaultSerialization.getInstance())
+				flags |= FLAG_DEFAULT_SERIALIZATION;
+			else if(header.serial == SmallNumberSerialization.getInstance())
+				flags |= FLAG_SMALL_NUMBER_SERIALIZATION;
+			else
+				flags |= FLAG_UNSPECIFIED_SERIALIZATION;
+
+			if(header.optional != null)
+				flags |= FLAG_OPTIONAL_DATA;
+		}
 		
 		out.write(MAGIC);
 		out.writeInt(VERSION);
@@ -489,10 +501,10 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		DataOutputOutputStream dout = new DataOutputOutputStream(out);
 		
-		stats.serialize(serial, dout);
+		header.stats.serialize(header.serial, dout);
 		
-		if(opt != null)
-			opt.serialize(serial, dout);
+		if(header.optional != null)
+			header.optional.serialize(header.serial, dout);
 	}
 	
 	/**
@@ -537,12 +549,12 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 				throw new IOException("Incompatible serialization; expected file to specify, file declares unspecified");
 		}
 		
-		Stats stats = new Stats();
+		Header.Stats stats = new Header.Stats();
 		stats.deserialize(serial, in);
 		
-		Optional opt = null;
+		Header.Optional opt = null;
 		if((flags & FLAG_OPTIONAL_DATA) != 0) {
-			opt = new Optional();
+			opt = new Header.Optional();
 			opt.deserialize(serial, in);
 		}
 		
@@ -574,7 +586,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	public Stats stats() throws IOException {
+	public Header.Stats stats() throws IOException {
 		return header().stats;
 	}
 	
@@ -610,13 +622,15 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		q = new PumpingOpQueue(q);
 		tmp.store(q);
 		
-		Optional opt = new Optional();
+		Header h = new Header();
+		
+		Header.Optional opt = h.getOptional();
 		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
 		opt.setPreHash(preHash);
 		opt.setPostHash(postHash);
 		
 		DataOutputStream self = new DataOutputStream(new FileOutputStream(this));
-		store(self, serial, opt, tmp.queue());
+		store(self, serial, h, tmp.queue());
 		self.close();
 		
 		tmp.delete();
@@ -633,7 +647,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	@SuppressWarnings("resource")
 	public void apply(File orig, File target) throws IOException {
 		Header header = header();
-		Optional opt = header.getOptional();
+		Header.Optional opt = header.getOptional();
 		
 		byte[] expectedPreHash = null;
 		byte[] expectedPostHash = null;
@@ -704,7 +718,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @param ops
 	 * @throws IOException
 	 */
-	public static void store(DataOutput out, Serialization serial, Optional opt, Iterator<Op> ops) throws IOException {
+	public static void store(DataOutput out, Serialization serial, Header header, Iterator<Op> ops) throws IOException {
 		/* 
 		 * shove the ops into a temp FileDiff first so we can compute some stats
 		 * without having them all in memory
@@ -713,13 +727,14 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		tmp.store(ops);
 		
 		// Compute the stats
-		Stats stats = computeStats(tmp);
+		header.stats = computeStats(tmp);
 		
 		if(serial == null)
 			serial = DefaultSerialization.getInstance();
+		header.serial = serial;
 		
 		// Write the header
-		writeHeader(serial, stats, opt, out);
+		writeHeader(header, out);
 		
 		DataOutputOutputStream dout = new DataOutputOutputStream(out);
 		

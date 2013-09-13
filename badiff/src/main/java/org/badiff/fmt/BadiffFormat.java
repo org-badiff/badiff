@@ -40,7 +40,8 @@ import java.util.Arrays;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
-import org.badiff.imp.BadiffFileDiff.Optional;
+import org.badiff.imp.BadiffFileDiff.Header;
+import org.badiff.imp.BadiffFileDiff.Header.Optional;
 import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;
@@ -61,7 +62,8 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	@Override
 	public void exportDiff(Diff diff, RandomInput orig, DataOutput out)
 			throws IOException {
-		Optional opt = new Optional();
+		Header hdr = new Header();
+		Header.Optional opt = hdr.getOptional();
 		
 		long opos = orig.position();
 		
@@ -76,7 +78,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		opt.setPreHash(digin.getMessageDigest().digest());
 		opt.setPostHash(digout.getMessageDigest().digest());
 		
-		BadiffFileDiff.store(out, DefaultSerialization.getInstance(), opt, diff.queue());
+		BadiffFileDiff.store(out, DefaultSerialization.getInstance(), hdr, diff.queue());
 		
 	}
 
@@ -91,7 +93,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		Streams.copy(din, bdo);
 		bdo.close();
 		
-		Optional opt = bd.header().getOptional();
+		Header.Optional opt = bd.header().getOptional();
 		if(opt != null) {
 			if(opt.getHashAlgorithm() != null && opt.getPreHash() != null) {
 				long opos = orig.position();

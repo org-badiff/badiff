@@ -30,7 +30,9 @@
 package org.badiff.cli;
 
 import java.io.File;
+
 import org.badiff.imp.BadiffFileDiff;
+import org.badiff.imp.BadiffFileDiff.Header;
 import org.badiff.util.Digests;
 
 /**
@@ -77,8 +79,8 @@ public class BadiffCli {
 			}
 			BadiffFileDiff diff = new BadiffFileDiff(args[1]);
 			BadiffFileDiff.Header header = diff.header();
-			BadiffFileDiff.Stats stats = header.getStats();
-			BadiffFileDiff.Optional opt = header.getOptional();
+			Header.Stats stats = header.getStats();
+			Header.Optional opt = header.getOptional();
 			
 			field("Input Size", stats.getInputSize());
 			field("Output Size", stats.getOutputSize());
