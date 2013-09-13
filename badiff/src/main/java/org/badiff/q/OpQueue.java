@@ -175,4 +175,11 @@ public class OpQueue implements Applyable, Iterator<Op> {
 		throw new UnsupportedOperationException();
 	}
 	
+	public String consummerize() {
+		StringBuilder sb = new StringBuilder();
+		for(Op e = poll(); e != null; e = poll())
+			sb.append(e);
+		sb.append(new Op(Op.STOP, 1, null));
+		return sb.toString();
+	}
 }

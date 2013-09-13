@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.badiff.Op;
-import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;

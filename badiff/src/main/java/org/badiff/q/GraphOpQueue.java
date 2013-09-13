@@ -29,9 +29,6 @@
  */
 package org.badiff.q;
 
-import java.util.List;
-import java.util.ListIterator;
-
 import org.badiff.Op;
 import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
