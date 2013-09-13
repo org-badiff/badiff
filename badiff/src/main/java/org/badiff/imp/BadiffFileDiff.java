@@ -612,6 +612,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		q = new PumpingOpQueue(q);
+		q = new CoalescingOpQueue(q);
+		q = new PumpingOpQueue(q);
 		q = new RewindingOpQueue(q);
 		q = new PumpingOpQueue(q);
 		q = new OneWayOpQueue(q);
