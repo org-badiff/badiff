@@ -39,7 +39,9 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
@@ -68,6 +70,9 @@ public class DefaultSerialization implements Serialization {
 	}
 
 	private List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
+	private int depth;
+	private Map<Object, Object> context = new HashMap<Object, Object>();
+	private GraphContext graphContext = new GraphContext(context);
 	
 	public DefaultSerialization() {
 		serializers.add(new Serializer<Class>(Class.class) {
@@ -230,23 +235,47 @@ public class DefaultSerialization implements Serialization {
 	@Override
 	public <T> void writeObject(OutputStream out, Class<T> type, T object)
 			throws IOException {
-		for(Serializer s : serializers) {
-			if(s.type() == type) {
-				s.write(new DataOutputStream(out), object);
-				return;
+		if(depth == 0)
+			graphContext.clear();
+		depth++;
+		try {
+			for(Serializer s : serializers) {
+				if(s.type() == type) {
+					s.write(new DataOutputStream(out), object);
+					return;
+				}
 			}
+			throw new NotSerializableException(type.getName());
+		} finally {
+			depth--;
 		}
-		throw new NotSerializableException(type.getName());
 	}
 
 	@Override
 	public <T> T readObject(InputStream in, Class<T> type) throws IOException {
-		for(Serializer s : serializers) {
-			if(s.type() == type) {
-				return (T) s.read(new DataInputStream(in));
+		if(depth == 0)
+			graphContext.clear();
+		depth++;
+		try {
+			for(Serializer s : serializers) {
+				if(s.type() == type) {
+					return (T) s.read(new DataInputStream(in));
+				}
 			}
+			throw new NotSerializableException(type.getName());
+		} finally {
+			depth--;
 		}
-		throw new NotSerializableException(type.getName());
+	}
+
+	@Override
+	public Map<Object, Object> context() {
+		return context;
+	}
+
+	@Override
+	public GraphContext graphContext() {
+		return graphContext;
 	}
 	
 }

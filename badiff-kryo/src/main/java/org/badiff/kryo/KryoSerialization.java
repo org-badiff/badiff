@@ -32,9 +32,12 @@ package org.badiff.kryo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.badiff.Op;
 import org.badiff.imp.MemoryDiff;
+import org.badiff.io.GraphContext;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
@@ -44,6 +47,9 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class KryoSerialization implements Serialization {
 	private Kryo kryo;
+	
+	private Map<Object, Object> context = new HashMap<Object, Object>();
+	private GraphContext graphContext = new GraphContext(context);
 	
 	public KryoSerialization() {
 		this(new Kryo());
@@ -85,6 +91,16 @@ public class KryoSerialization implements Serialization {
 		else
 			input = new Input(in, 1); // act like unbuffered stream
 		return readObject(input, type);
+	}
+
+	@Override
+	public Map<Object, Object> context() {
+		return context;
+	}
+
+	@Override
+	public GraphContext graphContext() {
+		return graphContext;
 	}
 
 }

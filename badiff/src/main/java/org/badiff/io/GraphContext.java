@@ -29,45 +29,23 @@
  */
 package org.badiff.io;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A mechanism for serializing data to/from {@link OutputStream} / {@link InputStream}
- * @author robin
- *
- */
-public interface Serialization {
-	/**
-	 * Write the argument object to the {@link OutputStream}.
-	 * The object may be null.
-	 * @param out
-	 * @param type
-	 * @param object
-	 * @throws IOException
-	 */
-	public <T> void writeObject(OutputStream out, Class<T> type, T object) throws IOException;
+public class GraphContext extends HashMap<Object, Object> {
+	private Map<Object, Object> context;
 	
-	/**
-	 * Read an object of the argument type from the {@link InputStream}
-	 * @param in
-	 * @param type
-	 * @return
-	 * @throws IOException
-	 */
-	public <T> T readObject(InputStream in, Class<T> type) throws IOException;
+	public GraphContext(Map<Object, Object> context) {
+		this.context = context;
+	}
 	
-	/**
-	 * Storage for data which should be available to serializers and persist across serializations and deserializations
-	 * @return
-	 */
-	public Map<Object, Object> context();
+	@Override
+	public boolean containsKey(Object key) {
+		return super.containsKey(key) || context.containsKey(key);
+	}
 	
-	/**
-	 * Storage for data which is erased immediately prior to each top-level serialization or deserialization.
-	 * @return
-	 */
-	public GraphContext graphContext();
+	@Override
+	public Object get(Object key) {
+		return super.containsKey(key) ? super.get(key) : context.get(key);
+	}
 }
