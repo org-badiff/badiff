@@ -120,7 +120,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * @author robin
 		 *
 		 */
-		public static class Stats implements Serialized {
+		public class Stats implements Serialized {
 			/**
 			 * The number of rewinds (DELETE with negative run length)
 			 */
@@ -223,7 +223,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * @author robin
 		 *
 		 */
-		public static class Optional implements Serialized {
+		public class Optional implements Serialized {
 			private Optional() {}
 			
 			/**
@@ -316,11 +316,11 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		/**
 		 * Statistics about this diff
 		 */
-		private Header.Stats stats;
+		private Header.Stats stats = new Stats();
 		/**
 		 * Optional data (may be null) for this diff
 		 */
-		private Header.Optional optional = new Optional();
+		private Header.Optional optional = null;
 		
 		public Header() {}
 		
@@ -384,8 +384,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static Header.Stats computeStats(Diff diff) throws IOException {
-		Header.Stats stats = new Header.Stats();
+	protected static void computeStats(Diff diff, Header header) throws IOException {
+		Header.Stats stats = header.stats;
 		OpQueue q = diff.queue();
 		long osize = 0; // input file size
 		long tsize = 0; // output file size
@@ -412,7 +412,6 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		}
 		stats.inputSize = osize;
 		stats.outputSize = tsize;
-		return stats;
 	}
 	
 	/**
@@ -515,6 +514,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @throws IOException
 	 */
 	protected Header readHeader(DataInputStream in, Serialization serial) throws IOException {
+		Header header = new Header();
+		
 		byte[] magic = new byte[MAGIC.length];
 		in.read(magic);
 		if(!Arrays.equals(magic, MAGIC))
@@ -549,16 +550,15 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 				throw new IOException("Incompatible serialization; expected file to specify, file declares unspecified");
 		}
 		
-		Header.Stats stats = new Header.Stats();
+		Header.Stats stats = header.stats;
 		stats.deserialize(serial, in);
 		
 		Header.Optional opt = null;
 		if((flags & FLAG_OPTIONAL_DATA) != 0) {
-			opt = new Header.Optional();
+			opt = header.new Optional();
 			opt.deserialize(serial, in);
 		}
 		
-		Header header = new Header();
 		header.magic = magic;
 		header.version = version;
 		header.flags = flags;
@@ -729,7 +729,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		tmp.store(ops);
 		
 		// Compute the stats
-		header.stats = computeStats(tmp);
+		computeStats(tmp, header);
 		
 		if(serial == null)
 			serial = DefaultSerialization.getInstance();
