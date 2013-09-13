@@ -83,7 +83,7 @@ public class InertialGraph implements Graph {
 	 * 
 	 */
 
-	private static final short[][] TRANSITION_COSTS = new short[][] {
+	protected int[][] TRANSITION_COSTS = new int[][] {
 			{0, 2, 3, 2}, // From STOP to...
 			{0, 0, 3, 2}, // From DELETE to...
 			{0, 2, 1, 2}, // From INSERT to...
@@ -92,13 +92,13 @@ public class InertialGraph implements Graph {
 	};
 
 	
-	private boolean[] nextable; // Whether this position can do NEXT
-	private short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
-	private short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
+	protected boolean[] nextable; // Whether this position can do NEXT
+	protected short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
+	protected short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
 
-	private int capacity;
-	private byte[] xval;
-	private byte[] yval;
+	protected int capacity;
+	protected byte[] xval;
+	protected byte[] yval;
 
 	/**
 	 * Create a new {@link InertialGraph} with the given buffer capacity
@@ -151,7 +151,7 @@ public class InertialGraph implements Graph {
 		}	
 	}
 
-	private void computeDeleteCost(int pos) {
+	protected void computeDeleteCost(int pos) {
 		int cost;
 	
 		cost = enterDeleteCost[pos] + TRANSITION_COSTS[Op.DELETE][Op.DELETE]; // appending a delete is free
@@ -167,7 +167,7 @@ public class InertialGraph implements Graph {
 		leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
-	private void computeInsertCost(int pos) {
+	protected void computeInsertCost(int pos) {
 		int cost;
 	
 		cost = enterInsertCost[pos] + TRANSITION_COSTS[Op.INSERT][Op.INSERT]; // appending an insert costs 1
@@ -183,7 +183,7 @@ public class InertialGraph implements Graph {
 		leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
-	private void computeNextCost(int pos) {
+	protected void computeNextCost(int pos) {
 		int cost;
 
 		if(nextable[pos]) {
@@ -214,9 +214,9 @@ public class InertialGraph implements Graph {
 		return q;
 	}
 
-	private class GraphOpQueue extends OpQueue {
-		private int pos;
-		private byte prev = Op.STOP;
+	protected class GraphOpQueue extends OpQueue {
+		protected int pos;
+		protected byte prev = Op.STOP;
 
 		public GraphOpQueue() {
 			pos = xval.length * yval.length - 1;
