@@ -43,15 +43,6 @@ import org.badiff.q.OpQueue;
  * is that the incremental cost of continuing an {@link Op}'s run is often less than the cost of starting
  * a new {@link Op}.<p>
  * 
- * The graph assigns costs for each possible {@link Op} transition.  Each {@link Op} takes at least
- * two bytes:<p>
- * 
- * <ul>
- * <li>NEXT costs 2 bytes of any run length
- * <li>DELETE costs 2 bytes of any run length
- * <li>INSERT costs 2 bytes plus the run length
- * </ul>
- * 
  * The result of using a weight based on serialization rather than literal edge length is that, while
  * the sum of the runs of the path may be greater than with {@link EditGraph}, the serialized diff
  * will be smaller.<p>
@@ -84,9 +75,9 @@ public class InertialGraph implements Graph {
 	 */
 
 	private static final int[][] DEFAULT_TRANSITION_COSTS = new int[][] {
-			{0, 2, 3, 2}, // From STOP to...
-			{0, 0, 3, 2}, // From DELETE to...
-			{0, 2, 1, 2}, // From INSERT to...
+			{0, 2, 3, 1}, // From STOP to...
+			{0, 0, 3, 1}, // From DELETE to...
+			{0, 2, 1, 1}, // From INSERT to...
 			{0, 2, 3, 0}, // From NEXT to...
 //           S  D  I  N
 	};
