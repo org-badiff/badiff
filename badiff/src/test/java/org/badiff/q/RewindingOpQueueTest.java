@@ -20,7 +20,7 @@ public class RewindingOpQueueTest {
 		q = new GraphOpQueue(q, Diff.DEFAULT_CHUNK);
 		MemoryDiff md = new MemoryDiff(q);
 		
-		System.out.println(md + ": " + Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md).length);
+		System.out.println(md + ": " + Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, md).length);
 		
 		
 		q = md.queue();
@@ -28,7 +28,7 @@ public class RewindingOpQueueTest {
 		
 		MemoryDiff rwd = new MemoryDiff(q);
 		
-		System.out.println(rwd + ": " + Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, rwd).length);
+		System.out.println(rwd + ": " + Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, rwd).length);
 		
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		rwd.apply(new RandomInputStream(orig.getBytes()), bout);

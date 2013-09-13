@@ -53,7 +53,7 @@ public class ByteArrayDiffs {
 	public static byte[] diff(byte[] orig, byte[] target) {
 		MemoryDiff md = new MemoryDiff();
 		md.store(Diffs.improved(Diffs.queue(orig, target)));
-		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class ByteArrayDiffs {
 	 * @return
 	 */
 	public static byte[] apply(byte[] orig, byte[] diff) {
-		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.newInstance(), MemoryDiff.class, diff);
 		return Diffs.apply(md, orig);
 	}
 
@@ -76,7 +76,7 @@ public class ByteArrayDiffs {
 	public static byte[] udiff(byte[] orig, byte[] target) {
 		MemoryDiff md = new MemoryDiff();
 		md.store(new OneWayOpQueue(Diffs.improved(Diffs.queue(orig, target))));
-		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class ByteArrayDiffs {
 	 * @return
 	 */
 	public static byte[] undo(byte[] target, byte[] diff) {
-		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.newInstance(), MemoryDiff.class, diff);
 		return Diffs.apply(new UndoOpQueue(md.queue()), target);
 	}
 
@@ -96,9 +96,9 @@ public class ByteArrayDiffs {
 	 * @return
 	 */
 	public static byte[] udiff(byte[] diff) {
-		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.newInstance(), MemoryDiff.class, diff);
 		md.store(new OneWayOpQueue(md.queue()));
-		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, md);
 	}
 	
 	/**
@@ -107,9 +107,9 @@ public class ByteArrayDiffs {
 	 * @return
 	 */
 	public static byte[] undo(byte[] diff) {
-		MemoryDiff md = Serials.deserialize(DefaultSerialization.getInstance(), MemoryDiff.class, diff);
+		MemoryDiff md = Serials.deserialize(DefaultSerialization.newInstance(), MemoryDiff.class, diff);
 		md.store(new UndoOpQueue(md.queue()));
-		return Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, md);
+		return Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, md);
 	}
 
 	private ByteArrayDiffs() {}

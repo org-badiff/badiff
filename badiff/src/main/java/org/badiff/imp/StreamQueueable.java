@@ -32,7 +32,7 @@ public class StreamQueueable implements Queueable {
 	 * @param in
 	 */
 	public StreamQueueable(InputStream in) {
-		this(in, DefaultSerialization.getInstance());
+		this(in, DefaultSerialization.newInstance());
 	}
 	
 	/**

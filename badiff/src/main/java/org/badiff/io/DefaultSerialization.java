@@ -49,9 +49,8 @@ import org.badiff.util.Streams;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultSerialization implements Serialization {
 	
-	private static DefaultSerialization instance = new DefaultSerialization();
-	public static DefaultSerialization getInstance() {
-		return instance;
+	public static DefaultSerialization newInstance() {
+		return new DefaultSerialization();
 	}
 
 	private static abstract class Serializer<T> {
@@ -70,7 +69,7 @@ public class DefaultSerialization implements Serialization {
 
 	private List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
 	
-	private DefaultSerialization() {
+	public DefaultSerialization() {
 		serializers.add(new Serializer<Class>(Class.class) {
 
 			@Override
@@ -161,13 +160,13 @@ public class DefaultSerialization implements Serialization {
 
 			@Override
 			public void write(DataOutput out, Op obj) throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public Op read(DataInput in) throws IOException {
 				Op op = new Op();
-				op.deserialize(getInstance(), Streams.asStream(in));
+				op.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return op;
 				 
 			}
@@ -178,13 +177,13 @@ public class DefaultSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, MemoryDiff obj)
 					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public MemoryDiff read(DataInput in) throws IOException {
 				MemoryDiff md = new MemoryDiff();
-				md.deserialize(getInstance(), Streams.asStream(in));
+				md.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return md;
 			}
 		});
@@ -194,13 +193,13 @@ public class DefaultSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, FileDiff obj)
 					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public FileDiff read(DataInput in) throws IOException {
 				FileDiff md = new FileDiff(File.createTempFile("FileDiff", ".tmp"));
-				md.deserialize(getInstance(), Streams.asStream(in));
+				md.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return md;
 			}
 		});

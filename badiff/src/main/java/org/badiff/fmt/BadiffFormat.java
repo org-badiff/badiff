@@ -78,7 +78,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		opt.setPreHash(digin.getMessageDigest().digest());
 		opt.setPostHash(digout.getMessageDigest().digest());
 		
-		BadiffFileDiff.store(out, DefaultSerialization.getInstance(), hdr, diff.queue());
+		BadiffFileDiff.store(out, DefaultSerialization.newInstance(), hdr, diff.queue());
 		
 	}
 

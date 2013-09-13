@@ -483,9 +483,9 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			if(header.stats.rewindCount > 0)
 				flags |= FLAG_RANDOM_ACCESS;
 
-			if(header.serial == DefaultSerialization.getInstance())
+			if(header.serial instanceof DefaultSerialization)
 				flags |= FLAG_DEFAULT_SERIALIZATION;
-			else if(header.serial == SmallNumberSerialization.getInstance())
+			else if(header.serial instanceof SmallNumberSerialization)
 				flags |= FLAG_SMALL_NUMBER_SERIALIZATION;
 			else
 				flags |= FLAG_UNSPECIFIED_SERIALIZATION;
@@ -528,22 +528,22 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		long flags = in.readLong();
 		
 		if((flags & FLAG_DEFAULT_SERIALIZATION) != 0) {
-			if(serial != null && serial != DefaultSerialization.getInstance())
+			if(serial != null && !(serial instanceof DefaultSerialization))
 				throw new IOException(
 						"Incompatible serialization; expected " 
 								+ serial.getClass().getSimpleName() + ", file declares " 
-								+ DefaultSerialization.getInstance().getClass().getSimpleName());
+								+ DefaultSerialization.class.getSimpleName());
 			else if(serial == null)
-				serial = DefaultSerialization.getInstance();
+				serial = DefaultSerialization.newInstance();
 		}
 		if((flags & FLAG_SMALL_NUMBER_SERIALIZATION) != 0) {
-			if(serial != null && serial != SmallNumberSerialization.getInstance())
+			if(serial != null && !(serial instanceof SmallNumberSerialization))
 				throw new IOException(
 						"Incompatible serialization; expected " 
 								+ serial.getClass().getSimpleName() + ", file declares " 
-								+ SmallNumberSerialization.getInstance().getClass().getSimpleName());
+								+ SmallNumberSerialization.class.getSimpleName());
 			else if(serial == null)
-				serial = SmallNumberSerialization.getInstance();
+				serial = SmallNumberSerialization.newInstance();
 		}
 		if((flags & FLAG_UNSPECIFIED_SERIALIZATION) != 0) {
 			if(serial == null)
@@ -732,7 +732,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		computeStats(tmp, header);
 		
 		if(serial == null)
-			serial = DefaultSerialization.getInstance();
+			serial = DefaultSerialization.newInstance();
 		header.serial = serial;
 		
 		// Write the header

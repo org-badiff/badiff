@@ -38,7 +38,7 @@ public class ByteArrayDiffsTest {
 	protected Serialization serial;
 	
 	public ByteArrayDiffsTest() {
-		this(DefaultSerialization.getInstance());
+		this(DefaultSerialization.newInstance());
 	}
 	
 	protected ByteArrayDiffsTest(Serialization serial) {
