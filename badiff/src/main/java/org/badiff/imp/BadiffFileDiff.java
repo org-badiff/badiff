@@ -473,7 +473,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @param out
 	 * @throws IOException
 	 */
-	protected static void writeHeader(Header header, DataOutput out) throws IOException {
+	public static void writeHeader(Header header, DataOutput out) throws IOException {
 		long flags;
 		
 		if(header.flags != 0)
@@ -513,7 +513,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	protected Header readHeader(DataInputStream in, Serialization serial) throws IOException {
+	public static Header readHeader(DataInputStream in, Serialization serial) throws IOException {
 		Header header = new Header();
 		
 		byte[] magic = new byte[MAGIC.length];
