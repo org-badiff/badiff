@@ -626,7 +626,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		Header h = new Header();
 		
-		Header.Optional opt = h.getOptional();
+		Header.Optional opt = h.optional = h.new Optional();
 		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
 		opt.setPreHash(preHash);
 		opt.setPostHash(postHash);
