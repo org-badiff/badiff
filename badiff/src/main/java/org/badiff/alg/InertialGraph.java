@@ -70,7 +70,7 @@ public class InertialGraph implements Graph {
 	 * 
 	 * DELETE takes 2 bytes to start (op, run) and 0 bytes to continue
 	 * INSERT takes 3 bytes to start (op, run, data) and 1 byte to continue
-	 * NEXT takes 2 bytes to start (op, run) and 0 bytes to continue
+	 * NEXT takes 1 bytes to start (op, run) and 0 bytes to continue
 	 * 
 	 */
 
