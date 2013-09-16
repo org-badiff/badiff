@@ -224,7 +224,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 *
 		 */
 		public class Optional implements Serialized {
-			private Optional() {}
+			public Optional() {}
 			
 			/**
 			 * The expected hash of the input file
@@ -375,6 +375,14 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 */
 		public Header.Optional getOptional() {
 			return optional;
+		}
+		
+		/**
+		 * Sets the optional data for this header
+		 * @param optional
+		 */
+		public void setOptional(Header.Optional optional) {
+			this.optional = optional;
 		}
 	}
 	
