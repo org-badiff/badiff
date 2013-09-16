@@ -97,7 +97,6 @@ public class InertialGraph implements Graph {
 	
 //	protected final int[][] transitionCosts = DEFAULT_TRANSITION_COSTS;
 	
-	protected final boolean[] nextable; // Whether this position can do NEXT
 	protected final short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
 	protected final short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
 
@@ -115,7 +114,6 @@ public class InertialGraph implements Graph {
 
 		this.capacity = capacity;
 
-		nextable = new boolean[capacity];
 		enterDeleteCost = new short[capacity];
 		enterInsertCost = new short[capacity];
 		enterNextCost = new short[capacity];
@@ -144,10 +142,10 @@ public class InertialGraph implements Graph {
 				}
 
 				// mark entry costs
-				nextable[pos] = x > 0 && y > 0 && xval[x] == yval[y];
+				boolean nextable = x > 0 && y > 0 && xval[x] == yval[y];
 				int edc = enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
 				int eic = enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
-				int enc = enterNextCost[pos] = (!nextable[pos]) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
+				int enc = enterNextCost[pos] = (!nextable) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
 
 				int cost;
 
