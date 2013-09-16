@@ -145,67 +145,31 @@ public class InertialGraph implements Graph {
 
 				// mark entry costs
 				nextable[pos] = x > 0 && y > 0 && xval[x] == yval[y];
-				enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
-				enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
-				enterNextCost[pos] = (!nextable[pos]) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
+				int edc = enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
+				int eic = enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
+				int enc = enterNextCost[pos] = (!nextable[pos]) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
 
-				computeDeleteCost(pos);
-				computeInsertCost(pos);
-				computeNextCost(pos);
+				int cost;
+
+				// compute delete cost
+				cost = edc + 0; // appending a delete is free
+				cost = Math.min(cost, eic + 2);
+				cost = Math.min(cost, enc + 2);
+				leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+
+				// compute insert cost
+				cost = eic + 1; // appending an insert costs 1
+				cost = Math.min(cost, edc + 3);
+				cost = Math.min(cost, enc + 3);
+				leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+
+				// compute next cost
+				cost = enc + 0;
+				cost = Math.min(cost, edc + 1);
+				cost = Math.min(cost, eic + 1);
+				leaveNextCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	
-	}
-
-	protected void computeDeleteCost(int pos) {
-		int cost;
-	
-		cost = enterDeleteCost[pos] + 0; // appending a delete is free
-	
-		if(enterInsertCost[pos] + 2 < cost) { // costs 2 to switch from insert to delete
-			cost = enterInsertCost[pos] + 2;
-		}
-	
-		if(enterNextCost[pos] + 2 < cost) { // costs @ to switch from next to delete
-			cost = enterNextCost[pos] + 2;
-		}
-	
-		leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
-	}
-
-	protected void computeInsertCost(int pos) {
-		int cost;
-	
-		cost = enterInsertCost[pos] + 1; // appending an insert costs 1
-	
-		if(enterDeleteCost[pos] + 3 < cost) { // costs 3 to switch from delete to insert
-			cost = enterDeleteCost[pos] + 3;
-		}
-	
-		if(enterNextCost[pos] + 3 < cost) { // costs 3 to switch from next to insert
-			cost = enterNextCost[pos] + 3;
-		}
-	
-		leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
-	}
-
-	protected void computeNextCost(int pos) {
-		int cost;
-
-		if(nextable[pos]) {
-			cost = enterNextCost[pos] + 0; // appending a next is free
-		} else {
-			cost = Short.MAX_VALUE;
-		}
-	
-		if(enterDeleteCost[pos] + 1 < cost) { // costs 1 to switch from delete to next
-			cost = enterDeleteCost[pos] + 1;
-		}
-	
-		if(enterInsertCost[pos] + 1 < cost) { // costs 1 to switch from insert to next
-			cost = enterInsertCost[pos] + 1;
-		}
-	
-		leaveNextCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 	}
 
 	@Override
