@@ -97,8 +97,17 @@ public class InertialGraph implements Graph {
 	
 //	protected final int[][] transitionCosts = DEFAULT_TRANSITION_COSTS;
 	
-	protected final short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
-	protected final short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
+	protected static final int ENTER_DELETE = 0;
+	protected static final int ENTER_INSERT = 1;
+	protected static final int ENTER_NEXT = 2;
+	protected static final int LEAVE_DELETE = 3;
+	protected static final int LEAVE_INSERT = 4;
+	protected static final int LEAVE_NEXT = 5;
+	
+	protected final short[] cost;
+	
+//	protected final short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
+//	protected final short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
 
 	protected final int capacity;
 	protected byte[] xval;
@@ -114,12 +123,14 @@ public class InertialGraph implements Graph {
 
 		this.capacity = capacity;
 
-		enterDeleteCost = new short[capacity];
-		enterInsertCost = new short[capacity];
-		enterNextCost = new short[capacity];
-		leaveDeleteCost = new short[capacity];
-		leaveInsertCost = new short[capacity];
-		leaveNextCost = new short[capacity];
+		cost = new short[6 * capacity];
+		
+//		enterDeleteCost = new short[capacity];
+//		enterInsertCost = new short[capacity];
+//		enterNextCost = new short[capacity];
+//		leaveDeleteCost = new short[capacity];
+//		leaveInsertCost = new short[capacity];
+//		leaveNextCost = new short[capacity];
 	}
 	
 	@Override
@@ -135,37 +146,46 @@ public class InertialGraph implements Graph {
 			for(int x = 0; x < xval.length; x++) {
 				pos++;
 				if(x == 0 && y == 0) {
-					leaveDeleteCost[pos] = (short) cost(Op.STOP, Op.DELETE);
-					leaveInsertCost[pos] = (short) cost(Op.STOP, Op.INSERT);
-					leaveNextCost[pos] = (short) cost(Op.STOP, Op.NEXT);
+//					leaveDeleteCost[pos] = (short) cost(Op.STOP, Op.DELETE);
+//					leaveInsertCost[pos] = (short) cost(Op.STOP, Op.INSERT);
+//					leaveNextCost[pos] = (short) cost(Op.STOP, Op.NEXT);
+					cost[LEAVE_DELETE] = 2;
+					cost[LEAVE_INSERT] = 3;
+					cost[LEAVE_NEXT] = 1;
 					continue;
 				}
 
 				// mark entry costs
 				boolean nextable = x > 0 && y > 0 && xval[x] == yval[y];
-				int edc = enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
-				int eic = enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
-				int enc = enterNextCost[pos] = (!nextable) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
+//				int edc = enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
+//				int eic = enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
+//				int enc = enterNextCost[pos] = (!nextable) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
 
+				int edc = cost[pos*6 + ENTER_DELETE] = (x == 0) ? Short.MAX_VALUE : cost[(pos-1)*6 + LEAVE_DELETE];
+				int eic = cost[pos*6 + ENTER_INSERT] = (y == 0) ? Short.MAX_VALUE : cost[(pos-xval.length)*6 + LEAVE_INSERT];
+				int enc = cost[pos*6 + ENTER_NEXT] = (!nextable) ? Short.MAX_VALUE : cost[(pos - 1 - xval.length)*6 + LEAVE_NEXT];
+				
 				int cost;
 
 				// compute delete cost
 				cost = edc + 0; // appending a delete is free
 				cost = Math.min(cost, eic + 2);
 				cost = Math.min(cost, enc + 2);
-				leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+//				leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+				this.cost[pos*6 + LEAVE_DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute insert cost
 				cost = eic + 1; // appending an insert costs 1
 				cost = Math.min(cost, edc + 3);
 				cost = Math.min(cost, enc + 3);
-				leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+//				leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
+				this.cost[pos*6 + LEAVE_INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute next cost
 				cost = enc + 0;
 				cost = Math.min(cost, edc + 1);
 				cost = Math.min(cost, eic + 1);
-				leaveNextCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);				
+				this.cost[pos*6 + LEAVE_NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	
 	}
@@ -195,16 +215,16 @@ public class InertialGraph implements Graph {
 				return false;
 
 			byte op = Op.NEXT;
-			int cost = enterNextCost[pos] + cost(Op.NEXT, prev);
+			int cost = InertialGraph.this.cost[pos*6+ENTER_NEXT] + cost(Op.NEXT, prev);
 
-			if(enterInsertCost[pos] + cost(Op.INSERT, prev) < cost) {
+			if(InertialGraph.this.cost[pos*6+ENTER_INSERT] + cost(Op.INSERT, prev) < cost) {
 				op = Op.INSERT;
-				cost = enterInsertCost[pos] + cost(Op.INSERT, prev);
+				cost = InertialGraph.this.cost[pos*6 + ENTER_INSERT] + cost(Op.INSERT, prev);
 			}
 
-			if(enterDeleteCost[pos] + cost(Op.DELETE, prev) < cost) {
+			if(InertialGraph.this.cost[pos*6+ENTER_DELETE] + cost(Op.DELETE, prev) < cost) {
 				op = Op.DELETE;
-				cost = enterDeleteCost[pos] + cost(Op.DELETE, prev);
+				cost = InertialGraph.this.cost[pos*6+ENTER_DELETE] + cost(Op.DELETE, prev);
 			}
 
 			Op e = null;
