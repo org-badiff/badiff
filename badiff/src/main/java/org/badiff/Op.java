@@ -43,6 +43,7 @@ import org.badiff.util.Streams;
  *
  */
 public class Op implements Applyable, Serialized {
+	public static final int VERSION = 1;
 	
 	/**
 	 * Stop diffing
