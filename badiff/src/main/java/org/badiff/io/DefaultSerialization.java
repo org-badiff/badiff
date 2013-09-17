@@ -39,7 +39,9 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
@@ -49,9 +51,8 @@ import org.badiff.util.Streams;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultSerialization implements Serialization {
 	
-	private static DefaultSerialization instance = new DefaultSerialization();
-	public static DefaultSerialization getInstance() {
-		return instance;
+	public static DefaultSerialization newInstance() {
+		return new DefaultSerialization();
 	}
 
 	private static abstract class Serializer<T> {
@@ -69,8 +70,11 @@ public class DefaultSerialization implements Serialization {
 	}
 
 	private List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
+	private int depth;
+	private Map<Object, Object> context = new HashMap<Object, Object>();
+	private GraphContext graphContext = new GraphContext(context);
 	
-	private DefaultSerialization() {
+	public DefaultSerialization() {
 		serializers.add(new Serializer<Class>(Class.class) {
 
 			@Override
@@ -161,13 +165,13 @@ public class DefaultSerialization implements Serialization {
 
 			@Override
 			public void write(DataOutput out, Op obj) throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public Op read(DataInput in) throws IOException {
 				Op op = new Op();
-				op.deserialize(getInstance(), Streams.asStream(in));
+				op.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return op;
 				 
 			}
@@ -178,13 +182,13 @@ public class DefaultSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, MemoryDiff obj)
 					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public MemoryDiff read(DataInput in) throws IOException {
 				MemoryDiff md = new MemoryDiff();
-				md.deserialize(getInstance(), Streams.asStream(in));
+				md.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return md;
 			}
 		});
@@ -194,13 +198,13 @@ public class DefaultSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, FileDiff obj)
 					throws IOException {
-				obj.serialize(getInstance(), Streams.asStream(out));
+				obj.serialize(DefaultSerialization.this, Streams.asStream(out));
 			}
 
 			@Override
 			public FileDiff read(DataInput in) throws IOException {
 				FileDiff md = new FileDiff(File.createTempFile("FileDiff", ".tmp"));
-				md.deserialize(getInstance(), Streams.asStream(in));
+				md.deserialize(DefaultSerialization.this, Streams.asStream(in));
 				return md;
 			}
 		});
@@ -231,23 +235,47 @@ public class DefaultSerialization implements Serialization {
 	@Override
 	public <T> void writeObject(OutputStream out, Class<T> type, T object)
 			throws IOException {
-		for(Serializer s : serializers) {
-			if(s.type() == type) {
-				s.write(new DataOutputStream(out), object);
-				return;
+		if(depth == 0)
+			graphContext.clear();
+		depth++;
+		try {
+			for(Serializer s : serializers) {
+				if(s.type() == type) {
+					s.write(new DataOutputStream(out), object);
+					return;
+				}
 			}
+			throw new NotSerializableException(type.getName());
+		} finally {
+			depth--;
 		}
-		throw new NotSerializableException(type.getName());
 	}
 
 	@Override
 	public <T> T readObject(InputStream in, Class<T> type) throws IOException {
-		for(Serializer s : serializers) {
-			if(s.type() == type) {
-				return (T) s.read(new DataInputStream(in));
+		if(depth == 0)
+			graphContext.clear();
+		depth++;
+		try {
+			for(Serializer s : serializers) {
+				if(s.type() == type) {
+					return (T) s.read(new DataInputStream(in));
+				}
 			}
+			throw new NotSerializableException(type.getName());
+		} finally {
+			depth--;
 		}
-		throw new NotSerializableException(type.getName());
+	}
+
+	@Override
+	public Map<Object, Object> context() {
+		return context;
+	}
+
+	@Override
+	public GraphContext graphContext() {
+		return graphContext;
 	}
 	
 }

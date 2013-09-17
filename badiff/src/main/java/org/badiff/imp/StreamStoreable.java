@@ -15,7 +15,7 @@ public class StreamStoreable implements Storeable {
 	protected Serialization serial;
 	
 	public StreamStoreable(OutputStream out) {
-		this(out, DefaultSerialization.getInstance());
+		this(out, DefaultSerialization.newInstance());
 	}
 	
 	public StreamStoreable(OutputStream out, Serialization serial) {

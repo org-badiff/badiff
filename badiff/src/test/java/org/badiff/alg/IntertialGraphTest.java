@@ -65,8 +65,8 @@ public class IntertialGraphTest {
 		MemoryDiff emd = new MemoryDiff(g.queue());
 		System.out.println(emd);
 		
-		byte[] simd = Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, imd);
-		byte[] semd = Serials.serialize(DefaultSerialization.getInstance(), MemoryDiff.class, emd);
+		byte[] simd = Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, imd);
+		byte[] semd = Serials.serialize(DefaultSerialization.newInstance(), MemoryDiff.class, emd);
 		
 		System.out.println("inertial diff length:" + simd.length);
 		System.out.println("edit diff length:" + semd.length);

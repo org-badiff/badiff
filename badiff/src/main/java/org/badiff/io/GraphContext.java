@@ -27,35 +27,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff;
+package org.badiff.io;
 
-import org.badiff.io.DefaultSerialization;
-import org.badiff.io.Serialization;
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ByteArrayDiffsTest {
+public class GraphContext extends HashMap<Object, Object> {
+	private Map<Object, Object> context;
 	
-	protected Serialization serial;
-	
-	public ByteArrayDiffsTest() {
-		this(DefaultSerialization.newInstance());
+	public GraphContext(Map<Object, Object> context) {
+		this.context = context;
 	}
 	
-	protected ByteArrayDiffsTest(Serialization serial) {
-		this.serial = serial;
-		
+	@Override
+	public boolean containsKey(Object key) {
+		return super.containsKey(key) || context.containsKey(key);
 	}
-
-	@Test
-	public void testDiff() throws Exception {
-		String orig = "Hello world!";
-		String target = "Hellish cruel world!";
-		
-		byte[] diff = ByteArrayDiffs.diff(orig.getBytes(), target.getBytes());
-		System.out.println("diff:" + diff.length);
-		
-		byte[] udiff = ByteArrayDiffs.udiff(orig.getBytes(), target.getBytes());
-		System.out.println("udiff:" + udiff.length);
+	
+	@Override
+	public Object get(Object key) {
+		return super.containsKey(key) ? super.get(key) : context.get(key);
 	}
-
 }

@@ -32,6 +32,7 @@ package org.badiff.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * A mechanism for serializing data to/from {@link OutputStream} / {@link InputStream}
@@ -57,4 +58,16 @@ public interface Serialization {
 	 * @throws IOException
 	 */
 	public <T> T readObject(InputStream in, Class<T> type) throws IOException;
+	
+	/**
+	 * Storage for data which should be available to serializers and persist across serializations and deserializations
+	 * @return
+	 */
+	public Map<Object, Object> context();
+	
+	/**
+	 * Storage for data which is erased immediately prior to each top-level serialization or deserialization.
+	 * @return
+	 */
+	public GraphContext graphContext();
 }

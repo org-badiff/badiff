@@ -56,7 +56,7 @@ import org.badiff.util.Streams;
 public class FileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 	
-	protected Serialization serial = DefaultSerialization.getInstance();
+	protected Serialization serial = DefaultSerialization.newInstance();
 
 	public FileDiff(File parent, String child) {
 		super(parent, child);
