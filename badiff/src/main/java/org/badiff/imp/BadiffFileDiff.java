@@ -611,8 +611,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
 		
-		RandomInputStream oin = new RandomInputStream(orig);
-		RandomInputStream tin = new RandomInputStream(target);
+		InputStream oin = new FileInputStream(orig);
+		InputStream tin = new FileInputStream(target);
 		
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
@@ -622,8 +622,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		q = new PumpingOpQueue(q);
-		q = new RewindingOpQueue(q);
-		q = new PumpingOpQueue(q);
+//		q = new RewindingOpQueue(q);
+//		q = new PumpingOpQueue(q);
 		q = new OneWayOpQueue(q);
 		q = new PumpingOpQueue(q);
 		q = new UnchunkingOpQueue(q);
@@ -686,7 +686,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			out = digout;
 		}
 		
-		RandomInputStream oin = new RandomInputStream(orig);
+		InputStream oin = new FileInputStream(orig);
 		apply(oin, out);
 		out.close();
 		
@@ -706,8 +706,8 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	@Override
 	public void apply(InputStream orig, OutputStream target) throws IOException {
 		Header header = header();
-		if((header.flags & FLAG_RANDOM_ACCESS) != 0 && !(orig instanceof Random))
-			throw new IOException(this + " requires a random-access original (" + Random.class + ")");
+//		if((header.flags & FLAG_RANDOM_ACCESS) != 0 && !(orig instanceof Random))
+//			throw new IOException(this + " requires a random-access original (" + Random.class + ")");
 		OpQueue q = queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
 			e.apply(orig, target);
