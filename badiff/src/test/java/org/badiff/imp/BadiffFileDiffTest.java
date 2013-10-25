@@ -1,9 +1,16 @@
 package org.badiff.imp;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.badiff.q.OpQueue;
+import org.badiff.q.ParallelGraphOpQueue;
+import org.badiff.q.StreamChunkingOpQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,5 +41,36 @@ public class BadiffFileDiffTest {
 			diff.delete();
 			applied.delete();
 		}
+	}
+
+	@Test
+	public void testPerformance() throws Exception {
+		final int SIZE = 2048 * 2048;
+		final int CHUNK = 1024;
+		
+		ByteArrayOutputStream orig = new ByteArrayOutputStream(SIZE);
+		ByteArrayOutputStream target = new ByteArrayOutputStream(SIZE);
+		
+		for(int i = 0; i < SIZE; i++) {
+			orig.write((int)(256 * Math.random()));
+			target.write((int)(256 * Math.random()));
+		}
+		
+		BadiffFileDiff diff = new BadiffFileDiff(File.createTempFile("badiff", ".diff"));
+		File origFile = File.createTempFile("orig", ".tmp");
+		File targetFile = File.createTempFile("target", ".tmp");
+		FileUtils.writeByteArrayToFile(origFile, orig.toByteArray());
+		FileUtils.writeByteArrayToFile(targetFile, target.toByteArray());
+		diff.diff(origFile, targetFile);
+		
+		OpQueue q = diff.queue();
+		
+		ByteArrayOutputStream result = new ByteArrayOutputStream(SIZE);
+		
+		q.apply(
+				new ByteArrayInputStream(orig.toByteArray()),
+				result);
+		
+		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}
 }
