@@ -49,7 +49,6 @@ import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
-import org.badiff.io.RandomInputStream;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;

@@ -16,11 +16,15 @@ public class BehaviorTestDataGenerator {
 		
 		for(File java : FileUtils.listFiles(new File("src"), new String[]{"java"}, true)) {
 			BufferedReader br = new BufferedReader(new FileReader(java));
-			for(String line = br.readLine(); line != null; line = br.readLine()) {
-				line = line.replaceAll("\"", "");
-				line = line.trim().replaceAll("\\s+", " ");
-				if(line.length() > 4)
-					strings.add(line);
+			try {
+				for(String line = br.readLine(); line != null; line = br.readLine()) {
+					line = line.replaceAll("\"", "");
+					line = line.trim().replaceAll("\\s+", " ");
+					if(line.length() > 4)
+						strings.add(line);
+				}
+			} finally {
+				br.close();
 			}
 		}
 		

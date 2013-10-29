@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GraphContext extends HashMap<Object, Object> {
+	private static final long serialVersionUID = 0;
+	
 	private Map<Object, Object> context;
 	
 	public GraphContext(Map<Object, Object> context) {

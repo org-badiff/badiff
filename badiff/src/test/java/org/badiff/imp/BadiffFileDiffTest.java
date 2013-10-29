@@ -4,13 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.badiff.q.OpQueue;
-import org.badiff.q.ParallelGraphOpQueue;
-import org.badiff.q.StreamChunkingOpQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,7 +41,6 @@ public class BadiffFileDiffTest {
 	@Test
 	public void testPerformance() throws Exception {
 		final int SIZE = 2048 * 2048;
-		final int CHUNK = 1024;
 		
 		ByteArrayOutputStream orig = new ByteArrayOutputStream(SIZE);
 		ByteArrayOutputStream target = new ByteArrayOutputStream(SIZE);

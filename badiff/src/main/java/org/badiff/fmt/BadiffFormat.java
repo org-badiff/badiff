@@ -41,7 +41,6 @@ import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.imp.BadiffFileDiff.Header;
-import org.badiff.imp.BadiffFileDiff.Header.Optional;
 import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;

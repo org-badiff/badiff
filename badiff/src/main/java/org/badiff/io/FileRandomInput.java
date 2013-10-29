@@ -4,9 +4,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
 
 public class FileRandomInput extends DataInputStream implements RandomInput {
 	protected File file;
