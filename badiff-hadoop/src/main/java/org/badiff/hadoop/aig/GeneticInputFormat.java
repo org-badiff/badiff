@@ -95,7 +95,7 @@ public class GeneticInputFormat extends FileInputFormat<NullWritable, CsvGenetic
 		}
 
 		protected double pnRandom() {
-			return Math.pow(Math.random(), 3) - Math.pow(Math.random(), 3);
+			return Math.pow(Math.random(), 4) - Math.pow(Math.random(), 4);
 		}
 		
 		protected List<CsvGeneticParams> permute(CsvGeneticParams in) {
@@ -103,7 +103,7 @@ public class GeneticInputFormat extends FileInputFormat<NullWritable, CsvGenetic
 			for(int i = 0; i < permutations; i++) {
 				double[] pd = in.getParamsCopy();
 				for(int j = 0; j < pd.length; j++) {
-					pd[j] += pnRandom() * 0.3;
+					pd[j] *= (1 + pnRandom() * 0.1);
 				}
 				ret.add(new CsvGeneticParams(Double.NaN, pd));
 			}

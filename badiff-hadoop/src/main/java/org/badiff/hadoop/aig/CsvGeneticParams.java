@@ -20,11 +20,21 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 	public CsvGeneticParams(double score, double[] params) {
 		this.score = score;
 		this.params = params;
+		normalize();
 	}
 	
 	public CsvGeneticParams(double score, CsvGeneticParams params) {
 		this.score = score;
 		this.params = params.getParamsCopy();
+		normalize();
+	}
+	
+	public void normalize() {
+		double psum = 0;
+		for(double p : params)
+			psum += p;
+		for(int i = 0; i < params.length; i++)
+			params[i] /= psum;
 	}
 	
 	@Override
@@ -57,6 +67,7 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 	public static CsvGeneticParams read(DataInput in) throws IOException {
 		CsvGeneticParams p = new CsvGeneticParams();
 		p.readFields(in);
+		p.normalize();
 		return p;
 	}
 	
@@ -88,6 +99,7 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 		params = new double[fields.length - 1];
 		for(int i = 0; i < params.length; i++)
 			params[i] = Double.parseDouble(fields[i+1]);
+		normalize();
 	}
 
 	public double getScore() {
