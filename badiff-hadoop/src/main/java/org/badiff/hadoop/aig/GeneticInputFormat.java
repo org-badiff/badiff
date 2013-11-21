@@ -100,6 +100,7 @@ public class GeneticInputFormat extends FileInputFormat<NullWritable, CsvGenetic
 		
 		protected List<CsvGeneticParams> permute(CsvGeneticParams in) {
 			List<CsvGeneticParams> ret = new ArrayList<CsvGeneticParams>();
+			ret.add(new CsvGeneticParams(Double.NaN, in.getParamsCopy()));
 			for(int i = 0; i < permutations; i++) {
 				double[] pd = in.getParamsCopy();
 				for(int j = 0; j < pd.length; j++) {
