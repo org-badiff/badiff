@@ -22,8 +22,8 @@ public class InputBytesGenerator {
 		System.arraycopy(from, 0, to, 0, from.length);
 		
 		// Do a whole lot of random swaps
-		for(int i = 0; i < length / 512; i++) {
-			byte[] b1 = new byte[random.nextInt(1024)];
+		for(int i = 0; i < length / 128; i++) {
+			byte[] b1 = new byte[random.nextInt(512)];
 			byte[] b2 = new byte[b1.length];
 			
 			int pos1 = random.nextInt(to.length - b1.length);
