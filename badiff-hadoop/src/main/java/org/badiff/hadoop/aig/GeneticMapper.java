@@ -99,17 +99,11 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 					new ByteArrayInputStream(bytes.getFrom()), 
 					new ByteArrayInputStream(bytes.getTo()));
 			q = new GraphOpQueue(q, graph);
-			q = new PumpingOpQueue(q);
 			q = new CoalescingOpQueue(q);
-			q = new PumpingOpQueue(q);
 			q = new RewindingOpQueue(q);
-			q = new PumpingOpQueue(q);
 			q = new OneWayOpQueue(q);
-			q = new PumpingOpQueue(q);
 			q = new UnchunkingOpQueue(q);
-			q = new PumpingOpQueue(q);
 			q = new CompactingOpQueue(q);
-			q = new PumpingOpQueue(q);
 			
 			MemoryDiff diff = new MemoryDiff(q);
 			NoopOutputStream nout = new NoopOutputStream();
