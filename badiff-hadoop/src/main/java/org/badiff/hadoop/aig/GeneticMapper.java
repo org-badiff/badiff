@@ -12,6 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
+import org.badiff.Diff;
 import org.badiff.alg.AdjustableInertialGraph;
 import org.badiff.alg.Graph;
 import org.badiff.imp.MemoryDiff;
@@ -19,6 +20,7 @@ import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
+import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
@@ -83,24 +85,19 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 	protected CsvGeneticParams eval(Context context, final CsvGeneticParams in) {
 		double score = 0;
 
+		AdjustableInertialGraph graph = new AdjustableInertialGraph(Diff.DEFAULT_CHUNK);
+		in.applyTo(graph);
+
 		for(int r = 0; r < repetitions; r++) {
 			log.debug("Evaluating iteration " + r + " of " + repetitions + " for " + in);
 			
 			InputBytesGenerator bytes = new InputBytesGenerator(seed * r, iteration);
-			GraphFactory graphFactory = new GraphFactory() {
-				@Override
-				public Graph newGraph(int capacity) {
-					AdjustableInertialGraph graph = new AdjustableInertialGraph(capacity);
-					in.applyTo(graph);
-					return graph;
-				}
-			};
 			
 			OpQueue q;
 			q = new StreamChunkingOpQueue(
 					new ByteArrayInputStream(bytes.getFrom()), 
 					new ByteArrayInputStream(bytes.getTo()));
-			q = new ParallelGraphOpQueue(q, graphFactory);
+			q = new GraphOpQueue(q, graph);
 			q = new PumpingOpQueue(q);
 			q = new CoalescingOpQueue(q);
 			q = new PumpingOpQueue(q);
