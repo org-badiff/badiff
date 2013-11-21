@@ -101,7 +101,7 @@
 		</profile>
 
 		<profile>
-			<id>rbkluster</id>
+			<id>cdh4</id>
 
 
 			<dependencies>
@@ -148,7 +148,7 @@
 											</excludes>
 										</filter>
 									</filters>
-									<finalName>${project.artifactId}-rbkluster</finalName>
+									<finalName>${project.artifactId}-cdh4</finalName>
 									<outputDirectory>{$project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
