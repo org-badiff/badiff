@@ -10,11 +10,14 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.log4j.Logger;
 
 public class GeneticReducer extends Reducer<FloatWritable, CsvGeneticParams, NullWritable, CsvGeneticParams> {
 	
 	private static final String PREFIX = GeneticReducer.class.getName() + ".";
 	private static final String SURVIVORS = PREFIX + "survivors";
+	
+	private static final Logger log = Logger.getLogger(GeneticReducer.class);
 	
 	public static void setSurvivorSize(Job job, int survivorSize) {
 		job.getConfiguration().setInt(SURVIVORS, survivorSize);
@@ -49,6 +52,7 @@ public class GeneticReducer extends Reducer<FloatWritable, CsvGeneticParams, Nul
 		Collections.reverse(s);
 		for(CsvGeneticParams p : s) {
 			context.write(NullWritable.get(), p);
+			log.info(p);
 		}
 	}
 }
