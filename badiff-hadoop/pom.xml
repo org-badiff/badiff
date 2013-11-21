@@ -91,7 +91,7 @@
 										</filter>
 									</filters>
 									<finalName>${project.artifactId}-aws</finalName>
-									<outputDirectory>{$project.basedir}/dist</outputDirectory>
+									<outputDirectory>${project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -103,6 +103,12 @@
 		<profile>
 			<id>cdh4</id>
 
+			<repositories>
+				<repository>
+					<id>cloudera</id>
+					<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+				</repository>
+			</repositories>
 
 			<dependencies>
 				<dependency>
@@ -149,7 +155,7 @@
 										</filter>
 									</filters>
 									<finalName>${project.artifactId}-cdh4</finalName>
-									<outputDirectory>{$project.basedir}/dist</outputDirectory>
+									<outputDirectory>${project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
