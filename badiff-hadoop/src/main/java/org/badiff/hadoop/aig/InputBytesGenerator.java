@@ -8,7 +8,7 @@ public class InputBytesGenerator {
 	private byte[] to;
 	
 	public InputBytesGenerator(long seed, int iteration) {
-		this(seed, iteration, 1024*1024);
+		this(seed, iteration, 64*1024);
 	}
 	
 	public InputBytesGenerator(long seed, int iteration, int length) {
@@ -22,7 +22,7 @@ public class InputBytesGenerator {
 		System.arraycopy(from, 0, to, 0, from.length);
 		
 		// Do a whole lot of random swaps
-		for(int i = 0; i < length / 1024; i++) {
+		for(int i = 0; i < length / 512; i++) {
 			byte[] b1 = new byte[random.nextInt(1024)];
 			byte[] b2 = new byte[b1.length];
 			
