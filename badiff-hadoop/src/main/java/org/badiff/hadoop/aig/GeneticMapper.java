@@ -64,6 +64,7 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 	private int repetitions;
 	private long seed;
 	private int iteration;
+	private AdjustableInertialGraph graph;
 
 	@Override
 	protected void setup(Context context)
@@ -71,6 +72,7 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 		repetitions = getRepetitions(context.getConfiguration());
 		seed = getSeed(context.getConfiguration());
 		iteration = getIteration(context.getConfiguration());
+		graph = new AdjustableInertialGraph(Diff.DEFAULT_CHUNK);
 	}
 
 	@Override
@@ -85,7 +87,6 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 	protected CsvGeneticParams eval(Context context, final CsvGeneticParams in) {
 		double score = 0;
 
-		AdjustableInertialGraph graph = new AdjustableInertialGraph(Diff.DEFAULT_CHUNK);
 		in.applyTo(graph);
 
 		for(int r = 0; r < repetitions; r++) {
