@@ -49,10 +49,10 @@ public class GeneticReducer extends Reducer<FloatWritable, CsvGeneticParams, Nul
 		while(survivors.size() > 0) {
 			s.add(survivors.poll());
 		}
-		Collections.reverse(s);
+		Collections.sort(s, CsvGeneticParams.PRETTY_COMPARATOR);
 		for(CsvGeneticParams p : s) {
 			context.write(NullWritable.get(), p);
-			log.info(p);
+			System.out.println(p.toPrettyString());
 		}
 	}
 }

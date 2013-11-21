@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -41,6 +42,32 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 	public String toString() {
 		return score + " <= " + Arrays.toString(params);
 	}
+	
+	public String toPrettyString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append((int) score);
+		for(double p : params) {
+			sb.append(",\t");
+			sb.append(String.format("%0.5f", p));
+		}
+		return sb.toString();
+	}
+	
+	public static final Comparator<CsvGeneticParams> PRETTY_COMPARATOR = new Comparator<CsvGeneticParams>() {
+		@Override
+		public int compare(CsvGeneticParams o1, CsvGeneticParams o2) {
+			// order ascending
+			int order = ((Integer) (int) o1.score).compareTo((int) o2.score);
+			if(order != 0)
+				return order;
+			for(int i = 0; i < o1.params.length; i++) {
+				order = ((Double) o1.params[i]).compareTo(o2.params[i]);
+				if(order != 0)
+					return order;
+			}
+			return 0;		
+		}
+	};
 	
 	@Override
 	public int hashCode() {
