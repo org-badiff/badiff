@@ -117,31 +117,31 @@ public class AdjustableInertialGraph implements Graph {
 		switch(from) {
 		case STOP:
 			switch(to) {
-			case STOP: stop_stop = cost;
-			case DELETE: stop_delete = cost;
-			case INSERT: stop_insert = cost;
-			case NEXT: stop_next = cost;
+			case STOP: stop_stop = cost; return;
+			case DELETE: stop_delete = cost; return;
+			case INSERT: stop_insert = cost; return;
+			case NEXT: stop_next = cost; return;
 			}
 		case DELETE:
 			switch(to) {
-			case STOP: delete_stop = cost;
-			case DELETE: delete_delete = cost;
-			case INSERT: delete_insert = cost;
-			case NEXT: delete_next = cost;
+			case STOP: delete_stop = cost; return;
+			case DELETE: delete_delete = cost; return;
+			case INSERT: delete_insert = cost; return;
+			case NEXT: delete_next = cost; return;
 			}
 		case INSERT:
 			switch(to) {
-			case STOP: insert_stop = cost;
-			case DELETE: insert_delete = cost;
-			case INSERT: insert_insert = cost;
-			case NEXT: insert_next = cost;
+			case STOP: insert_stop = cost; return;
+			case DELETE: insert_delete = cost; return;
+			case INSERT: insert_insert = cost; return;
+			case NEXT: insert_next = cost; return;
 			}
 		case NEXT:
 			switch(to) {
-			case STOP: next_stop = cost;
-			case DELETE: next_delete = cost;
-			case INSERT: next_insert = cost;
-			case NEXT: next_next = cost;
+			case STOP: next_stop = cost; return;
+			case DELETE: next_delete = cost; return;
+			case INSERT: next_insert = cost; return;
+			case NEXT: next_next = cost; return;
 			}
 		}
 		throw new IllegalArgumentException("from:" + from + " to:" + to);
