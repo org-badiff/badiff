@@ -113,7 +113,15 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 	@Override
 	public int compareTo(CsvGeneticParams o) {
 		// order descending
-		return -((Double) score).compareTo(o.score);
+		int order = -((Double) score).compareTo(o.score);
+		if(order != 0)
+			return order;
+		for(int i = 0; i < params.length; i++) {
+			order = -((Double) params[i]).compareTo(o.params[i]);
+			if(order != 0)
+				return order;
+		}
+		return 0;
 	}
 
 	@Override
