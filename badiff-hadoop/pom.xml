@@ -10,7 +10,7 @@
 	<artifactId>badiff-hadoop</artifactId>
 
 	<properties>
-		<job.main></job.main>
+		<job.main>org.badiff.hadoop.aig.AdjustableInertialGraphJob</job.main>
 	</properties>
 
 	<build>
@@ -91,6 +91,7 @@
 										</filter>
 									</filters>
 									<finalName>${project.artifactId}-aws</finalName>
+									<outputDirectory>{$project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -148,6 +149,7 @@
 										</filter>
 									</filters>
 									<finalName>${project.artifactId}-rbkluster</finalName>
+									<outputDirectory>{$project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
