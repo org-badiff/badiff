@@ -72,7 +72,7 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 		repetitions = getRepetitions(context.getConfiguration());
 		seed = getSeed(context.getConfiguration());
 		iteration = getIteration(context.getConfiguration());
-		graph = new AdjustableInertialGraph(Diff.DEFAULT_CHUNK);
+		graph = new AdjustableInertialGraph((1+Diff.DEFAULT_CHUNK)*(1+Diff.DEFAULT_CHUNK));
 	}
 
 	@Override
