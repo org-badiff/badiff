@@ -8,7 +8,7 @@ public class InputBytesGenerator {
 	private byte[] to;
 	
 	public InputBytesGenerator(long seed, int iteration) {
-		this(seed, iteration, 64*1024);
+		this(seed, iteration, 32*1024);
 	}
 	
 	public InputBytesGenerator(long seed, int iteration, int length) {
