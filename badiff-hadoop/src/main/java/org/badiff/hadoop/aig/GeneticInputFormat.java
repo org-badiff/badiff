@@ -105,6 +105,7 @@ public class GeneticInputFormat extends FileInputFormat<NullWritable, CsvGenetic
 				for(int j = 0; j < pd.length; j++) {
 					pd[j] *= (1 + pnRandom() * 0.1);
 					pd[j] += pnRandom() * 0.05;
+					pd[j] = Math.max(0, Math.min(1, pd[j]));
 				}
 				ret.add(new CsvGeneticParams(Double.NaN, pd));
 			}

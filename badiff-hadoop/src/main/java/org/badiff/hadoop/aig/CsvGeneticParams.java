@@ -32,7 +32,7 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 	public void normalize() {
 		double psum = 0;
 		for(double p : params)
-			psum += p;
+			psum += Math.abs(p);
 		for(int i = 0; i < params.length; i++)
 			params[i] /= psum;
 	}
