@@ -48,7 +48,7 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 		sb.append((int) score);
 		for(double p : params) {
 			sb.append(",\t");
-			sb.append(String.format("%0.5f", p));
+			sb.append(String.format("%05.5f", p));
 		}
 		return sb.toString();
 	}
@@ -61,8 +61,8 @@ public class CsvGeneticParams implements WritableComparable<CsvGeneticParams>, C
 			if(order != 0)
 				return order;
 			for(int i = 0; i < o1.params.length; i++) {
-				double p1 = Double.parseDouble(String.format("%0.5f", o1.params[i]));
-				double p2 = Double.parseDouble(String.format("%0.5f", o2.params[i]));
+				double p1 = Double.parseDouble(String.format("%05.5f", o1.params[i]));
+				double p2 = Double.parseDouble(String.format("%05.5f", o2.params[i]));
 				order = ((Double) p1).compareTo(p2);
 				if(order != 0)
 					return order;
