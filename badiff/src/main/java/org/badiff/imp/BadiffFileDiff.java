@@ -56,7 +56,9 @@ import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
+import org.badiff.p.Pipe;
 import org.badiff.p.Pipeline;
+import org.badiff.p.Pipes;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.OneWayOpQueue;
@@ -79,6 +81,15 @@ import org.badiff.util.Streams;
 public class BadiffFileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 
+	public static String PIPELINE_CODE = "GccrouC";
+	public static Pipe[] PIPELINE = Pipes.fromCodes(PIPELINE_CODE);
+	public static Pipe PIPE = new Pipe() {
+		@Override
+		public Pipeline from(OpQueue q) {
+			return new Pipeline(q, PIPELINE);
+		}
+	};
+	
 	/**
 	 * Magic bytes at the beginning of every badiff file
 	 */
@@ -611,7 +622,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @throws IOException
 	 */
 	public void diff(File orig, File target) throws IOException {
-		diff(orig, target, "GccrouC");
+		diff(orig, target, PIPELINE_CODE);
 	}
 	
 	public void diff(File orig, File target, String pipeline) throws IOException {

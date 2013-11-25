@@ -2,6 +2,7 @@ package org.badiff.p;
 
 import org.badiff.alg.GraphFactory;
 import org.badiff.alg.InertialGraph;
+import org.badiff.imp.BadiffFileDiff;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
@@ -36,15 +37,15 @@ public enum Pipes implements Pipe {
 		return code;
 	}
 	
-	public static Pipe fromCode(char code) {
+	public static Pipes fromCode(char code) {
 		for(Pipes pipe : Pipes.values())
 			if(pipe.code() == code)
 				return pipe;
 		throw new IllegalArgumentException("No such pipe code:" + code);
 	}
 
-	public static Pipe[] fromCodes(String codes) {
-		Pipe[] pipes = new Pipe[codes.length()];
+	public static Pipes[] fromCodes(String codes) {
+		Pipes[] pipes = new Pipes[codes.length()];
 		for(int i = 0; i < pipes.length; i++)
 			pipes[i] = Pipes.fromCode(codes.charAt(i));
 		return pipes;

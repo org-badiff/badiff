@@ -36,8 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.badiff.Applyable;
+import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.RandomInputStream;
 import org.badiff.io.RuntimeIOException;
+import org.badiff.p.Pipeline;
+import org.badiff.p.Pipes;
 import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.OpQueue;
@@ -61,10 +64,7 @@ public class Diffs {
 	}
 	
 	public static OpQueue improved(OpQueue q) {
-		q = new ChunkingOpQueue(q);
-		q = new ParallelGraphOpQueue(q);
-		q = new CoalescingOpQueue(q);
-		return q;
+		return BadiffFileDiff.PIPE.from(q).outlet();
 	}
 	
 	public static byte[] apply(Applyable a, byte[] orig) {
