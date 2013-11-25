@@ -30,6 +30,7 @@
 package org.badiff.q;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -80,7 +81,9 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	/**
 	 * Thread pool for parallelization
 	 */
-	protected ThreadPoolExecutor pool;
+	protected ExecutorService pool;
+	
+	protected int workers;
 
 	protected ChainOpQueue chain;
 
@@ -119,6 +122,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
+		this.workers = workers;
 		this.graphFactory = graphFactory;
 		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 			@Override
@@ -192,7 +196,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected void pump() {
 		if(require(2)) {
-			while(require(2) && tasks.get() < pool.getMaximumPoolSize()) {
+			while(require(2) && tasks.get() < workers) {
 				Op delete;
 				Op insert;
 
