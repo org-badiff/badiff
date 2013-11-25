@@ -78,7 +78,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		}
 	};
 
-	private static final GraphFactory DEFAULT_GRAPH = EDIT_GRAPH;
+	private static final GraphFactory DEFAULT_GRAPH = INERTIAL_GRAPH;
 
 	/**
 	 * The real source of elements
