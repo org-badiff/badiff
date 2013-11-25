@@ -12,12 +12,12 @@ public class Pipeline {
 	
 	public Pipeline(OpQueue q, Pipe... pipes) {
 		this(q);
-		into(pipes);
+		q = into(pipes).outlet();
 	}
 	
 	public Pipeline(OpQueue q, String codes) {
 		this(q);
-		into(codes);
+		q = into(codes).outlet();
 	}
 	
 	public Pipeline into(Pipe... pipes) {
