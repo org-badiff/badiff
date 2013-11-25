@@ -38,10 +38,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Diff;
 import org.badiff.Op;
-import org.badiff.alg.AdjustableInertialGraph;
-import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
-import org.badiff.alg.InertialGraph;
+import org.badiff.alg.GraphFactory;
 
 /**
  * {@link OpQueue} that locates pairs of ({@link Op#DELETE},{@link Op#INSERT}) and
@@ -53,32 +51,22 @@ import org.badiff.alg.InertialGraph;
  */
 public class ParallelGraphOpQueue extends FilterOpQueue {
 
-	public static interface GraphFactory {
-		public Graph newGraph(int capacity);
-	}
+	/**
+	 * @deprecated Use {@link GraphFactory#EDIT_GRAPH} instead
+	 */
+	public static final GraphFactory EDIT_GRAPH = GraphFactory.EDIT_GRAPH;
 
-	public static final GraphFactory EDIT_GRAPH = new GraphFactory() {
-		@Override
-		public Graph newGraph(int capacity) {
-			return new EditGraph(capacity);
-		}
-	};
+	/**
+	 * @deprecated Use {@link GraphFactory#INERTIAL_GRAPH} instead
+	 */
+	public static final GraphFactory INERTIAL_GRAPH = GraphFactory.INERTIAL_GRAPH;
 
-	public static final GraphFactory INERTIAL_GRAPH = new GraphFactory() {
-		@Override
-		public Graph newGraph(int capacity) {
-			return new InertialGraph(capacity);
-		}
-	};
+	/**
+	 * @deprecated Use {@link GraphFactory#ADJUSTABLE_GRAPH} instead
+	 */
+	public static final GraphFactory ADJUSTABLE_GRAPH = GraphFactory.ADJUSTABLE_GRAPH;
 
-	public static final GraphFactory ADJUSTABLE_GRAPH = new GraphFactory() {
-		@Override
-		public Graph newGraph(int capacity) {
-			return new AdjustableInertialGraph(capacity);
-		}
-	};
-
-	private static final GraphFactory DEFAULT_GRAPH = INERTIAL_GRAPH;
+	private static final GraphFactory DEFAULT_GRAPH = GraphFactory.INERTIAL_GRAPH;
 
 	/**
 	 * The real source of elements

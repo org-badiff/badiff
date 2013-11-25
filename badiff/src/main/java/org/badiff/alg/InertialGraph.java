@@ -32,6 +32,7 @@ package org.badiff.alg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
@@ -94,6 +95,10 @@ public class InertialGraph implements Graph {
 	protected byte[] xval;
 	protected byte[] yval;
 
+	public InertialGraph() {
+		this((1 + Diff.DEFAULT_CHUNK) * (1 + Diff.DEFAULT_CHUNK));
+	}
+	
 	/**
 	 * Create a new {@link InertialGraph} with the given buffer capacity
 	 * @param capacity

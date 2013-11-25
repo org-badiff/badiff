@@ -46,6 +46,7 @@ import java.util.Iterator;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.Queueable;
+import org.badiff.alg.GraphFactory;
 import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
@@ -617,7 +618,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
-		q = new ParallelGraphOpQueue(q, ParallelGraphOpQueue.INERTIAL_GRAPH);
+		q = new ParallelGraphOpQueue(q, GraphFactory.INERTIAL_GRAPH);
 		q = new CoalescingOpQueue(q);
 		q = new CoalescingOpQueue(q);
 		q = new RewindingOpQueue(q);

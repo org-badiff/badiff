@@ -41,6 +41,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.badiff.alg.GraphFactory;
 import org.badiff.imp.FileDiff;
 import org.badiff.util.Streams;
 import org.junit.Assert;
@@ -97,7 +98,7 @@ public class ParallelGraphOpQueueTest {
 				new ByteArrayInputStream(orig.toByteArray()), 
 				new ByteArrayInputStream(target.toByteArray()), 
 				CHUNK);
-		q = new ParallelGraphOpQueue(q, ParallelGraphOpQueue.INERTIAL_GRAPH);
+		q = new ParallelGraphOpQueue(q, GraphFactory.INERTIAL_GRAPH);
 		
 		ByteArrayOutputStream result = new ByteArrayOutputStream(SIZE);
 		
