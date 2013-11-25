@@ -77,9 +77,11 @@ public class InertialGraph implements Graph {
 			{1,	2,	3,	1}, // From NEXT to...
 //           S	D	I	N
 	};
+	
+	protected int[] tcost;
 
 	protected int cost(byte from, byte to) {
-		return DEFAULT_TRANSITION_COSTS[from][to];
+		return tcost[from * 4 + to];
 	}
 	
 	protected static final int DELETE = 0;
@@ -105,6 +107,11 @@ public class InertialGraph implements Graph {
 		this.capacity = capacity;
 
 		cost = new short[NUM_FIELDS * capacity];
+		
+		tcost = new int[16];
+		for(byte f = 0; f < 4; f++)
+			for(byte t = 0; t < 4; t++)
+				tcost[f * 4 + t] = DEFAULT_TRANSITION_COSTS[f][t];
 	}
 	
 	@Override
@@ -149,21 +156,21 @@ public class InertialGraph implements Graph {
 				int cost;
 
 				// compute delete cost
-				cost = edc + 1;
-				cost = Math.min(cost, eic + 2);
-				cost = Math.min(cost, enc + 2);
+				cost = edc + cost(Op.DELETE, Op.DELETE);
+				cost = Math.min(cost, eic + cost(Op.INSERT, Op.DELETE));
+				cost = Math.min(cost, enc + cost(Op.NEXT, Op.DELETE));
 				this.cost[pos*NUM_FIELDS + DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute insert cost
-				cost = eic + 1;
-				cost = Math.min(cost, edc + 3);
-				cost = Math.min(cost, enc + 3);
+				cost = eic + cost(Op.INSERT, Op.INSERT);
+				cost = Math.min(cost, edc + cost(Op.DELETE, Op.INSERT));
+				cost = Math.min(cost, enc + cost(Op.NEXT, Op.INSERT));
 				this.cost[pos*NUM_FIELDS + INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute next cost
-				cost = enc + 1;
-				cost = Math.min(cost, edc + 4);
-				cost = Math.min(cost, eic + 3);
+				cost = enc + cost(Op.NEXT, Op.NEXT);
+				cost = Math.min(cost, edc + cost(Op.DELETE, Op.NEXT));
+				cost = Math.min(cost, eic + cost(Op.INSERT, Op.NEXT));
 				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	
