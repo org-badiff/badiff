@@ -630,8 +630,14 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	
 	public void diff(RandomInput orig, RandomInput target, String pipeline) throws IOException {
 	
+		long opos = orig.position();
+		long tpos = target.position();
+		
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
+		
+		orig.seek(opos);
+		target.seek(tpos);
 		
 		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
 		

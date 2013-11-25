@@ -90,10 +90,8 @@ public class Digests {
 	}
 	
 	public static byte[] digest(RandomInput input, MessageDigest digest) throws IOException {
-		long pos = input.position();
 		DigestInputStream digin = new DigestInputStream(new RandomInputStream(input), digest);
 		Streams.copy(digin, new NoopOutputStream());
-		input.seek(pos);
 		return digin.getMessageDigest().digest();
 	}
 	
