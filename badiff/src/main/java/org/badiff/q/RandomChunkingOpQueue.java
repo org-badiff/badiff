@@ -29,31 +29,80 @@
  */
 package org.badiff.q;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.io.RandomInput;
+import org.badiff.io.RuntimeIOException;
 
 /**
- * {@link OpQueue} that strips the {@link Op#getData()} from {@link Op#DELETE}s
+ * {@link OpQueue} that lazily reads from two input streams (original and target)
+ * and produces chunked output similar to {@link ChunkingOpQueue}.
  * @author robin
  *
  */
-public class OneWayOpQueue extends FilterOpQueue {
-
-	public OneWayOpQueue(OpQueue source) {
-		super(source);
+public class RandomChunkingOpQueue extends OpQueue {
+	protected RandomInput orig;
+	protected RandomInput target;
+	protected int chunk;
+	
+	/**
+	 * Create a {@link RandomChunkingOpQueue} with the default chunk size
+	 * @param orig
+	 * @param target
+	 */
+	public RandomChunkingOpQueue(RandomInput orig, RandomInput target) {
+		this(orig, target, Diff.DEFAULT_CHUNK);
 	}
-
+	
+	/**
+	 * Create an {@link OpQueue} lazily populated with alternating chunks of data read
+	 * from the streams.
+	 * @param orig The source of {@link Op#DELETE} chunks
+	 * @param target The source of {@link Op#INSERT} chunks
+	 * @param chunk
+	 */
+	public RandomChunkingOpQueue(RandomInput orig, RandomInput target, int chunk) {
+		this.orig = orig;
+		this.target = target;
+		this.chunk = chunk;
+	}
+	
 	@Override
 	protected boolean pull() {
-		if(!require(1))
-			return flush();
-		Op e = filtering.remove(0);
-		if(e.getOp() == Op.DELETE)
-			e = new Op(Op.DELETE, e.getRun(), null);
-		if(e.getOp() == Op.NEXT)
-			e = new Op(Op.NEXT, e.getRun(), null);
+		/*
+		 * Lazily offer new chunks if available
+		 */
+		byte[] obuf = readChunk(orig);
+		byte[] tbuf = readChunk(target);
+
+		if(obuf != null)
+			prepare(new Op(Op.DELETE, obuf.length, obuf));
+		if(tbuf != null)
+			prepare(new Op(Op.INSERT, tbuf.length, tbuf));
 		
-		prepare(e);
-		return true;
+		return obuf != null || tbuf != null;
 	}
 
+	/**
+	 * Read a chunk from the {@link RandomInput}
+	 * @param in
+	 * @return
+	 */
+	protected byte[] readChunk(RandomInput in) {
+		try {
+			byte[] buf = new byte[chunk];
+			int r = in.read(buf);
+			if(r == -1)
+				return null;
+			if(r == chunk)
+				return buf;
+			return Arrays.copyOf(buf, r);
+		} catch(IOException ioe) {
+			throw new RuntimeIOException(ioe);
+		}
+	}
+	
 }

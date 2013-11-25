@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.badiff</groupId>
 		<artifactId>badiff-parent</artifactId>
-		<version>1.1.5</version>
+		<version>1.1.6</version>
 		<relativePath>../badiff-parent</relativePath>
 	</parent>
 	<dependencies>
@@ -39,7 +39,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>org.badiff.cli.BadiffCli</mainClass>
+									<mainClass>org.badiff.BadiffCli</mainClass>
 								</manifest>
 							</archive>
 						</configuration>

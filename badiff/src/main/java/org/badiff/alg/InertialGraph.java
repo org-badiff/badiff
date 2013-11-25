@@ -32,6 +32,7 @@ package org.badiff.alg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
@@ -70,7 +71,6 @@ public class InertialGraph implements Graph {
 	 * 
 	 */
 
-	@SuppressWarnings("unused")
 	private static final int[][] DEFAULT_TRANSITION_COSTS = new int[][] {
 			{1,	1,	1,	1}, // From STOP to...
 			{3,	1,	3,	4}, // From DELETE to...
@@ -78,29 +78,27 @@ public class InertialGraph implements Graph {
 			{1,	2,	3,	1}, // From NEXT to...
 //           S	D	I	N
 	};
-
+	
 	protected int cost(byte from, byte to) {
 		return DEFAULT_TRANSITION_COSTS[from][to];
 	}
 	
-//	protected final int[][] transitionCosts = DEFAULT_TRANSITION_COSTS;
+	protected static final int DELETE = 0;
+	protected static final int INSERT = 1;
+	protected static final int NEXT = 2;
 	
-	protected static final int ENTER_DELETE = 0;
-	protected static final int ENTER_INSERT = 1;
-	protected static final int ENTER_NEXT = 2;
-	protected static final int LEAVE_DELETE = 3;
-	protected static final int LEAVE_INSERT = 4;
-	protected static final int LEAVE_NEXT = 5;
+	protected static final int NUM_FIELDS = 3;
 	
 	protected final short[] cost;
 	
-//	protected final short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
-//	protected final short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
-
 	protected final int capacity;
 	protected byte[] xval;
 	protected byte[] yval;
 
+	public InertialGraph() {
+		this((1 + Diff.DEFAULT_CHUNK) * (1 + Diff.DEFAULT_CHUNK));
+	}
+	
 	/**
 	 * Create a new {@link InertialGraph} with the given buffer capacity
 	 * @param capacity
@@ -111,14 +109,7 @@ public class InertialGraph implements Graph {
 
 		this.capacity = capacity;
 
-		cost = new short[6 * capacity];
-		
-//		enterDeleteCost = new short[capacity];
-//		enterInsertCost = new short[capacity];
-//		enterNextCost = new short[capacity];
-//		leaveDeleteCost = new short[capacity];
-//		leaveInsertCost = new short[capacity];
-//		leaveNextCost = new short[capacity];
+		cost = new short[NUM_FIELDS * capacity];
 	}
 	
 	@Override
@@ -129,51 +120,68 @@ public class InertialGraph implements Graph {
 		xval = new byte[orig.length + 1]; System.arraycopy(orig, 0, xval, 1, orig.length);
 		yval = new byte[target.length + 1]; System.arraycopy(target, 0, yval, 1, target.length);
 
-		int pos = -1;
+		cost[DELETE] = 0;
+		cost[INSERT] = 0;
+		cost[NEXT] = 0;
+
+		int cdd, cdi, cdn, cid, cii, cin, cnd, cni, cnn;
+		cdd = cost(Op.DELETE, Op.DELETE);
+		cdi = cost(Op.DELETE, Op.INSERT);
+		cdn = cost(Op.DELETE, Op.NEXT);
+		cid = cost(Op.INSERT, Op.DELETE);
+		cii = cost(Op.INSERT, Op.INSERT);
+		cin = cost(Op.INSERT, Op.NEXT);
+		cnd = cost(Op.NEXT, Op.DELETE);
+		cni = cost(Op.NEXT, Op.INSERT);
+		cnn = cost(Op.NEXT, Op.NEXT);
+		
+		
+		int pos;
 		for(int y = 0; y < yval.length; y++) {
 			for(int x = 0; x < xval.length; x++) {
-				pos++;
-				if(x == 0 && y == 0) {
-//					leaveDeleteCost[pos] = (short) cost(Op.STOP, Op.DELETE);
-//					leaveInsertCost[pos] = (short) cost(Op.STOP, Op.INSERT);
-//					leaveNextCost[pos] = (short) cost(Op.STOP, Op.NEXT);
-					cost[LEAVE_DELETE] = 1;
-					cost[LEAVE_INSERT] = 1;
-					cost[LEAVE_NEXT] = 1;
+				if(x == 0 && y == 0)
 					continue;
-				}
 
+				pos = y * xval.length + x;
 				// mark entry costs
-				boolean nextable = x > 0 && y > 0 && xval[x] == yval[y];
-//				int edc = enterDeleteCost[pos] = (x == 0) ? Short.MAX_VALUE : leaveDeleteCost[pos-1];
-//				int eic = enterInsertCost[pos] = (y == 0) ? Short.MAX_VALUE : leaveInsertCost[pos-xval.length];
-//				int enc = enterNextCost[pos] = (!nextable) ? Short.MAX_VALUE : leaveNextCost[pos-1-xval.length];
+				int edc, eic, enc;
 
-				int edc = cost[pos*6 + ENTER_DELETE] = (x == 0) ? Short.MAX_VALUE : cost[(pos-1)*6 + LEAVE_DELETE];
-				int eic = cost[pos*6 + ENTER_INSERT] = (y == 0) ? Short.MAX_VALUE : cost[(pos-xval.length)*6 + LEAVE_INSERT];
-				int enc = cost[pos*6 + ENTER_NEXT] = (!nextable) ? Short.MAX_VALUE : cost[(pos - 1 - xval.length)*6 + LEAVE_NEXT];
+				if(x == 0) {
+					edc = Short.MAX_VALUE;
+					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
+					enc = Short.MAX_VALUE;
+				} else if(y == 0) {
+					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
+					eic = Short.MAX_VALUE;
+					enc = Short.MAX_VALUE;
+				} else {
+					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
+					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
+					if(xval[x] == yval[y])
+						enc = cost[(pos - 1 - xval.length)*NUM_FIELDS + NEXT];
+					else
+						enc = Short.MAX_VALUE;
+				}
 				
 				int cost;
 
 				// compute delete cost
-				cost = edc + 1;
-				cost = Math.min(cost, eic + 2);
-				cost = Math.min(cost, enc + 2);
-//				leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
-				this.cost[pos*6 + LEAVE_DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
+				cost = edc + cdd;
+				cost = Math.min(cost, eic + cid);
+				cost = Math.min(cost, enc + cnd);
+				this.cost[pos*NUM_FIELDS + DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute insert cost
-				cost = eic + 1;
-				cost = Math.min(cost, edc + 3);
-				cost = Math.min(cost, enc + 3);
-//				leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
-				this.cost[pos*6 + LEAVE_INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
+				cost = eic + cii;
+				cost = Math.min(cost, edc + cdi);
+				cost = Math.min(cost, enc + cni);
+				this.cost[pos*NUM_FIELDS + INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute next cost
-				cost = enc + 1;
-				cost = Math.min(cost, edc + 4);
-				cost = Math.min(cost, eic + 3);
-				this.cost[pos*6 + LEAVE_NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
+				cost = enc + cnn;
+				cost = Math.min(cost, edc + cdn);
+				cost = Math.min(cost, eic + cin);
+				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	
 	}
@@ -192,9 +200,13 @@ public class InertialGraph implements Graph {
 	protected class GraphOpQueue extends OpQueue {
 		protected int pos;
 		protected byte prev = Op.STOP;
+		protected int x;
+		protected int y;
 
 		public GraphOpQueue() {
 			pos = xval.length * yval.length - 1;
+			x = xval.length-1;
+			y = yval.length-1;
 		}
 
 		@Override
@@ -202,17 +214,21 @@ public class InertialGraph implements Graph {
 			if(pos == 0)
 				return false;
 
-			byte op = Op.NEXT;
-			int cost = InertialGraph.this.cost[pos*6+ENTER_NEXT] + cost(Op.NEXT, prev);
-
-			if(InertialGraph.this.cost[pos*6+ENTER_INSERT] + cost(Op.INSERT, prev) < cost) {
+			byte op = -1;
+			int cost = Integer.MAX_VALUE;
+			if(x > 0 && y > 0 && xval[x] == yval[y]) {
+				op = Op.NEXT;
+				cost = InertialGraph.this.cost[(pos-1-xval.length)*NUM_FIELDS+NEXT] + cost(Op.NEXT, prev);
+			}
+			
+			if(y > 0 && InertialGraph.this.cost[(pos-xval.length)*NUM_FIELDS+INSERT] + cost(Op.INSERT, prev) < cost) {
 				op = Op.INSERT;
-				cost = InertialGraph.this.cost[pos*6 + ENTER_INSERT] + cost(Op.INSERT, prev);
+				cost = InertialGraph.this.cost[(pos-xval.length)*NUM_FIELDS + INSERT] + cost(Op.INSERT, prev);
 			}
 
-			if(InertialGraph.this.cost[pos*6+ENTER_DELETE] + cost(Op.DELETE, prev) < cost) {
+			if(x > 0 && InertialGraph.this.cost[(pos-1)*NUM_FIELDS+DELETE] + cost(Op.DELETE, prev) < cost) {
 				op = Op.DELETE;
-				cost = InertialGraph.this.cost[pos*6+ENTER_DELETE] + cost(Op.DELETE, prev);
+				cost = InertialGraph.this.cost[(pos-1)*NUM_FIELDS+DELETE] + cost(Op.DELETE, prev);
 			}
 
 			Op e = null;
@@ -221,16 +237,23 @@ public class InertialGraph implements Graph {
 			case Op.NEXT:
 				e = new Op(Op.NEXT, 1, null);
 				pos = pos - 1 - xval.length;
+				x--;
+				y--;
 				break;
 			case Op.INSERT:
-				e = new Op(Op.INSERT, 1, new byte[] {yval[pos / xval.length]});
+				e = new Op(Op.INSERT, 1, new byte[] {yval[y]});
 				pos = pos - xval.length;
+				y--;
 				break;
 			case Op.DELETE:
-				e = new Op(Op.DELETE, 1, new byte[] {xval[pos % xval.length]});
+				e = new Op(Op.DELETE, 1, new byte[] {xval[x]});
 				pos = pos - 1;
+				x--;
 				break;
 			}
+			
+			if(e == null)
+				throw new IllegalStateException();
 
 			prepare(e);
 			

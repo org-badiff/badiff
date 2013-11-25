@@ -65,7 +65,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	/**
 	 * The {@link Op}s which are prepared to be {@link #poll()}ed
 	 */
-	private Deque<Op> prepared = new ArrayDeque<Op>();
+	protected Deque<Op> prepared = new ArrayDeque<Op>();
 
 	/**
 	 * Draw the next {@link Op} from this {@link OpQueue}, returning

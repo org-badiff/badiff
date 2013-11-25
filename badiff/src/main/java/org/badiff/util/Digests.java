@@ -37,6 +37,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.badiff.io.NoopOutputStream;
+import org.badiff.io.RandomInput;
+import org.badiff.io.RandomInputStream;
 
 /**
  * Utility class for working with {@link MessageDigest}s
@@ -84,6 +86,12 @@ public class Digests {
 		DigestInputStream digin = new DigestInputStream(new FileInputStream(file), digest);
 		Streams.copy(digin, new NoopOutputStream());
 		digin.close();
+		return digin.getMessageDigest().digest();
+	}
+	
+	public static byte[] digest(RandomInput input, MessageDigest digest) throws IOException {
+		DigestInputStream digin = new DigestInputStream(new RandomInputStream(input), digest);
+		Streams.copy(digin, new NoopOutputStream());
 		return digin.getMessageDigest().digest();
 	}
 	

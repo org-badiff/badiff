@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.badiff</groupId>
 	<artifactId>badiff-parent</artifactId>
-	<version>1.1.5</version>
+	<version>1.1.6</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -17,6 +17,7 @@
 		<module>../badiff-kryo</module>
 		<module>../badiff-examples</module>
 		<module>../badiff-hadoop</module>
+		<module>../badiff-cli</module>
 	</modules>
 
 	<build>
@@ -54,12 +55,12 @@
 			<dependency>
 				<groupId>org.badiff</groupId>
 				<artifactId>badiff</artifactId>
-				<version>1.1.5</version>
+				<version>1.1.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.badiff</groupId>
 				<artifactId>badiff</artifactId>
-				<version>1.1.5</version>
+				<version>1.1.6</version>
 				<type>test-jar</type>
 				<scope>test</scope>
 			</dependency>

@@ -41,6 +41,9 @@ public class InertialGraphBehaviorTest {
 	public void testGraph() {
 		Graph g = new InertialGraph((orig.length() + 1) * (target.length() + 1));
 		g.compute(orig.getBytes(), target.getBytes());
-		Assert.assertEquals(summary, g.queue().consummerize());
+		String csum = g.queue().consummerize();
+		if(!summary.equals(csum))
+			System.out.println("\"" + orig + "\" -> \"" + target + "\" -> " + csum);
+		Assert.assertEquals(summary, csum);
 	}
 }

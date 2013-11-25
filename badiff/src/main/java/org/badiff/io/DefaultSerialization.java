@@ -48,7 +48,6 @@ import org.badiff.imp.FileDiff;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.util.Streams;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultSerialization implements Serialization {
 	
 	public static DefaultSerialization newInstance() {
@@ -74,6 +73,7 @@ public class DefaultSerialization implements Serialization {
 	private Map<Object, Object> context = new HashMap<Object, Object>();
 	private GraphContext graphContext = new GraphContext(context);
 	
+	@SuppressWarnings("rawtypes")
 	public DefaultSerialization() {
 		serializers.add(new Serializer<Class>(Class.class) {
 
@@ -232,6 +232,7 @@ public class DefaultSerialization implements Serialization {
 		return readLong(in, accum, shift + 7);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void writeObject(OutputStream out, Class<T> type, T object)
 			throws IOException {
@@ -239,7 +240,7 @@ public class DefaultSerialization implements Serialization {
 			graphContext.clear();
 		depth++;
 		try {
-			for(Serializer s : serializers) {
+			for(@SuppressWarnings("rawtypes") Serializer s : serializers) {
 				if(s.type() == type) {
 					s.write(new DataOutputStream(out), object);
 					return;
@@ -257,9 +258,9 @@ public class DefaultSerialization implements Serialization {
 			graphContext.clear();
 		depth++;
 		try {
-			for(Serializer s : serializers) {
+			for(@SuppressWarnings("rawtypes") Serializer s : serializers) {
 				if(s.type() == type) {
-					return (T) s.read(new DataInputStream(in));
+					return type.cast(s.read(new DataInputStream(in)));
 				}
 			}
 			throw new NotSerializableException(type.getName());

@@ -45,20 +45,27 @@ import java.util.Iterator;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.Queueable;
+import org.badiff.alg.GraphFactory;
 import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
+import org.badiff.io.RandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
+import org.badiff.p.Pipe;
+import org.badiff.p.Pipeline;
+import org.badiff.p.Pipes;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.PumpingOpQueue;
+import org.badiff.q.RandomChunkingOpQueue;
 import org.badiff.q.RewindingOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.q.UnchunkingOpQueue;
@@ -74,6 +81,15 @@ import org.badiff.util.Streams;
 public class BadiffFileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 
+	public static String PIPELINE_CODE = "GccrouC";
+	public static Pipe[] PIPES = Pipes.fromCodes(PIPELINE_CODE);
+	public static Pipe PIPE = new Pipe() {
+		@Override
+		public Pipeline from(OpQueue q) {
+			return new Pipeline(q, PIPES);
+		}
+	};
+	
 	/**
 	 * Magic bytes at the beginning of every badiff file
 	 */
@@ -392,7 +408,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static void computeStats(Diff diff, Header header) throws IOException {
+	protected static void computeStats(Queueable diff, Header header) throws IOException {
 		Header.Stats stats = header.stats;
 		OpQueue q = diff.queue();
 		long osize = 0; // input file size
@@ -606,30 +622,41 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @throws IOException
 	 */
 	public void diff(File orig, File target) throws IOException {
+		diff(orig, target, PIPELINE_CODE);
+	}
+	
+	public void diff(File orig, File target, String pipeline) throws IOException {
+		FileRandomInput oin = new FileRandomInput(orig);
+		try {
+			FileRandomInput tin = new FileRandomInput(target);
+			try {
+				diff(oin, tin, pipeline);
+			} finally {
+				tin.close();
+			}
+		} finally {
+			oin.close();
+		}
+	}
+	
+	public void diff(RandomInput orig, RandomInput target, String pipeline) throws IOException {
+	
+		long opos = orig.position();
+		long tpos = target.position();
+		
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
 		
+		orig.seek(opos);
+		target.seek(tpos);
+		
 		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
 		
-		InputStream oin = new FileRandomInput(orig);
-		InputStream tin = new FileRandomInput(target);
-		
 		OpQueue q;
-		q = new StreamChunkingOpQueue(oin, tin);
-		q = new ParallelGraphOpQueue(q, ParallelGraphOpQueue.INERTIAL_GRAPH);
-		q = new PumpingOpQueue(q);
-		q = new CoalescingOpQueue(q);
-		q = new PumpingOpQueue(q);
-		q = new CoalescingOpQueue(q);
-		q = new PumpingOpQueue(q);
-		q = new RewindingOpQueue(q);
-		q = new PumpingOpQueue(q);
-		q = new OneWayOpQueue(q);
-		q = new PumpingOpQueue(q);
-		q = new UnchunkingOpQueue(q);
-		q = new PumpingOpQueue(q);
-		q = new CompactingOpQueue(q);
-		q = new PumpingOpQueue(q);
+		q = new RandomChunkingOpQueue(orig, target);
+		
+		q = new Pipeline(q).into(pipeline).outlet();
+		
 		tmp.store(q);
 		
 		Header h = new Header();
@@ -644,8 +671,6 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		self.close();
 		
 		tmp.delete();
-		tin.close();
-		oin.close();
 	}
 	
 	/**
@@ -755,6 +780,35 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
 		
 		tmp.delete();
+	}
+
+	/**
+	 * Write a badiff file
+	 * @param out
+	 * @param serial
+	 * @param opt
+	 * @param ops
+	 * @throws IOException
+	 */
+	public static void store(DataOutput out, Serialization serial, Header header, Queueable qq) throws IOException {
+		
+		// Compute the stats
+		computeStats(qq, header);
+		
+		if(serial == null)
+			serial = DefaultSerialization.newInstance();
+		header.serial = serial;
+		
+		// Write the header
+		writeHeader(header, out);
+		
+		DataOutputOutputStream dout = new DataOutputOutputStream(out);
+		
+		// Copy the ops
+		OpQueue q = qq.queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			serial.writeObject(dout, Op.class, e);
+		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
 	}
 
 	@Override
