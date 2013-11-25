@@ -39,7 +39,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>org.badiff.cli.BadiffCli</mainClass>
+									<mainClass>org.badiff.BadiffCli</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
