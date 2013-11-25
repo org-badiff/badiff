@@ -8,7 +8,16 @@ public class Pipeline {
 	
 	public Pipeline(OpQueue q) {
 		this.q = q;
-		
+	}
+	
+	public Pipeline(OpQueue q, Pipe... pipes) {
+		this(q);
+		into(pipes);
+	}
+	
+	public Pipeline(OpQueue q, String codes) {
+		this(q);
+		into(codes);
 	}
 	
 	public Pipeline into(Pipe... pipes) {
