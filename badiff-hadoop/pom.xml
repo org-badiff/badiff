@@ -10,7 +10,7 @@
 	<artifactId>badiff-hadoop</artifactId>
 
 	<properties>
-		<job.main></job.main>
+		<job.main>org.badiff.hadoop.aig.AdjustableInertialGraphJob</job.main>
 	</properties>
 
 	<build>
@@ -37,9 +37,9 @@
 			<version>1.1.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>1.4.7</version>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
 		</dependency>
 	</dependencies>
 
@@ -74,6 +74,7 @@
 								<configuration>
 									<createDependencyReducedPom>false</createDependencyReducedPom>
 									<shadedArtifactAttached>true</shadedArtifactAttached>
+									<shadedClassifierName>aws</shadedClassifierName>
 									<transformers>
 										<transformer
 											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -91,6 +92,7 @@
 										</filter>
 									</filters>
 									<finalName>${project.artifactId}-aws</finalName>
+									<outputDirectory>${project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -100,8 +102,14 @@
 		</profile>
 
 		<profile>
-			<id>rbkluster</id>
+			<id>cdh4</id>
 
+			<repositories>
+				<repository>
+					<id>cloudera</id>
+					<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+				</repository>
+			</repositories>
 
 			<dependencies>
 				<dependency>
@@ -131,6 +139,7 @@
 								<configuration>
 									<createDependencyReducedPom>false</createDependencyReducedPom>
 									<shadedArtifactAttached>true</shadedArtifactAttached>
+									<shadedClassifierName>cdh4</shadedClassifierName>
 									<transformers>
 										<transformer
 											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -147,7 +156,8 @@
 											</excludes>
 										</filter>
 									</filters>
-									<finalName>${project.artifactId}-rbkluster</finalName>
+									<finalName>${project.artifactId}-cdh4</finalName>
+									<outputDirectory>${project.basedir}/dist</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>

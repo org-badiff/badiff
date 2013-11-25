@@ -34,7 +34,7 @@ public class BehaviorTestDataGenerator {
 	public static void main(String[] args) throws Exception {
 		Iterator<String> si = gatherStrings().iterator();
 		
-		Graph graph = new InertialGraph(200 * 200);
+		Graph graph = new AdjustableInertialGraph(200 * 200);
 		
 		String prev = si.next();
 		while(si.hasNext()) {

@@ -12,11 +12,13 @@ import org.badiff.q.OpQueue;
 import static org.badiff.Op.*;
 
 public class AdjustableInertialGraph implements Graph {
+//	1	1	1	1	3	1	3	4	2	2	1	3	1	2	3	1
+	
 	private static final int[][] DEFAULT_TRANSITION_COSTS = new int[][] {
-			{0, 2, 3, 1}, // From STOP to...
-			{0, 0, 3, 1}, // From DELETE to...
-			{0, 2, 1, 1}, // From INSERT to...
-			{0, 2, 3, 0}, // From NEXT to...
+			{1,	1,	1,	1}, // From STOP to...
+			{3,	1,	3,	4}, // From DELETE to...
+			{2,	2,	1,	3}, // From INSERT to...
+			{1,	2,	3,	1}, // From NEXT to...
 //           S  D  I  N
 	};
 	
@@ -117,31 +119,31 @@ public class AdjustableInertialGraph implements Graph {
 		switch(from) {
 		case STOP:
 			switch(to) {
-			case STOP: stop_stop = cost;
-			case DELETE: stop_delete = cost;
-			case INSERT: stop_insert = cost;
-			case NEXT: stop_next = cost;
+			case STOP: stop_stop = cost; return;
+			case DELETE: stop_delete = cost; return;
+			case INSERT: stop_insert = cost; return;
+			case NEXT: stop_next = cost; return;
 			}
 		case DELETE:
 			switch(to) {
-			case STOP: delete_stop = cost;
-			case DELETE: delete_delete = cost;
-			case INSERT: delete_insert = cost;
-			case NEXT: delete_next = cost;
+			case STOP: delete_stop = cost; return;
+			case DELETE: delete_delete = cost; return;
+			case INSERT: delete_insert = cost; return;
+			case NEXT: delete_next = cost; return;
 			}
 		case INSERT:
 			switch(to) {
-			case STOP: insert_stop = cost;
-			case DELETE: insert_delete = cost;
-			case INSERT: insert_insert = cost;
-			case NEXT: insert_next = cost;
+			case STOP: insert_stop = cost; return;
+			case DELETE: insert_delete = cost; return;
+			case INSERT: insert_insert = cost; return;
+			case NEXT: insert_next = cost; return;
 			}
 		case NEXT:
 			switch(to) {
-			case STOP: next_stop = cost;
-			case DELETE: next_delete = cost;
-			case INSERT: next_insert = cost;
-			case NEXT: next_next = cost;
+			case STOP: next_stop = cost; return;
+			case DELETE: next_delete = cost; return;
+			case INSERT: next_insert = cost; return;
+			case NEXT: next_next = cost; return;
 			}
 		}
 		throw new IllegalArgumentException("from:" + from + " to:" + to);
