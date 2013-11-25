@@ -44,7 +44,7 @@ public interface Diff extends Applyable, Storeable, Queueable {
 	/**
 	 * The default size of a chunk for operations which chunk their input
 	 */
-	public final int DEFAULT_CHUNK = 4096;
+	public final int DEFAULT_CHUNK = 2048;
 	
 	/**
 	 * Overwrite this {@link Diff}'s operations with the operations from the
