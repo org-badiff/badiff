@@ -2,10 +2,6 @@ package org.badiff.hadoop.aig;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -14,7 +10,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 import org.badiff.Diff;
 import org.badiff.alg.AdjustableInertialGraph;
-import org.badiff.alg.Graph;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;
@@ -23,9 +18,6 @@ import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
-import org.badiff.q.ParallelGraphOpQueue;
-import org.badiff.q.ParallelGraphOpQueue.GraphFactory;
-import org.badiff.q.PumpingOpQueue;
 import org.badiff.q.RewindingOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.q.UnchunkingOpQueue;

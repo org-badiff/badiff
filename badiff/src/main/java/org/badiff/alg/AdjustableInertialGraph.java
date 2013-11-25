@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.badiff.Op;
-import org.badiff.alg.AdjustableInertialGraph.GraphOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;

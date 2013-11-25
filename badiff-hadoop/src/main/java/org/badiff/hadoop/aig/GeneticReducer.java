@@ -17,6 +17,7 @@ public class GeneticReducer extends Reducer<FloatWritable, CsvGeneticParams, Nul
 	private static final String PREFIX = GeneticReducer.class.getName() + ".";
 	private static final String SURVIVORS = PREFIX + "survivors";
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(GeneticReducer.class);
 	
 	public static void setSurvivorSize(Job job, int survivorSize) {
