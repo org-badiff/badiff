@@ -51,6 +51,13 @@ public enum Pipes implements Pipe {
 		return pipes;
 	}
 	
+	public static String toCodes(Pipes... pipes) {
+		StringBuilder sb = new StringBuilder();
+		for(Pipes pipe : pipes)
+			sb.append(pipe.code());
+		return sb.toString();
+	}
+	
 	@Override
 	public Pipeline from(OpQueue q) {
 		switch(this) {
