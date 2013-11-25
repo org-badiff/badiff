@@ -70,7 +70,6 @@ public class InertialGraph implements Graph {
 	 * 
 	 */
 
-	@SuppressWarnings("unused")
 	private static final int[][] DEFAULT_TRANSITION_COSTS = new int[][] {
 			{1,	1,	1,	1}, // From STOP to...
 			{3,	1,	3,	4}, // From DELETE to...
@@ -83,8 +82,6 @@ public class InertialGraph implements Graph {
 		return DEFAULT_TRANSITION_COSTS[from][to];
 	}
 	
-//	protected final int[][] transitionCosts = DEFAULT_TRANSITION_COSTS;
-	
 	protected static final int DELETE = 0;
 	protected static final int INSERT = 1;
 	protected static final int NEXT = 2;
@@ -93,9 +90,6 @@ public class InertialGraph implements Graph {
 	
 	protected final short[] cost;
 	
-//	protected final short[] enterDeleteCost, enterInsertCost, enterNextCost; // Entry costs for this position
-//	protected final short[] leaveDeleteCost, leaveInsertCost, leaveNextCost; // Exit costs for this position
-
 	protected final int capacity;
 	protected byte[] xval;
 	protected byte[] yval;
@@ -111,17 +105,6 @@ public class InertialGraph implements Graph {
 		this.capacity = capacity;
 
 		cost = new short[NUM_FIELDS * capacity];
-		
-//		enterDeleteCost = new short[capacity];
-//		enterInsertCost = new short[capacity];
-//		enterNextCost = new short[capacity];
-//		leaveDeleteCost = new short[capacity];
-//		leaveInsertCost = new short[capacity];
-//		leaveNextCost = new short[capacity];
-	}
-	
-	protected int pos(int x, int y, int field) {
-		return (x + y * xval.length) * NUM_FIELDS + field;
 	}
 	
 	@Override
@@ -132,9 +115,9 @@ public class InertialGraph implements Graph {
 		xval = new byte[orig.length + 1]; System.arraycopy(orig, 0, xval, 1, orig.length);
 		yval = new byte[target.length + 1]; System.arraycopy(target, 0, yval, 1, target.length);
 
-		cost[DELETE] = 1;
-		cost[INSERT] = 1;
-		cost[NEXT] = 1;
+		cost[DELETE] = 0;
+		cost[INSERT] = 0;
+		cost[NEXT] = 0;
 
 		int pos;
 		for(int y = 0; y < yval.length; y++) {
@@ -214,10 +197,12 @@ public class InertialGraph implements Graph {
 			if(pos == 0)
 				return false;
 
-			byte op = Op.NEXT;
+			byte op = -1;
 			int cost = Integer.MAX_VALUE;
-			if(x > 0 && y > 0 && xval[x] == yval[y])
+			if(x > 0 && y > 0 && xval[x] == yval[y]) {
+				op = Op.NEXT;
 				cost = InertialGraph.this.cost[(pos-1-xval.length)*NUM_FIELDS+NEXT] + cost(Op.NEXT, prev);
+			}
 			
 			if(y > 0 && InertialGraph.this.cost[(pos-xval.length)*NUM_FIELDS+INSERT] + cost(Op.INSERT, prev) < cost) {
 				op = Op.INSERT;
@@ -249,6 +234,9 @@ public class InertialGraph implements Graph {
 				x--;
 				break;
 			}
+			
+			if(e == null)
+				throw new IllegalStateException();
 
 			prepare(e);
 			
