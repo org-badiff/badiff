@@ -15,7 +15,6 @@ import org.badiff.q.UnchunkingOpQueue;
 import org.badiff.q.UndoOpQueue;
 
 public enum Pipes implements Pipe {
-	OPQUEUE('q'),
 	COALESS('c'),
 	COMPACT('C'),
 	GRAPH('g'),
@@ -61,8 +60,6 @@ public enum Pipes implements Pipe {
 	@Override
 	public Pipeline from(OpQueue q) {
 		switch(this) {
-		case OPQUEUE:
-			break;
 		case COALESS:
 			q = new CoalescingOpQueue(q);
 			break;
