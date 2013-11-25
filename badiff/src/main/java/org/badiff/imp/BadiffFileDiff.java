@@ -45,6 +45,7 @@ import java.util.Iterator;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.Queueable;
 import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
@@ -392,7 +393,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static void computeStats(Diff diff, Header header) throws IOException {
+	protected static void computeStats(Queueable diff, Header header) throws IOException {
 		Header.Stats stats = header.stats;
 		OpQueue q = diff.queue();
 		long osize = 0; // input file size
@@ -748,6 +749,35 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
 		
 		tmp.delete();
+	}
+
+	/**
+	 * Write a badiff file
+	 * @param out
+	 * @param serial
+	 * @param opt
+	 * @param ops
+	 * @throws IOException
+	 */
+	public static void store(DataOutput out, Serialization serial, Header header, Queueable qq) throws IOException {
+		
+		// Compute the stats
+		computeStats(qq, header);
+		
+		if(serial == null)
+			serial = DefaultSerialization.newInstance();
+		header.serial = serial;
+		
+		// Write the header
+		writeHeader(header, out);
+		
+		DataOutputOutputStream dout = new DataOutputOutputStream(out);
+		
+		// Copy the ops
+		OpQueue q = qq.queue();
+		for(Op e = q.poll(); e != null; e = q.poll())
+			serial.writeObject(dout, Op.class, e);
+		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
 	}
 
 	@Override
