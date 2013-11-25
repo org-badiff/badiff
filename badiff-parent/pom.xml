@@ -17,6 +17,7 @@
 		<module>../badiff-kryo</module>
 		<module>../badiff-examples</module>
 		<module>../badiff-hadoop</module>
+		<module>../badiff-cli</module>
 	</modules>
 
 	<build>
