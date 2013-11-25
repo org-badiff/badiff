@@ -62,37 +62,25 @@ import org.badiff.q.OpQueue;
 public class InertialGraph implements Graph {
 	/**
 	 * The incremental cost of beginning the next operation given the 
-	 * current operation.  These costs are based on the actual serialization
-	 * output.
+	 * current operation.  These costs are based on the hadoop-optimized
+	 * defaults from {@link AdjustableInertialGraph}.
 	 * 
 	 * Each operation requires 1 byte for the operation itself, plus 1 (or more)
 	 * bytes for the run length.  Additionally, INSERT has 1 byte for each byte in the run.
-	 * 
-	 * DELETE takes 2 bytes to start (op, run) and 0 bytes to continue
-	 * INSERT takes 3 bytes to start (op, run, data) and 1 byte to continue
-	 * NEXT takes 1 bytes to start (op, run) and 0 bytes to continue
 	 * 
 	 */
 
 	@SuppressWarnings("unused")
 	private static final int[][] DEFAULT_TRANSITION_COSTS = new int[][] {
-			{0, 2, 3, 1}, // From STOP to...
-			{0, 0, 3, 1}, // From DELETE to...
-			{0, 2, 1, 1}, // From INSERT to...
-			{0, 2, 3, 0}, // From NEXT to...
-//           S  D  I  N
+			{1,	1,	1,	1}, // From STOP to...
+			{3,	1,	3,	4}, // From DELETE to...
+			{2,	2,	1,	3}, // From INSERT to...
+			{1,	2,	3,	1}, // From NEXT to...
+//           S	D	I	N
 	};
 
 	protected int cost(byte from, byte to) {
-		if(from == to)
-			return (to == Op.INSERT) ? 1 : 0;
-		if(to == Op.DELETE)
-			return 2;
-		if(to == Op.INSERT)
-			return 3;
-		if(to == Op.NEXT)
-			return 1;
-		return 0;
+		return DEFAULT_TRANSITION_COSTS[from][to];
 	}
 	
 //	protected final int[][] transitionCosts = DEFAULT_TRANSITION_COSTS;
@@ -149,8 +137,8 @@ public class InertialGraph implements Graph {
 //					leaveDeleteCost[pos] = (short) cost(Op.STOP, Op.DELETE);
 //					leaveInsertCost[pos] = (short) cost(Op.STOP, Op.INSERT);
 //					leaveNextCost[pos] = (short) cost(Op.STOP, Op.NEXT);
-					cost[LEAVE_DELETE] = 2;
-					cost[LEAVE_INSERT] = 3;
+					cost[LEAVE_DELETE] = 1;
+					cost[LEAVE_INSERT] = 1;
 					cost[LEAVE_NEXT] = 1;
 					continue;
 				}
@@ -168,23 +156,23 @@ public class InertialGraph implements Graph {
 				int cost;
 
 				// compute delete cost
-				cost = edc + 0; // appending a delete is free
+				cost = edc + 1;
 				cost = Math.min(cost, eic + 2);
 				cost = Math.min(cost, enc + 2);
 //				leaveDeleteCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 				this.cost[pos*6 + LEAVE_DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute insert cost
-				cost = eic + 1; // appending an insert costs 1
+				cost = eic + 1;
 				cost = Math.min(cost, edc + 3);
 				cost = Math.min(cost, enc + 3);
 //				leaveInsertCost[pos] = (short) Math.min(cost, Short.MAX_VALUE);
 				this.cost[pos*6 + LEAVE_INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute next cost
-				cost = enc + 0;
-				cost = Math.min(cost, edc + 1);
-				cost = Math.min(cost, eic + 1);
+				cost = enc + 1;
+				cost = Math.min(cost, edc + 4);
+				cost = Math.min(cost, eic + 3);
 				this.cost[pos*6 + LEAVE_NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	

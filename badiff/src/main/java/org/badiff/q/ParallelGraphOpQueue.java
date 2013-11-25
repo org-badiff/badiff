@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.Diff;
 import org.badiff.Op;
+import org.badiff.alg.AdjustableInertialGraph;
 import org.badiff.alg.EditGraph;
 import org.badiff.alg.Graph;
 import org.badiff.alg.InertialGraph;
@@ -67,6 +68,13 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		@Override
 		public Graph newGraph(int capacity) {
 			return new InertialGraph(capacity);
+		}
+	};
+	
+	public static final GraphFactory ADJUSTABLE_GRAPH = new GraphFactory() {
+		@Override
+		public Graph newGraph(int capacity) {
+			return new AdjustableInertialGraph(capacity);
 		}
 	};
 	
