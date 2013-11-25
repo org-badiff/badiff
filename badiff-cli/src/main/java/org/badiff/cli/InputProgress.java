@@ -7,7 +7,6 @@ import org.badiff.io.RandomInput;
 public class InputProgress implements RandomInputListener {
 	public ListenableRandomInput[] inputs;
 	
-	protected long pos;
 	protected long posReported;
 	protected long last;
 	
@@ -20,8 +19,8 @@ public class InputProgress implements RandomInputListener {
 	}
 	
 	@Override
-	public void moved(RandomInput thiz) {
-		pos = 0;
+	public synchronized void moved(RandomInput thiz) {
+		long pos = 0;
 		for(ListenableRandomInput input : inputs)
 			pos += input.position();
 		if(pos - posReported >= last / 100) {

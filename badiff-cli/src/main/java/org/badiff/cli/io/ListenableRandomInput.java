@@ -53,7 +53,7 @@ public class ListenableRandomInput implements RandomInput {
 	}
 
 	public void close() throws IOException {
-		input.close();
+		try { input.close(); } finally { moved(); }
 	}
 
 	public void seek(long pos) throws IOException {

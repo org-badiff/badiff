@@ -42,11 +42,6 @@ public class DiffMain {
 		BadiffFileDiff output = new BadiffFileDiff(cli.getOptionValue(OUTPUT));
 		String pipeline = cli.getOptionValue(PIPELINE);
 
-		ListenableRandomInput oin = new ListenableRandomInput(new FileRandomInput(orig));
-		ListenableRandomInput tin = new ListenableRandomInput(new FileRandomInput(target));
-		
-		new InputProgress(oin, tin);
-
-		output.diff(oin, tin, pipeline);
+		output.diff(orig, target, pipeline);
 	}
 }
