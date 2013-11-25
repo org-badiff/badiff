@@ -3,15 +3,18 @@ package org.badiff.io;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 
-public class FileRandomInput extends DataInputStream implements RandomInput {
+public class FileRandomInput extends FilterInputStream implements RandomInput {
 	protected File file;
 	protected long pos;
+	protected DataInputStream data;
 	
 	public FileRandomInput(File file) throws IOException {
 		super(new FileInputStream(file));
 		this.file = file;
+		data = new DataInputStream(this);
 	}
 
 	@Override
@@ -42,6 +45,22 @@ public class FileRandomInput extends DataInputStream implements RandomInput {
 	}
 
 	@Override
+	public int read(byte[] b) throws IOException {
+		int r = super.read(b);
+		if(r > 0)
+			pos += r;
+		return r;
+	}
+
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		int r = super.read(b, off, len);
+		if(r > 0)
+			pos += r;
+		return r;
+	}
+
+	@Override
 	public long skip(long n) throws IOException {
 		if(n > 0)
 			return in.skip(n);
@@ -55,5 +74,66 @@ public class FileRandomInput extends DataInputStream implements RandomInput {
 		} else
 			return 0;
 	}
-	
+
+	public final void readFully(byte[] b) throws IOException {
+		data.readFully(b);
+	}
+
+	public final void readFully(byte[] b, int off, int len) throws IOException {
+		data.readFully(b, off, len);
+	}
+
+	public final boolean readBoolean() throws IOException {
+		return data.readBoolean();
+	}
+
+	public final byte readByte() throws IOException {
+		return data.readByte();
+	}
+
+	public final int readUnsignedByte() throws IOException {
+		return data.readUnsignedByte();
+	}
+
+	public final short readShort() throws IOException {
+		return data.readShort();
+	}
+
+	public final int readUnsignedShort() throws IOException {
+		return data.readUnsignedShort();
+	}
+
+	public final char readChar() throws IOException {
+		return data.readChar();
+	}
+
+	public final int readInt() throws IOException {
+		return data.readInt();
+	}
+
+	public final long readLong() throws IOException {
+		return data.readLong();
+	}
+
+	public final float readFloat() throws IOException {
+		return data.readFloat();
+	}
+
+	public final double readDouble() throws IOException {
+		return data.readDouble();
+	}
+
+	public final String readLine() throws IOException {
+		return data.readLine();
+	}
+
+	public final String readUTF() throws IOException {
+		return data.readUTF();
+	}
+
+	@Override
+	public int skipBytes(int n) throws IOException {
+		return data.skipBytes(n);
+	}
+
 }
