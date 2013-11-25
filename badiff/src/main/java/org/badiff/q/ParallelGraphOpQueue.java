@@ -35,6 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.badiff.Diff;
 import org.badiff.Op;
@@ -84,6 +85,8 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	protected ChainOpQueue chain;
 
 	protected GraphFactory graphFactory;
+	
+	protected AtomicInteger tasks = new AtomicInteger(0);
 
 	/**
 	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
@@ -168,10 +171,15 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		return new Callable<OpQueue>() {
 			@Override
 			public OpQueue call() throws Exception {
-				OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
-				graphed = new GraphOpQueue(graphed, graphs.get());
-				graphed = new ListOpQueue(graphed);
-				return graphed;
+				tasks.incrementAndGet();
+				try {
+					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
+					graphed = new GraphOpQueue(graphed, graphs.get());
+					graphed = new ListOpQueue(graphed);
+					return graphed;
+				} finally {
+					tasks.decrementAndGet();
+				}
 			}
 		};
 	}
@@ -184,7 +192,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected void pump() {
 		if(require(2)) {
-			while(require(2) && pool.getActiveCount() < pool.getMaximumPoolSize()) {
+			while(require(2) && tasks.get() < pool.getMaximumPoolSize()) {
 				Op delete;
 				Op insert;
 
