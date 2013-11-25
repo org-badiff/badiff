@@ -51,6 +51,7 @@ import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
+import org.badiff.io.RandomInput;
 import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
@@ -62,6 +63,7 @@ import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.OpQueue;
 import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.PumpingOpQueue;
+import org.badiff.q.RandomChunkingOpQueue;
 import org.badiff.q.RewindingOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 import org.badiff.q.UnchunkingOpQueue;
@@ -613,16 +615,28 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	}
 	
 	public void diff(File orig, File target, String pipeline) throws IOException {
+		FileRandomInput oin = new FileRandomInput(orig);
+		try {
+			FileRandomInput tin = new FileRandomInput(target);
+			try {
+				diff(oin, tin, pipeline);
+			} finally {
+				tin.close();
+			}
+		} finally {
+			oin.close();
+		}
+	}
+	
+	public void diff(RandomInput orig, RandomInput target, String pipeline) throws IOException {
+	
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
 		
 		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
 		
-		InputStream oin = new FileRandomInput(orig);
-		InputStream tin = new FileRandomInput(target);
-		
 		OpQueue q;
-		q = new StreamChunkingOpQueue(oin, tin);
+		q = new RandomChunkingOpQueue(orig, target);
 		
 		q = new Pipeline(q).into(pipeline).outlet();
 		
@@ -640,8 +654,6 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		self.close();
 		
 		tmp.delete();
-		tin.close();
-		oin.close();
 	}
 	
 	/**
