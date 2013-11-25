@@ -82,11 +82,11 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 
 	public static String PIPELINE_CODE = "GccrouC";
-	public static Pipe[] PIPELINE = Pipes.fromCodes(PIPELINE_CODE);
+	public static Pipe[] PIPES = Pipes.fromCodes(PIPELINE_CODE);
 	public static Pipe PIPE = new Pipe() {
 		@Override
 		public Pipeline from(OpQueue q) {
-			return new Pipeline(q, PIPELINE);
+			return new Pipeline(q, PIPES);
 		}
 	};
 	
