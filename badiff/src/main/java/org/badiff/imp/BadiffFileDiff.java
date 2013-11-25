@@ -55,6 +55,7 @@ import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
+import org.badiff.p.Pipeline;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.OneWayOpQueue;
@@ -608,6 +609,10 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	 * @throws IOException
 	 */
 	public void diff(File orig, File target) throws IOException {
+		diff(orig, target, "GccrouC");
+	}
+	
+	public void diff(File orig, File target, String pipeline) throws IOException {
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
 		
@@ -618,13 +623,9 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
-		q = new ParallelGraphOpQueue(q, GraphFactory.INERTIAL_GRAPH);
-		q = new CoalescingOpQueue(q);
-		q = new CoalescingOpQueue(q);
-		q = new RewindingOpQueue(q);
-		q = new OneWayOpQueue(q);
-		q = new UnchunkingOpQueue(q);
-		q = new CompactingOpQueue(q);
+		
+		q = new Pipeline(q).into(pipeline).outlet();
+		
 		tmp.store(q);
 		
 		Header h = new Header();
