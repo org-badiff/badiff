@@ -617,19 +617,12 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		OpQueue q;
 		q = new StreamChunkingOpQueue(oin, tin);
 		q = new ParallelGraphOpQueue(q, ParallelGraphOpQueue.INERTIAL_GRAPH);
-		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
-		q = new PumpingOpQueue(q);
 		q = new CoalescingOpQueue(q);
-		q = new PumpingOpQueue(q);
 		q = new RewindingOpQueue(q);
-		q = new PumpingOpQueue(q);
 		q = new OneWayOpQueue(q);
-		q = new PumpingOpQueue(q);
 		q = new UnchunkingOpQueue(q);
-		q = new PumpingOpQueue(q);
 		q = new CompactingOpQueue(q);
-		q = new PumpingOpQueue(q);
 		tmp.store(q);
 		
 		Header h = new Header();

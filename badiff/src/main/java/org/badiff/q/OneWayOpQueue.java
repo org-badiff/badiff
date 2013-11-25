@@ -49,6 +49,9 @@ public class OneWayOpQueue extends FilterOpQueue {
 		Op e = filtering.remove(0);
 		if(e.getOp() == Op.DELETE)
 			e = new Op(Op.DELETE, e.getRun(), null);
+		if(e.getOp() == Op.NEXT)
+			e = new Op(Op.NEXT, e.getRun(), null);
+		
 		prepare(e);
 		return true;
 	}

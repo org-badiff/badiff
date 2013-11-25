@@ -42,7 +42,17 @@ import org.badiff.util.Digests;
  */
 public class BadiffCli {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
+		try {
+			_main(args);
+		} catch(Throwable t) {
+			t.printStackTrace();
+			System.exit(-1);
+		}
+		System.exit(0);
+	}
+	
+	public static void _main(String[] args) throws Exception {
 		if(args.length == 0) {
 			help();
 			return;

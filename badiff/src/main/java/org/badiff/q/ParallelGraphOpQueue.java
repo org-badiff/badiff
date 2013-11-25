@@ -52,34 +52,34 @@ import org.badiff.alg.InertialGraph;
  *
  */
 public class ParallelGraphOpQueue extends FilterOpQueue {
-	
+
 	public static interface GraphFactory {
 		public Graph newGraph(int capacity);
 	}
-	
+
 	public static final GraphFactory EDIT_GRAPH = new GraphFactory() {
 		@Override
 		public Graph newGraph(int capacity) {
 			return new EditGraph(capacity);
 		}
 	};
-	
+
 	public static final GraphFactory INERTIAL_GRAPH = new GraphFactory() {
 		@Override
 		public Graph newGraph(int capacity) {
 			return new InertialGraph(capacity);
 		}
 	};
-	
+
 	public static final GraphFactory ADJUSTABLE_GRAPH = new GraphFactory() {
 		@Override
 		public Graph newGraph(int capacity) {
 			return new AdjustableInertialGraph(capacity);
 		}
 	};
-	
+
 	private static final GraphFactory DEFAULT_GRAPH = EDIT_GRAPH;
-	
+
 	/**
 	 * The real source of elements
 	 */
@@ -92,11 +92,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	 * Thread pool for parallelization
 	 */
 	protected ThreadPoolExecutor pool;
-	
+
 	protected ChainOpQueue chain;
-	
+
 	protected GraphFactory graphFactory;
-	
+
 	/**
 	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
 	 */
@@ -114,11 +114,11 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	public ParallelGraphOpQueue(OpQueue source) {
 		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, DEFAULT_GRAPH);
 	}
-	
+
 	public ParallelGraphOpQueue(OpQueue source, GraphFactory graphFactory) {
 		this(source, Runtime.getRuntime().availableProcessors(), Diff.DEFAULT_CHUNK, graphFactory);
 	}
-	
+
 	/**
 	 * Create a new parallel graphing {@link OpQueue} with the specified number of worker threads.
 	 * @param source
@@ -139,12 +139,12 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		});
 		chain = (ChainOpQueue) super.source;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " <- " + input;
 	}
-	
+
 	/*
 	 * Offer the input to the actual input queue, not the wrapped chain
 	 * (non-Javadoc)
@@ -154,7 +154,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	public boolean offer(Op e) {
 		return input.offer(e);
 	}
-	
+
 	@Override
 	protected boolean require(int count) {
 		while(filtering.size() < count) {
@@ -165,17 +165,17 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		}
 		return true;
 	}
-	
+
 	@Override
 	protected void prepare(Op e) {
 		chain.offer(e);
 	}
-	
+
 	protected void prepare(Future<OpQueue> f) {
 		chain.offer(new FutureOpQueue(f));
 		chain.offer(new OpQueue());
 	}
-	
+
 	protected Callable<OpQueue> newTask(final Op delete, final Op insert) {
 		return new Callable<OpQueue>() {
 			@Override
@@ -189,32 +189,47 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	}
 	
 	@Override
-	protected boolean pull() {
-		while(require(2)) {
-			Op delete;
-			Op insert;
-			
-			if(filtering.get(0).getOp() == Op.DELETE && filtering.get(1).getOp() == Op.INSERT) {
-				delete = filtering.remove(0);
-				insert = filtering.remove(0);
-			} else if(filtering.get(0).getOp() == Op.INSERT && filtering.get(1).getOp() == Op.DELETE) {
-				insert = filtering.remove(0);
-				delete = filtering.remove(0);
-			} else {
-				prepare(filtering.remove(0));
-				continue;
-			}
-			
-			// construct a task and submit it to the pool
-			prepare(pool.submit(newTask(delete, insert)));
-		}
-		flush();
-		pool.shutdown();
-		
-		Op e;
-		if((e = chain.poll()) != null)
-			super.prepare(e);
+	public Op poll() {
+		pump();
+		return super.poll();
+	}
+	
+	protected void pump() {
+		if(require(2)) {
+			while(require(2) && pool.getActiveCount() < pool.getMaximumPoolSize()) {
+				Op delete;
+				Op insert;
 
+				if(filtering.get(0).getOp() == Op.DELETE && filtering.get(1).getOp() == Op.INSERT) {
+					delete = filtering.remove(0);
+					insert = filtering.remove(0);
+				} else if(filtering.get(0).getOp() == Op.INSERT && filtering.get(1).getOp() == Op.DELETE) {
+					insert = filtering.remove(0);
+					delete = filtering.remove(0);
+				} else {
+					prepare(filtering.remove(0));
+					continue;
+				}
+
+				// construct a task and submit it to the pool
+				prepare(pool.submit(newTask(delete, insert)));
+			}
+
+			if(!require(2)) {
+				flush();
+				pool.shutdown();
+			}
+		}
+	}
+
+	@Override
+	protected boolean pull() {
+		pump();
+
+		Op e = chain.poll();
+		
+		if(e != null)
+			super.prepare(e);
 		return e != null;
 	}
 }
