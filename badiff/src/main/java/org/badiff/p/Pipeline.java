@@ -14,11 +14,15 @@ public class Pipeline {
 	public Pipeline into(Pipe... pipes) {
 		Pipeline pl = this;
 		for(Pipe p : pipes)
-			pl = p.from(pl.drain());
+			pl = p.from(pl.outlet());
 		return pl;
 	}
+	
+	public Pipeline into(String codes) {
+		return into(Pipes.fromCodes(codes));
+	}
 
-	public OpQueue drain() {
+	public OpQueue outlet() {
 		return q;
 	}
 

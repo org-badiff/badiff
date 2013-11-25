@@ -15,26 +15,46 @@ import org.badiff.q.UnchunkingOpQueue;
 import org.badiff.q.UndoOpQueue;
 
 public enum Pipes implements Pipe {
-	OPQUEUE,
-	CHUNK,
-	COALESS,
-	COMPACT,
-	GRAPH,
-	ONE_WAY,
-	PARALLEL_GRAPH,
-	PUMP,
-	REWIND,
-	UNCHUNK,
-	UNDO,
+	OPQUEUE('q'),
+	COALESS('c'),
+	COMPACT('C'),
+	GRAPH('g'),
+	ONE_WAY('o'),
+	PARALLEL_GRAPH('G'),
+	PUMP('p'),
+	REWIND('r'),
+	UNCHUNK('u'),
+	UNDO('U'),
 	;
+	
+	private char code;
+	
+	private Pipes(char code) {
+		this.code = code;
+	}
+	
+	public char code() {
+		return code;
+	}
+	
+	public static Pipe fromCode(char code) {
+		for(Pipes pipe : Pipes.values())
+			if(pipe.code() == code)
+				return pipe;
+		throw new IllegalArgumentException("No such pipe code:" + code);
+	}
 
+	public static Pipe[] fromCodes(String codes) {
+		Pipe[] pipes = new Pipe[codes.length()];
+		for(int i = 0; i < pipes.length; i++)
+			pipes[i] = Pipes.fromCode(codes.charAt(i));
+		return pipes;
+	}
+	
 	@Override
 	public Pipeline from(OpQueue q) {
 		switch(this) {
 		case OPQUEUE:
-			break;
-		case CHUNK:
-			q = new ChunkingOpQueue(q);
 			break;
 		case COALESS:
 			q = new CoalescingOpQueue(q);
