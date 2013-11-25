@@ -78,10 +78,8 @@ public class InertialGraph implements Graph {
 //           S	D	I	N
 	};
 	
-	protected int[] tcost;
-
 	protected int cost(byte from, byte to) {
-		return tcost[from * 4 + to];
+		return DEFAULT_TRANSITION_COSTS[from][to];
 	}
 	
 	protected static final int DELETE = 0;
@@ -107,11 +105,6 @@ public class InertialGraph implements Graph {
 		this.capacity = capacity;
 
 		cost = new short[NUM_FIELDS * capacity];
-		
-		tcost = new int[16];
-		for(byte f = 0; f < 4; f++)
-			for(byte t = 0; t < 4; t++)
-				tcost[f * 4 + t] = DEFAULT_TRANSITION_COSTS[f][t];
 	}
 	
 	@Override
@@ -126,6 +119,18 @@ public class InertialGraph implements Graph {
 		cost[INSERT] = 0;
 		cost[NEXT] = 0;
 
+		int cdd, cdi, cdn, cid, cii, cin, cnd, cni, cnn;
+		cdd = cost(Op.DELETE, Op.DELETE);
+		cdi = cost(Op.DELETE, Op.INSERT);
+		cdn = cost(Op.DELETE, Op.NEXT);
+		cid = cost(Op.INSERT, Op.DELETE);
+		cii = cost(Op.INSERT, Op.INSERT);
+		cin = cost(Op.INSERT, Op.NEXT);
+		cnd = cost(Op.NEXT, Op.DELETE);
+		cni = cost(Op.NEXT, Op.INSERT);
+		cnn = cost(Op.NEXT, Op.NEXT);
+		
+		
 		int pos;
 		for(int y = 0; y < yval.length; y++) {
 			for(int x = 0; x < xval.length; x++) {
@@ -156,21 +161,21 @@ public class InertialGraph implements Graph {
 				int cost;
 
 				// compute delete cost
-				cost = edc + cost(Op.DELETE, Op.DELETE);
-				cost = Math.min(cost, eic + cost(Op.INSERT, Op.DELETE));
-				cost = Math.min(cost, enc + cost(Op.NEXT, Op.DELETE));
+				cost = edc + cdd;
+				cost = Math.min(cost, eic + cid);
+				cost = Math.min(cost, enc + cnd);
 				this.cost[pos*NUM_FIELDS + DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute insert cost
-				cost = eic + cost(Op.INSERT, Op.INSERT);
-				cost = Math.min(cost, edc + cost(Op.DELETE, Op.INSERT));
-				cost = Math.min(cost, enc + cost(Op.NEXT, Op.INSERT));
+				cost = eic + cii;
+				cost = Math.min(cost, edc + cdi);
+				cost = Math.min(cost, enc + cni);
 				this.cost[pos*NUM_FIELDS + INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
 
 				// compute next cost
-				cost = enc + cost(Op.NEXT, Op.NEXT);
-				cost = Math.min(cost, edc + cost(Op.DELETE, Op.NEXT));
-				cost = Math.min(cost, eic + cost(Op.INSERT, Op.NEXT));
+				cost = enc + cnn;
+				cost = Math.min(cost, edc + cdn);
+				cost = Math.min(cost, eic + cin);
 				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
 			}
 		}	
