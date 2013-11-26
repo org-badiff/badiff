@@ -18,6 +18,17 @@ public class ListenableRandomInput implements RandomInput {
 		ll[ll.length - 1] = l;
 		listeners = ll;
 	}
+	
+	public void removeListener(RandomInputListener l) {
+		int i = listeners.length - 1;
+		while(i >= 0 && listeners[i] != l)
+			i--;
+		if(i < 0)
+			return;
+		RandomInputListener[] ll = Arrays.copyOf(listeners, listeners.length - 1);
+		System.arraycopy(listeners, i + 1, ll, i, listeners.length - (i + 1));
+		listeners = ll;
+	}
 
 	protected void moved() {
 		for(int i = listeners.length - 1; i >= 0; i--)
