@@ -33,7 +33,8 @@ public class DiffMain {
 		ListenableRandomInput oin = new ListenableRandomInput(new FileRandomInput(orig));
 		ListenableRandomInput tin = new ListenableRandomInput(new FileRandomInput(target));
 		
-		new ProgressInputListener(oin, tin);
+		if(cli.hasOption(VERBOSE))
+			new ProgressInputListener(oin, tin);
 		
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());

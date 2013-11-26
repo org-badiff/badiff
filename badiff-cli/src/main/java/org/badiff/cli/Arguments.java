@@ -17,6 +17,7 @@ public abstract class Arguments {
 		public static final String OUTPUT = "output";
 		public static final String BEFORE = "before";
 		public static final String AFTER = "after";
+		public static final String VERBOSE = "verbose";
 
 		private DiffArguments() {
 			super("diff_args.properties");
@@ -24,6 +25,7 @@ public abstract class Arguments {
 			req("o", OUTPUT, true, "output file");
 			req("1", BEFORE, true, "original file for comparison");
 			req("2", AFTER, true, "target file for comparison");
+			opt("v", VERBOSE, false, "be verbose during comparison");
 		}
 	}
 	
