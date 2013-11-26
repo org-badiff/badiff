@@ -2,8 +2,6 @@ package org.badiff.cli;
 
 import java.util.Arrays;
 
-import org.apache.commons.cli.Options;
-
 public class Main {
 	
 	public static void main(String[] args) throws Exception {
