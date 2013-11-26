@@ -175,7 +175,6 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		return new Callable<OpQueue>() {
 			@Override
 			public OpQueue call() throws Exception {
-				tasks.incrementAndGet();
 				try {
 					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
 					graphed = new GraphOpQueue(graphed, graphs.get());
@@ -212,6 +211,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 				}
 
 				// construct a task and submit it to the pool
+				tasks.incrementAndGet();
 				prepare(pool.submit(newTask(delete, insert)));
 			}
 
