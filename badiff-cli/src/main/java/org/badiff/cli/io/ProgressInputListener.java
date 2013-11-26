@@ -6,14 +6,14 @@ public class ProgressInputListener implements RandomInputListener {
 
 	protected ListenableRandomInput[] in;
 	protected long[] pos;
-	protected long[] last;
 	
 	public ProgressInputListener(ListenableRandomInput... in) {
 		this.in = in;
 		pos = new long[in.length];
-		last = new long[in.length];
-		for(int i = 0; i < in.length; i++)
-			last[i] = in[i].last();
+		for(int i = 0; i < in.length; i++) {
+			in[i].addListener(this);
+		}
+		status();
 	}
 	
 	protected int pos(ListenableRandomInput input) {
@@ -26,7 +26,7 @@ public class ProgressInputListener implements RandomInputListener {
 	@Override
 	public void moved(ListenableRandomInput thiz) {
 		int i = pos(thiz);
-		long step = last[i] / 10;
+		long step = thiz.last() / 10;
 		if(thiz.position() - pos[i] > step) {
 			pos[i] = thiz.position();
 			status();
@@ -38,7 +38,7 @@ public class ProgressInputListener implements RandomInputListener {
 		String sep = "";
 		for(int i = 0; i < in.length; i++) {
 			sb.append(sep);
-			sb.append((100 * pos[i] / last[i]) + "%");
+			sb.append((100 * in[i].position() / in[i].last()) + "%");
 			sep = " ";
 		}
 		System.out.println(sb);
