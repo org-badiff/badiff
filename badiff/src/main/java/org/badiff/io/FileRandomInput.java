@@ -47,10 +47,7 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 
 	@Override
 	public int read(byte[] b) throws IOException {
-		int r = super.read(b);
-		if(r > 0)
-			pos += r;
-		return r;
+		return super.read(b);
 	}
 
 	@Override
