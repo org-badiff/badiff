@@ -29,7 +29,25 @@ public abstract class Arguments {
 		}
 	}
 	
+	public static class PatchArguments extends AbstractArguments {
+		public static final String PATCH = "patch";
+		public static final String BEFORE = "before";
+		public static final String AFTER = "after";
+		public static final String VERBOSE = "verbose";
+
+		private PatchArguments() {
+			super("patch_args.properties");
+			req("p", PATCH, true, "output file");
+			req("1", BEFORE, true, "original file for comparison");
+			req("o", AFTER, true, "target file for comparison");
+			opt("v", VERBOSE, false, "be verbose during comparison");
+		}
+		
+	}
+	
 	public static final DiffArguments DIFF = new DiffArguments();
+	
+	public static final PatchArguments PATCH = new PatchArguments();
 	
 	public static abstract class AbstractArguments extends Options {
 		protected Properties defaults;
