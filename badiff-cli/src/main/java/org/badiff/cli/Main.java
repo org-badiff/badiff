@@ -11,13 +11,13 @@ public class Main {
 		}
 		
 		if("help".equals(args[0]))
-			help(args);
+			help(Arrays.copyOfRange(args, 1, args.length));
 		else if("diff".equals(args[0]))
 			DiffMain.main(Arrays.copyOfRange(args, 1, args.length));
 		else if("patch".equals(args[0]))
 			PatchMain.main(Arrays.copyOfRange(args, 1, args.length));
 		else
-			help(args);
+			help(Arrays.copyOfRange(args, 1, args.length));
 	}
 	
 	private static void help(String[] args) {
@@ -26,7 +26,7 @@ public class Main {
 			p("Valid commands:");
 			p("\thelp [command]");
 			p("\tdiff -1 orig -2 target -o patch [-v]");
-			p("\tpatch -1 orig -p patch -2 target [-v]");
+			p("\tpatch -1 orig -p patch -o target [-v]");
 		} else if("help".equals(args[0])) {
 			p("badiff-cli help [command]");
 			p("Shows help for all commands, or the specific command if specified");
