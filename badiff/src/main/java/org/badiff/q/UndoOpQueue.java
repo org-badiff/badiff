@@ -41,7 +41,7 @@ public class UndoOpQueue extends FilterOpQueue {
 	protected boolean pull() {
 		if(!require(1))
 			return flush();
-		Op e = filtering.get(0);
+		Op e = filtering.remove(0);
 		Op u;
 		if(e.getOp() == Op.DELETE)
 			u = new Op(Op.INSERT, e.getRun(), e.getData());

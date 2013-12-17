@@ -5,18 +5,13 @@
 	<parent>
 		<groupId>org.badiff</groupId>
 		<artifactId>badiff-parent</artifactId>
-		<version>1.1.6.2</version>
+		<version>1.1.7</version>
 		<relativePath>../badiff-parent</relativePath>
 	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>org.badiff</groupId>
 			<artifactId>badiff</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.badiff</groupId>
-			<artifactId>badiff-kryo</artifactId>
-			<version>1.1.6.2</version>
 		</dependency>
 	</dependencies>
 

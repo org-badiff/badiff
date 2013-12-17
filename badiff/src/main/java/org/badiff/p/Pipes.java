@@ -2,8 +2,6 @@ package org.badiff.p;
 
 import org.badiff.alg.GraphFactory;
 import org.badiff.alg.InertialGraph;
-import org.badiff.imp.BadiffFileDiff;
-import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.GraphOpQueue;

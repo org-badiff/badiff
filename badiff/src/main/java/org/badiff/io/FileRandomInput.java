@@ -40,16 +40,14 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 	@Override
 	public int read() throws IOException {
 		int b = super.read();
-		pos++;
+		if(b >= 0)
+			pos++;
 		return b;
 	}
 
 	@Override
 	public int read(byte[] b) throws IOException {
-		int r = super.read(b);
-		if(r > 0)
-			pos += r;
-		return r;
+		return super.read(b);
 	}
 
 	@Override
@@ -62,14 +60,15 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 
 	@Override
 	public long skip(long n) throws IOException {
-		if(n > 0)
-			return in.skip(n);
-		else if(n < 0) {
-			if(-n > pos)
-				n = -pos;
+		if(n > 0) {
+			long s = in.skip(n);
+			pos += s;
+			return s;
+		} else if(n < 0) {
 			in.close();
 			in = new FileInputStream(file);
 			in.skip(pos + n);
+			pos = pos + n;
 			return n;
 		} else
 			return 0;

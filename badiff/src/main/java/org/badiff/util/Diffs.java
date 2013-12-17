@@ -39,12 +39,7 @@ import org.badiff.Applyable;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.RandomInputStream;
 import org.badiff.io.RuntimeIOException;
-import org.badiff.p.Pipeline;
-import org.badiff.p.Pipes;
-import org.badiff.q.ChunkingOpQueue;
-import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.OpQueue;
-import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.ReplaceOpQueue;
 import org.badiff.q.StreamChunkingOpQueue;
 

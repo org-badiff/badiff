@@ -30,11 +30,13 @@
 package org.badiff.q;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.badiff.Diff;
 import org.badiff.Op;
@@ -79,11 +81,15 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	/**
 	 * Thread pool for parallelization
 	 */
-	protected ThreadPoolExecutor pool;
+	protected ExecutorService pool;
+	
+	protected int workers;
 
 	protected ChainOpQueue chain;
 
 	protected GraphFactory graphFactory;
+	
+	protected AtomicInteger tasks = new AtomicInteger(0);
 
 	/**
 	 * Thread-local of {@link Graph} to avoid allocating ridonkulous amounts of memory
@@ -116,6 +122,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		super(new ChainOpQueue());
 		this.input = source;
 		this.chunk = chunk;
+		this.workers = workers;
 		this.graphFactory = graphFactory;
 		pool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 			@Override
@@ -168,10 +175,14 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 		return new Callable<OpQueue>() {
 			@Override
 			public OpQueue call() throws Exception {
-				OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
-				graphed = new GraphOpQueue(graphed, graphs.get());
-				graphed = new ListOpQueue(graphed);
-				return graphed;
+				try {
+					OpQueue graphed = new ReplaceOpQueue(delete.getData(), insert.getData());
+					graphed = new GraphOpQueue(graphed, graphs.get());
+					graphed = new ListOpQueue(graphed);
+					return graphed;
+				} finally {
+					tasks.decrementAndGet();
+				}
 			}
 		};
 	}
@@ -184,7 +195,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 	
 	protected void pump() {
 		if(require(2)) {
-			while(require(2) && pool.getActiveCount() < pool.getMaximumPoolSize()) {
+			while(require(2) && tasks.get() < workers) {
 				Op delete;
 				Op insert;
 
@@ -200,6 +211,7 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 				}
 
 				// construct a task and submit it to the pool
+				tasks.incrementAndGet();
 				prepare(pool.submit(newTask(delete, insert)));
 			}
 
