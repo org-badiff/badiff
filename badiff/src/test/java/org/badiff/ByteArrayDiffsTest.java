@@ -29,8 +29,11 @@
  */
 package org.badiff;
 
+import java.util.Arrays;
+
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.Serialization;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ByteArrayDiffsTest {
@@ -56,6 +59,18 @@ public class ByteArrayDiffsTest {
 		
 		byte[] udiff = ByteArrayDiffs.udiff(orig.getBytes(), target.getBytes());
 		System.out.println("udiff:" + udiff.length);
+	}
+	
+	@Test
+	public void testUndo() throws Exception {
+		byte[] orig = "Hello World".getBytes();
+		byte[] target = "Hellish Cruel World".getBytes();
+		
+		byte[] diff = ByteArrayDiffs.diff(orig, target);
+		
+		byte[] undone = ByteArrayDiffs.undo(target, diff);
+		
+		Assert.assertTrue(Arrays.equals(orig, undone));
 	}
 
 }
