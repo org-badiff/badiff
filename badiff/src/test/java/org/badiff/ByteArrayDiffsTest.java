@@ -62,6 +62,14 @@ public class ByteArrayDiffsTest {
 	}
 	
 	@Test
+	public void testDiff_issue_2() throws Exception {
+		byte[] prior = new byte[2270];
+		byte[] current = new byte[2281];
+		byte[] diff = ByteArrayDiffs.diff(prior, current);
+		
+	}
+	
+	@Test
 	public void testUndo() throws Exception {
 		byte[] orig = "Hello World".getBytes();
 		byte[] target = "Hellish Cruel World".getBytes();
@@ -73,4 +81,5 @@ public class ByteArrayDiffsTest {
 		Assert.assertTrue(Arrays.equals(orig, undone));
 	}
 
+	
 }

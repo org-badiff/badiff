@@ -2,6 +2,7 @@ package org.badiff.p;
 
 import org.badiff.alg.GraphFactory;
 import org.badiff.alg.InertialGraph;
+import org.badiff.q.ChunkingOpQueue;
 import org.badiff.q.CoalescingOpQueue;
 import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.GraphOpQueue;
@@ -14,6 +15,7 @@ import org.badiff.q.UnchunkingOpQueue;
 import org.badiff.q.UndoOpQueue;
 
 public enum Pipes implements Pipe {
+	SPLIT('s'),
 	COALESS('c'),
 	COMPACT('C'),
 	GRAPH('g'),
@@ -59,6 +61,9 @@ public enum Pipes implements Pipe {
 	@Override
 	public Pipeline from(OpQueue q) {
 		switch(this) {
+		case SPLIT:
+			q = new ChunkingOpQueue(q);
+			break;
 		case COALESS:
 			q = new CoalescingOpQueue(q);
 			break;
