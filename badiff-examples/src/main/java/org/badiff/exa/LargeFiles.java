@@ -57,6 +57,7 @@ public class LargeFiles {
 
 		long diffCompleted = System.currentTimeMillis();
 		System.out.println("Diff computation time:" + TimeUnit.SECONDS.convert(diffCompleted - filled, TimeUnit.MILLISECONDS) + "s");
+		System.out.println("Diff size:" + diffFile.length());
 
 		Diffs.apply(diff, origFile, patchedFile);
 
