@@ -94,7 +94,7 @@ public class LargeFiles {
 						return;
 					if(r < buf.length)
 						buf = Arrays.copyOf(buf, r);
-					for(int i = 0; i < rand.nextInt(7); i++) {
+					for(int i = 0; i < rand.nextInt(3); i++) {
 						int from = rand.nextInt(buf.length);
 						int len = rand.nextInt(buf.length - from);
 						if(rand.nextBoolean()) {
