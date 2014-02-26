@@ -42,7 +42,7 @@ public class LargeFiles {
 		distort(origFile, targetFile);
 
 		long filled = System.currentTimeMillis();
-		System.out.println("Fill time:" + TimeUnit.SECONDS.convert(filled - start, TimeUnit.MILLISECONDS) + "s");
+		System.out.println("Fill time:" + TimeUnit.MILLISECONDS.convert(filled - start, TimeUnit.MILLISECONDS) + "ms");
 
 		// mapping may take a moment
 		InputStream orig = new FileInputStream(origFile);
@@ -62,7 +62,7 @@ public class LargeFiles {
 		Diffs.apply(diff, origFile, patchedFile);
 
 		long diffApplied = System.currentTimeMillis();
-		System.out.println("Diff apply time:" + TimeUnit.SECONDS.convert(diffApplied - diffCompleted, TimeUnit.MILLISECONDS) + "s");
+		System.out.println("Diff apply time:" + TimeUnit.MILLISECONDS.convert(diffApplied - diffCompleted, TimeUnit.MILLISECONDS) + "ms");
 	}
 
 	private static void fill(File file, long size) throws IOException {
