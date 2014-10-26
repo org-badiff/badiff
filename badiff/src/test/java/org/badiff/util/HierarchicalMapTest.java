@@ -1,7 +1,5 @@
 package org.badiff.util;
 
-import static org.junit.Assert.*;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
