@@ -3,11 +3,9 @@ package org.badiff.util;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class FlatCollections {
@@ -286,121 +284,6 @@ public abstract class FlatCollections {
 
 	}
 
-	public static class InheritingFlatMap<K, V> extends FlatMap<K, V> {
-		
-		protected Map<K, V> parent;
-
-		public InheritingFlatMap(Map<K, V> parent, K[] keys, V[] values) {
-			super(keys, values);
-			if(parent == null)
-				parent = Collections.emptyMap();
-			this.parent = parent;
-		}
-
-		public InheritingFlatMap(Map<K, V> parent, Map<? extends K, ? extends V> m) {
-			this(parent, FlatMap.entriesOf(m));
-		}
-
-		@SuppressWarnings("unchecked")
-		protected InheritingFlatMap(Map<K, V> parent, Object[][] entries) {
-			this(parent, (K[]) entries[0], (V[]) entries[1]);
-		}
-
-		protected Set<Entry<K, V>> superEntrySet() {
-			return super.entrySet();
-		}
-		
-		@Override
-		public Set<Entry<K, V>> entrySet() {
-			return new EntrySet();
-		}
-
-		@Override
-		public int size() {
-			return entrySet().size();
-		}
-
-		@Override
-		public boolean containsValue(Object value) {
-			return values().contains(value);
-		}
-		
-		protected boolean superContainsKey(Object key) {
-			return super.containsKey(key);
-		}
-
-		@Override
-		public boolean containsKey(Object key) {
-			return super.containsKey(key) || parent.containsKey(key);
-		}
-
-		@Override
-		public V get(Object key) {
-			if(super.containsKey(key))
-				return super.get(key);
-			return parent.get(key);
-		}
-
-		@Override
-		public boolean isEmpty() {
-			return super.isEmpty() && parent.isEmpty();
-		}
-
-		protected class EntrySet extends AbstractSet<Map.Entry<K, V>> {
-		
-			@Override
-			public Iterator<java.util.Map.Entry<K, V>> iterator() {
-				return new EntryIterator();
-			}
-		
-			@Override
-			public int size() {
-				int size = 0;
-				for(@SuppressWarnings("unused") Object e : this)
-					size++;
-				return size;
-			}
-		}
-
-		protected class EntryIterator implements Iterator<Map.Entry<K, V>> {
-			private Iterator<Map.Entry<K, V>> superItr = superEntrySet().iterator();   
-			private Iterator<Map.Entry<K, V>> parentItr = parent.entrySet().iterator();
-			
-			private Map.Entry<K, V> next;
-	
-			@Override
-			public boolean hasNext() {
-				if(superItr.hasNext() || next != null)
-					return true;
-				while(parentItr.hasNext()) {
-					Map.Entry<K, V> e = parentItr.next();
-					if(superContainsKey(e.getKey()))
-						continue;
-					next = e;
-					return true;
-				}
-				return false;
-			}
-	
-			@Override
-			public java.util.Map.Entry<K, V> next() {
-				if(!hasNext())
-					throw new NoSuchElementException();
-				if(superItr.hasNext())
-					return superItr.next();
-				Map.Entry<K, V> e = next;
-				next = null;
-				return e;
-			}
-	
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-			
-		}
-	}
-	
 	public static int primaryIndexOf(Object key, int modulo) {
 		return Math.abs(key.hashCode()) % modulo;
 	}
