@@ -3,14 +3,16 @@ package org.badiff.util;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class FlatCollections {
 	public static class FlatMap<K, V> extends AbstractMap<K, V> {
-		private static Object[][] entriesOf(Map<?, ?> m) {
+		protected static Object[][] entriesOf(Map<?, ?> m) {
 			if(m.size() == 0)
 				return new Object[2][0];
 			Object[] keys = new Object[m.size()];
@@ -26,18 +28,18 @@ public abstract class FlatCollections {
 			return new Object[][] {keys, vals};
 		}
 		
-		private int size;
-		private int modulo;
-		private Object[] keys;
-		private Object[] values;
-		private int[] indexes;
+		protected int size;
+		protected int modulo;
+		protected Object[] keys;
+		protected Object[] values;
+		protected int[] indexes;
 		
 		public FlatMap(Map<? extends K, ? extends V> m) {
 			this(entriesOf(m));
 		}
 		
 		@SuppressWarnings("unchecked")
-		private FlatMap(Object[][] entries) {
+		protected FlatMap(Object[][] entries) {
 			this((K[]) entries[0], (V[]) entries[1]);
 		}
 		
@@ -132,7 +134,7 @@ public abstract class FlatCollections {
 			throw new UnsupportedOperationException();
 		}
 
-		private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+		protected class EntrySet extends AbstractSet<Map.Entry<K, V>> {
 			@Override
 			public Iterator<Map.Entry<K, V>> iterator() {
 				return new EntryIterator();
@@ -144,8 +146,8 @@ public abstract class FlatCollections {
 			}
 		}
 
-		private class EntryIterator implements Iterator<Map.Entry<K, V>> {
-			private int pos = 0;
+		protected class EntryIterator implements Iterator<Map.Entry<K, V>> {
+			protected int pos = 0;
 		
 			@Override
 			public boolean hasNext() {
@@ -170,10 +172,15 @@ public abstract class FlatCollections {
 	}
 
 	public static class FlatSet<E> extends AbstractSet<E> {
-		private int size;
-		private int modulo;
-		private Object[] keys;
-		private int[] indexes;
+		protected int size;
+		protected int modulo;
+		protected Object[] keys;
+		protected int[] indexes;
+		
+		@SuppressWarnings("unchecked")
+		public FlatSet(Collection<? extends E> c) {
+			this((E[]) c.toArray());
+		}
 		
 		public FlatSet(E[] keys) {
 			size = keys.length;
@@ -254,8 +261,8 @@ public abstract class FlatCollections {
 		}
 
 
-		private class Itr implements Iterator<E> {
-			private int pos = 0;
+		protected class Itr implements Iterator<E> {
+			protected int pos = 0;
 		
 			@Override
 			public boolean hasNext() {
@@ -279,6 +286,206 @@ public abstract class FlatCollections {
 
 	}
 
+	public static class InheritingFlatMap<K, V> extends FlatMap<K, V> {
+		
+		protected Map<K, V> parent;
+
+		public InheritingFlatMap(Map<K, V> parent, K[] keys, V[] values) {
+			super(keys, values);
+			if(parent == null)
+				parent = Collections.emptyMap();
+			this.parent = parent;
+		}
+
+		public InheritingFlatMap(Map<K, V> parent, Map<? extends K, ? extends V> m) {
+			this(parent, FlatMap.entriesOf(m));
+		}
+
+		@SuppressWarnings("unchecked")
+		protected InheritingFlatMap(Map<K, V> parent, Object[][] entries) {
+			this(parent, (K[]) entries[0], (V[]) entries[1]);
+		}
+
+		protected Set<Entry<K, V>> superEntrySet() {
+			return super.entrySet();
+		}
+		
+		@Override
+		public Set<Entry<K, V>> entrySet() {
+			return new EntrySet();
+		}
+
+		@Override
+		public int size() {
+			return entrySet().size();
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			return values().contains(value);
+		}
+		
+		protected boolean superContainsKey(Object key) {
+			return super.containsKey(key);
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return super.containsKey(key) || parent.containsKey(key);
+		}
+
+		@Override
+		public V get(Object key) {
+			if(super.containsKey(key))
+				return super.get(key);
+			return parent.get(key);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return super.isEmpty() && parent.isEmpty();
+		}
+
+		protected class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+		
+			@Override
+			public Iterator<java.util.Map.Entry<K, V>> iterator() {
+				return new EntryIterator();
+			}
+		
+			@Override
+			public int size() {
+				int size = 0;
+				for(@SuppressWarnings("unused") Object e : this)
+					size++;
+				return size;
+			}
+		}
+
+		protected class EntryIterator implements Iterator<Map.Entry<K, V>> {
+			private Iterator<Map.Entry<K, V>> superItr = superEntrySet().iterator();   
+			private Iterator<Map.Entry<K, V>> parentItr = parent.entrySet().iterator();
+			
+			private Map.Entry<K, V> next;
+	
+			@Override
+			public boolean hasNext() {
+				if(superItr.hasNext() || next != null)
+					return true;
+				while(parentItr.hasNext()) {
+					Map.Entry<K, V> e = parentItr.next();
+					if(superContainsKey(e.getKey()))
+						continue;
+					next = e;
+					return true;
+				}
+				return false;
+			}
+	
+			@Override
+			public java.util.Map.Entry<K, V> next() {
+				if(!hasNext())
+					throw new NoSuchElementException();
+				if(superItr.hasNext())
+					return superItr.next();
+				Map.Entry<K, V> e = next;
+				next = null;
+				return e;
+			}
+	
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+			
+		}
+	}
+	
+	public static class InheritingFlatSet<E> extends FlatSet<E> {
+		
+		protected Set<E> parent;
+
+		@SuppressWarnings("unchecked")
+		public InheritingFlatSet(Set<E> parent, Collection<? extends E> c) {
+			this(parent, (E[]) c.toArray());
+		}
+
+		public InheritingFlatSet(Set<E> parent, E[] keys) {
+			super(keys);
+			if(parent == null)
+				parent = Collections.emptySet();
+			this.parent = parent;
+		}
+
+		protected Iterator<E> superIterator() {
+			return super.iterator();
+		}
+		
+		@Override
+		public Iterator<E> iterator() {
+			return new Iterator<E>() {
+				private Iterator<E> superItr = superIterator();
+				private Iterator<E> parentItr = parent.iterator();
+
+				private E next;
+				
+				@Override
+				public boolean hasNext() {
+					if(superItr.hasNext() || next != null)
+						return true;
+					while(parentItr.hasNext()) {
+						E e = parentItr.next();
+						if(superContains(e))
+							continue;
+						next = e;
+						return true;
+					}
+					return false;
+				}
+		
+				@Override
+				public E next() {
+					if(!hasNext())
+						throw new NoSuchElementException();
+					if(superItr.hasNext())
+						return superItr.next();
+					E e = next;
+					next = null;
+					return e;
+				}
+		
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+
+		@Override
+		public int size() {
+			int size = super.size();
+			for(E e : parent) {
+				if(!super.contains(e))
+					size++;
+			}
+			return size;
+		}
+		
+		protected boolean superContains(Object o) {
+			return super.contains(o);
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			return super.contains(o) || parent.contains(o);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return super.isEmpty() && parent.isEmpty();
+		}
+
+	}
 	
 	public static int primaryIndexOf(Object key, int modulo) {
 		return Math.abs(key.hashCode()) % modulo;
