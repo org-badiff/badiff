@@ -5,6 +5,8 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.util.Digests;
@@ -63,5 +65,21 @@ public class SerializedDigest implements Serialized {
 	
 	public byte[] getDigest() {
 		return digest;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this)
+			return true;
+		if(obj instanceof SerializedDigest) {
+			SerializedDigest other = (SerializedDigest) obj;
+			return algorithm.equals(other.algorithm) && Arrays.equals(digest, other.digest);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(digest);
 	}
 }
