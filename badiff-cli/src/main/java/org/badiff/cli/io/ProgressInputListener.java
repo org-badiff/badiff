@@ -1,6 +1,5 @@
 package org.badiff.cli.io;
 
-import org.badiff.io.RandomInput;
 
 public class ProgressInputListener implements RandomInputListener {
 

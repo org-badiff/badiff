@@ -1,5 +1,11 @@
 package org.badiff.cli;
 
+import static org.badiff.cli.Arguments.DiffArguments.AFTER;
+import static org.badiff.cli.Arguments.DiffArguments.BEFORE;
+import static org.badiff.cli.Arguments.DiffArguments.OUTPUT;
+import static org.badiff.cli.Arguments.DiffArguments.PIPELINE;
+import static org.badiff.cli.Arguments.DiffArguments.VERBOSE;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,17 +14,14 @@ import org.apache.commons.cli.CommandLine;
 import org.badiff.cli.io.ListenableRandomInput;
 import org.badiff.cli.io.ProgressInputListener;
 import org.badiff.imp.BadiffFileDiff;
-import org.badiff.imp.FileDiff;
 import org.badiff.imp.BadiffFileDiff.Header;
-import org.badiff.imp.BadiffFileDiff.Header.Optional;
+import org.badiff.imp.FileDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.p.Pipeline;
 import org.badiff.q.OpQueue;
 import org.badiff.q.RandomChunkingOpQueue;
 import org.badiff.util.Digests;
-
-import static org.badiff.cli.Arguments.DiffArguments.*;
 
 public class DiffMain {
 	
