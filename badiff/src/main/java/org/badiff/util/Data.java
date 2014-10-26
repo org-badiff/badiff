@@ -30,22 +30,26 @@
 package org.badiff.util;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.OutputStream;
 
-import org.badiff.io.DataInputInputStream;
-import org.badiff.io.DataOutputOutputStream;
+import org.badiff.io.EmptyInputStream;
+import org.badiff.io.NoopOutputStream;
 
 /**
  * Utility methods for dealing with streams
  * @author robin
  *
  */
-public class Streams {
+public class Data {
+	public static final DataInput NOOP_INPUT = new DataInputStream(new EmptyInputStream());
+	public static final DataOutput NOOP_OUT = new DataOutputStream(new NoopOutputStream());
+	
 	/**
 	 * Copy all data from {@code in} to {@code out} without closing either
 	 * @param in
@@ -53,14 +57,21 @@ public class Streams {
 	 * @return
 	 * @throws IOException
 	 */
-	public static long copy(InputStream in, OutputStream out) throws IOException {
+	public static long copy(DataInput in, DataOutput out) throws IOException {
 		long count = 0;
 		byte[] buf = new byte[8192];
-		for(int r = in.read(buf); r != -1; r = in.read(buf)) {
+		for(;;) {
+			int r = 0;
+			try {
+				while(r < buf.length)
+					buf[r++] = in.readByte();
+			} catch(EOFException e) {
+			}
+			if(r == 0)
+				return count;
 			out.write(buf, 0, r);
 			count += r;
 		}
-		return count;
 	}
 	
 	/**
@@ -70,42 +81,76 @@ public class Streams {
 	 * @return
 	 * @throws IOException
 	 */
-	public static long copy(InputStream in, OutputStream out, long length) throws IOException {
+	public static long copy(DataInput in, DataOutput out, long length) throws IOException {
 		long count = 0;
 		byte[] buf = new byte[8192];
-		for(int r = in.read(buf, 0, (int) Math.min(buf.length, length - count)); 
-				r != -1; 
-				r = in.read(buf, 0, (int) Math.min(buf.length, length - count))) {
+		while(count < length) {
+			long max = Math.min(buf.length, length);
+			int r = 0;
+			try {
+				while(r < max)
+					buf[r++] = in.readByte();
+			} catch(EOFException e) {
+			}
+			if(r == 0)
+				return count;
 			out.write(buf, 0, r);
 			count += r;
-			if(count == length)
-				break;
 		}
 		return count;
 	}
 	
-	/**
-	 * View the {@link ObjectOutput} as an {@link OutputStream} by either casting or wrapping
-	 * @param out
-	 * @return
-	 */
-	public static OutputStream asStream(DataOutput out) {
-		if(out instanceof OutputStream)
-			return (OutputStream) out;
-		return new DataOutputOutputStream(out);
+	public static long skip(DataInput in, long length) throws IOException {
+		long count = copy(in, NOOP_OUT, length);
+		if(count < length)
+			throw new EOFException();
+		return count;
 	}
 	
-	/**
-	 * View thw {@link ObjectInput} as an {@link InputStream} by either casting or wrapping
-	 * @param in
-	 * @return
-	 */
-	public static InputStream asStream(DataInput in) {
-		if(in instanceof InputStream)
-			return (InputStream) in;
-		return new DataInputInputStream(in);
+	public static DataInputStream asStream(DataInput in) {
+		if(in instanceof DataInputStream)
+			return (DataInputStream) in;
+		InputStream wrapper = new WrapperInputStream(in);
+		return new DataInputStream(wrapper);
 	}
 	
-	private Streams() {}
+	public static DataOutputStream asStream(DataOutput out) {
+		if(out instanceof DataOutputStream)
+			return (DataOutputStream) out;
+		OutputStream wrapper = new WrapperOutputStream(out);
+		return new DataOutputStream(wrapper);
+	}
+	
+	private static class WrapperOutputStream extends OutputStream {
+		private final DataOutput out;
+
+		private WrapperOutputStream(DataOutput out) {
+			this.out = out;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			out.writeByte(b);
+		}
+	}
+
+	private static class WrapperInputStream extends InputStream {
+		private final DataInput in;
+	
+		private WrapperInputStream(DataInput in) {
+			this.in = in;
+		}
+	
+		@Override
+		public int read() throws IOException {
+			try {
+				return 0xff & in.readByte();
+			} catch(EOFException e) {
+				return -1;
+			}
+		}
+	}
+
+	private Data() {}
 
 }

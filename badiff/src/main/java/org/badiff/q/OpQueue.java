@@ -29,6 +29,8 @@
  */
 package org.badiff.q;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -146,7 +148,7 @@ public class OpQueue implements Applyable, Iterator<Op> {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target)
+	public void apply(DataInput orig, DataOutput target)
 			throws IOException {
 		for(Op e = poll(); e != null; e = poll())
 			e.apply(orig, target);

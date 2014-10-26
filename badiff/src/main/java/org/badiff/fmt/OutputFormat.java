@@ -31,6 +31,7 @@ package org.badiff.fmt;
 
 import java.io.DataOutput;
 import java.io.IOException;
+
 import org.badiff.Diff;
 import org.badiff.io.RandomInput;
 

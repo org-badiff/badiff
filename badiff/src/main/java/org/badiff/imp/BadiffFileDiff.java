@@ -29,6 +29,7 @@
  */
 package org.badiff.imp;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -46,7 +47,6 @@ import java.util.Iterator;
 import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.Queueable;
-import org.badiff.io.DataOutputOutputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
@@ -60,8 +60,8 @@ import org.badiff.p.Pipeline;
 import org.badiff.p.Pipes;
 import org.badiff.q.OpQueue;
 import org.badiff.q.RandomChunkingOpQueue;
+import org.badiff.util.Data;
 import org.badiff.util.Digests;
-import org.badiff.util.Streams;
 
 /**
  * A diff file using the badiff file format.
@@ -156,7 +156,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			private Stats() {}
 			
 			@Override
-			public void serialize(Serialization serial, OutputStream out)
+			public void serialize(Serialization serial, DataOutput out)
 					throws IOException {
 				serial.writeObject(out, Long.class, rewindCount);
 				serial.writeObject(out, Long.class, nextCount);
@@ -166,7 +166,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 				serial.writeObject(out, Long.class, outputSize);
 			}
 			@Override
-			public void deserialize(Serialization serial, InputStream in)
+			public void deserialize(Serialization serial, DataInput in)
 					throws IOException {
 				rewindCount = serial.readObject(in, Long.class);
 				nextCount = serial.readObject(in, Long.class);
@@ -275,14 +275,14 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 				this.postHash = postHash;
 			}
 			@Override
-			public void serialize(Serialization serial, OutputStream out)
+			public void serialize(Serialization serial, DataOutput out)
 					throws IOException {
 				serial.writeObject(out, String.class, hashAlgorithm);
 				serial.writeObject(out, byte[].class, preHash);
 				serial.writeObject(out, byte[].class, postHash);
 			}
 			@Override
-			public void deserialize(Serialization serial, InputStream in)
+			public void deserialize(Serialization serial, DataInput in)
 					throws IOException {
 				hashAlgorithm = serial.readObject(in, String.class);
 				preHash = serial.readObject(in, byte[].class);
@@ -513,12 +513,10 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		out.writeInt(VERSION);
 		out.writeLong(flags);
 		
-		DataOutputOutputStream dout = new DataOutputOutputStream(out);
-		
-		header.stats.serialize(header.serial, dout);
+		header.stats.serialize(header.serial, out);
 		
 		if(header.optional != null)
-			header.optional.serialize(header.serial, dout);
+			header.optional.serialize(header.serial, out);
 	}
 	
 	/**
@@ -703,7 +701,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		}
 		
 		InputStream oin = new FileRandomInput(orig);
-		apply(oin, out);
+		apply(new DataInputStream(oin), new DataOutputStream(out));
 		out.close();
 		
 		if(digout != null) {
@@ -720,7 +718,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target) throws IOException {
+	public void apply(DataInput orig, DataOutput target) throws IOException {
 		Header header = header();
 		if((header.flags & FLAG_RANDOM_ACCESS) != 0 && !(orig instanceof Random))
 			throw new IOException(this + " requires a random-access original (" + Random.class + ")");
@@ -762,13 +760,11 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		// Write the header
 		writeHeader(header, out);
 		
-		DataOutputOutputStream dout = new DataOutputOutputStream(out);
-		
 		// Copy the ops
 		OpQueue q = tmp.queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
-			serial.writeObject(dout, Op.class, e);
-		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
+			serial.writeObject(out, Op.class, e);
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 		
 		tmp.delete();
 	}
@@ -793,13 +789,11 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		// Write the header
 		writeHeader(header, out);
 		
-		DataOutputOutputStream dout = new DataOutputOutputStream(out);
-		
 		// Copy the ops
 		OpQueue q = qq.queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
-			serial.writeObject(dout, Op.class, e);
-		serial.writeObject(dout, Op.class, new Op(Op.STOP, 1, null));
+			serial.writeObject(out, Op.class, e);
+		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
 	}
 
 	@Override
@@ -863,20 +857,20 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, OutputStream out)
+	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
 		serial.writeObject(out, Long.class, length());
 		FileInputStream in = new FileInputStream(this);
-		Streams.copy(in, out);
+		Data.copy(new DataInputStream(in), out);
 		in.close();
 	}
 
 	@Override
-	public void deserialize(Serialization serial, InputStream in)
+	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
 		long length = serial.readObject(in, Long.class);
 		FileOutputStream out = new FileOutputStream(this);
-		Streams.copy(in, out, length);
+		Data.copy(in, new DataOutputStream(out), length);
 		out.close();
 	}
 }

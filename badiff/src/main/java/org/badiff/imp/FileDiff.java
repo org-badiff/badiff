@@ -29,6 +29,10 @@
  */
 package org.badiff.imp;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,7 +49,7 @@ import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.q.OpQueue;
-import org.badiff.util.Streams;
+import org.badiff.util.Data;
 
 /**
  * {@link Diff} that is backed by a {@link File}.  Extends {@link File} to
@@ -104,7 +108,7 @@ public class FileDiff extends File implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target) throws IOException {
+	public void apply(DataInput orig, DataOutput target) throws IOException {
 		OpQueue q = queue();
 		for(Op e = q.poll(); e != null; e = q.poll())
 			e.apply(orig, target);
@@ -118,11 +122,12 @@ public class FileDiff extends File implements Diff, Serialized {
 	@Override
 	public void store(Iterator<Op> ops) throws IOException {
 		FileOutputStream out = new FileOutputStream(this);
+		DataOutput data = new DataOutputStream(out);
 		try {
 			while(ops.hasNext()) {
-				serial.writeObject(out, Op.class, ops.next());
+				serial.writeObject(data, Op.class, ops.next());
 			}
-			serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+			serial.writeObject(data, Op.class, new Op(Op.STOP, 1, null));
 		} finally {
 			out.close();
 		}
@@ -130,10 +135,12 @@ public class FileDiff extends File implements Diff, Serialized {
 	
 	private class FileOpQueue extends OpQueue {
 		private InputStream self;
+		private DataInput data;
 		private boolean closed;
 		
 		public FileOpQueue() throws IOException {
 			self = new FileInputStream(FileDiff.this);
+			data = new DataInputStream(self);
 			closed = false;
 		}
 		
@@ -146,7 +153,7 @@ public class FileDiff extends File implements Diff, Serialized {
 		protected boolean pull() {
 			if(!closed) {
 				try {
-					Op e = serial.readObject(self, Op.class);
+					Op e = serial.readObject(data, Op.class);
 					if(e.getOp() != Op.STOP) {
 						prepare(e);
 						return true;
@@ -177,7 +184,7 @@ public class FileDiff extends File implements Diff, Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, OutputStream out)
+	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
 		/*
 		 * Since the raw file contents are already serialized, just dump
@@ -185,24 +192,25 @@ public class FileDiff extends File implements Diff, Serialized {
 		 */
 		InputStream in = new FileInputStream(this);
 		try {
-			Streams.copy(in, out);
+			Data.copy(new DataInputStream(in), out);
 		} finally {
 			in.close();
 		}
 	}
 
 	@Override
-	public void deserialize(Serialization serial, InputStream in)
+	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
 		/*
 		 * The input stream has to be processed to determine when to stop reading,
 		 * unlike serialize(...) which can just dump the file to the output stream
 		 */
 		FileOutputStream out = new FileOutputStream(this);
+		DataOutput data = new DataOutputStream(out);
 		try {
 			for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
-				this.serial.writeObject(out, Op.class, e);
-			this.serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
+				this.serial.writeObject(data, Op.class, e);
+			this.serial.writeObject(data, Op.class, new Op(Op.STOP, 1, null));
 		} finally {
 			out.close();
 		}

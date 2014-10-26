@@ -29,6 +29,8 @@
  */
 package org.badiff.io;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,7 +50,7 @@ public interface Serialization {
 	 * @param object
 	 * @throws IOException
 	 */
-	public <T> void writeObject(OutputStream out, Class<T> type, T object) throws IOException;
+	public <T> void writeObject(DataOutput out, Class<T> type, T object) throws IOException;
 	
 	/**
 	 * Read an object of the argument type from the {@link InputStream}
@@ -57,7 +59,7 @@ public interface Serialization {
 	 * @return
 	 * @throws IOException
 	 */
-	public <T> T readObject(InputStream in, Class<T> type) throws IOException;
+	public <T> T readObject(DataInput in, Class<T> type) throws IOException;
 	
 	/**
 	 * Storage for data which should be available to serializers and persist across serializations and deserializations

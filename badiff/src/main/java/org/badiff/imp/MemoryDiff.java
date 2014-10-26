@@ -29,6 +29,8 @@
  */
 package org.badiff.imp;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -61,7 +63,7 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target)
+	public void apply(DataInput orig, DataOutput target)
 			throws IOException {
 		for(Op e : ops)
 			e.apply(orig, target);
@@ -85,7 +87,7 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 	
 	@Override
-	public void serialize(Serialization serial, OutputStream out)
+	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
 		for(Op e : ops)
 			serial.writeObject(out, Op.class, e);
@@ -93,7 +95,7 @@ public class MemoryDiff implements Diff, Serialized {
 	}
 
 	@Override
-	public void deserialize(Serialization serial, InputStream in)
+	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
 		for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
 			ops.add(e);

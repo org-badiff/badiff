@@ -31,6 +31,8 @@ package org.badiff.q;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.badiff.alg.GraphFactory;
 import org.badiff.imp.FileDiff;
-import org.badiff.util.Streams;
+import org.badiff.util.Data;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -72,8 +74,8 @@ public class ParallelGraphOpQueueTest {
 		
 		long start = System.nanoTime();
 		q.apply(
-				new ByteArrayInputStream(orig.toByteArray()),
-				result);
+				new DataInputStream(new ByteArrayInputStream(orig.toByteArray())),
+				new DataOutputStream(result));
 		long end = System.nanoTime();
 		
 		System.out.println("edit-Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");
@@ -104,8 +106,8 @@ public class ParallelGraphOpQueueTest {
 		
 		long start = System.nanoTime();
 		q.apply(
-				new ByteArrayInputStream(orig.toByteArray()),
-				result);
+				new DataInputStream(new ByteArrayInputStream(orig.toByteArray())),
+				new DataOutputStream(result));
 		long end = System.nanoTime();
 		
 		System.out.println("inertial-Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");
@@ -123,14 +125,14 @@ public class ParallelGraphOpQueueTest {
 		File target = File.createTempFile("target", ".tmp");
 		target.deleteOnExit();
 		
-		InputStream random = new FileInputStream("/dev/urandom");
+		DataInputStream random = new DataInputStream(new FileInputStream("/dev/urandom"));
 		
 		OutputStream out;
 		
 		System.out.println("Creating random input files");
 		
-		Streams.copy(random, out = new FileOutputStream(orig), SIZE); out.close();
-		Streams.copy(random, out = new FileOutputStream(target), SIZE); out.close();
+		Data.copy(random, new DataOutputStream(out = new FileOutputStream(orig)), SIZE); out.close();
+		Data.copy(random, new DataOutputStream(out = new FileOutputStream(target)), SIZE); out.close();
 		
 		random.close();
 		

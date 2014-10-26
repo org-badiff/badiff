@@ -30,6 +30,7 @@
 package org.badiff.alg;
 
 import java.io.IOException;
+
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.q.GraphOpQueue;

@@ -30,14 +30,10 @@
 package org.badiff.io;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.NotSerializableException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +42,7 @@ import java.util.Map;
 import org.badiff.Op;
 import org.badiff.imp.FileDiff;
 import org.badiff.imp.MemoryDiff;
-import org.badiff.util.Streams;
+import org.badiff.util.Data;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class SmallNumberSerialization implements Serialization {
@@ -165,13 +161,13 @@ public class SmallNumberSerialization implements Serialization {
 
 			@Override
 			public void write(DataOutput out, Op obj) throws IOException {
-				obj.serialize(SmallNumberSerialization.this, Streams.asStream(out));
+				obj.serialize(SmallNumberSerialization.this, out);
 			}
 
 			@Override
 			public Op read(DataInput in) throws IOException {
 				Op op = new Op();
-				op.deserialize(SmallNumberSerialization.this, Streams.asStream(in));
+				op.deserialize(SmallNumberSerialization.this, in);
 				return op;
 				 
 			}
@@ -182,13 +178,13 @@ public class SmallNumberSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, MemoryDiff obj)
 					throws IOException {
-				obj.serialize(SmallNumberSerialization.this, Streams.asStream(out));
+				obj.serialize(SmallNumberSerialization.this, Data.asStream(out));
 			}
 
 			@Override
 			public MemoryDiff read(DataInput in) throws IOException {
 				MemoryDiff md = new MemoryDiff();
-				md.deserialize(SmallNumberSerialization.this, Streams.asStream(in));
+				md.deserialize(SmallNumberSerialization.this, Data.asStream(in));
 				return md;
 			}
 		});
@@ -198,13 +194,13 @@ public class SmallNumberSerialization implements Serialization {
 			@Override
 			public void write(DataOutput out, FileDiff obj)
 					throws IOException {
-				obj.serialize(SmallNumberSerialization.this, Streams.asStream(out));
+				obj.serialize(SmallNumberSerialization.this, Data.asStream(out));
 			}
 
 			@Override
 			public FileDiff read(DataInput in) throws IOException {
 				FileDiff md = new FileDiff(File.createTempFile("FileDiff", ".tmp"));
-				md.deserialize(SmallNumberSerialization.this, Streams.asStream(in));
+				md.deserialize(SmallNumberSerialization.this, Data.asStream(in));
 				return md;
 			}
 		});
@@ -245,7 +241,7 @@ public class SmallNumberSerialization implements Serialization {
 	}
 	
 	@Override
-	public <T> void writeObject(OutputStream out, Class<T> type, T object)
+	public <T> void writeObject(DataOutput out, Class<T> type, T object)
 			throws IOException {
 		if(depth == 0)
 			graphContext.clear();
@@ -253,7 +249,7 @@ public class SmallNumberSerialization implements Serialization {
 		try {
 			for(Serializer s : serializers) {
 				if(s.type() == type) {
-					s.write(new DataOutputStream(out), object);
+					s.write(out, object);
 					return;
 				}
 			}
@@ -264,14 +260,14 @@ public class SmallNumberSerialization implements Serialization {
 	}
 
 	@Override
-	public <T> T readObject(InputStream in, Class<T> type) throws IOException {
+	public <T> T readObject(DataInput in, Class<T> type) throws IOException {
 		if(depth == 0)
 			graphContext.clear();
 		depth++;
 		try {
 			for(Serializer s : serializers) {
 				if(s.type() == type) {
-					return (T) s.read(new DataInputStream(in));
+					return (T) s.read(in);
 				}
 			}
 			throw new NotSerializableException(type.getName());

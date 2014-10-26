@@ -29,9 +29,9 @@
  */
 package org.badiff.io;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Interface for objects which can be serialized and deserialized with a {@link Serialization}
@@ -45,12 +45,12 @@ public interface Serialized {
 	 * @param out
 	 * @throws IOException
 	 */
-	public void serialize(Serialization serial, OutputStream out) throws IOException;
+	public void serialize(Serialization serial, DataOutput out) throws IOException;
 	/**
 	 * Deserialize this object
 	 * @param serial
 	 * @param in
 	 * @throws IOException
 	 */
-	public void deserialize(Serialization serial, InputStream in) throws IOException;
+	public void deserialize(Serialization serial, DataInput in) throws IOException;
 }

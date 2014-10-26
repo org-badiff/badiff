@@ -29,7 +29,9 @@
  */
 package org.badiff.fmt;
 
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,14 +43,13 @@ import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.imp.BadiffFileDiff.Header;
-import org.badiff.io.DataInputInputStream;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.NoopOutputStream;
 import org.badiff.io.RandomInput;
 import org.badiff.io.RandomInputStream;
 import org.badiff.q.OpQueue;
+import org.badiff.util.Data;
 import org.badiff.util.Digests;
-import org.badiff.util.Streams;
 
 /**
  * {@link InputFormat} and {@link OutputFormat} for badiff diffs.
@@ -70,7 +71,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		DigestInputStream digin = new DigestInputStream(new RandomInputStream(orig), Digests.defaultDigest());
 		DigestOutputStream digout = new DigestOutputStream(new NoopOutputStream(), Digests.defaultDigest());
 		
-		diff.apply(digin, digout);
+		diff.apply(new DataInputStream(digin), new DataOutputStream(digout));
 		
 		orig.seek(opos);
 		
@@ -84,12 +85,11 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 	@Override
 	public OpQueue importDiff(RandomInput orig, RandomInput ext)
 			throws IOException {
-		DataInputInputStream din = new DataInputInputStream(ext);
 		BadiffFileDiff bd = new BadiffFileDiff(File.createTempFile("badiff", ".tmp"));
 		bd.deleteOnExit();
 		
 		FileOutputStream bdo = new FileOutputStream(bd);
-		Streams.copy(din, bdo);
+		Data.copy(ext, new DataOutputStream(bdo));
 		bdo.close();
 		
 		Header.Optional opt = bd.header().getOptional();
@@ -97,9 +97,9 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 			if(opt.getHashAlgorithm() != null && opt.getPreHash() != null) {
 				long opos = orig.position();
 				DigestInputStream digin = new DigestInputStream(
-						new DataInputInputStream(orig),
+						Data.asStream(orig),
 						Digests.digest(opt.getHashAlgorithm()));
-				Streams.copy(digin, new NoopOutputStream());
+				Data.copy(new DataInputStream(digin), Data.NOOP_OUT);
 				orig.seek(opos);
 				byte[] actualPreHash = digin.getMessageDigest().digest();
 				if(!Arrays.equals(opt.getPreHash(), actualPreHash))

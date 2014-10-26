@@ -29,13 +29,15 @@
  */
 package org.badiff;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
-import org.badiff.util.Streams;
+import org.badiff.util.Data;
 
 /**
  * A single run-length-encoded operation in a {@link Diff}.
@@ -110,13 +112,13 @@ public class Op implements Applyable, Serialized {
 	}
 	
 	@Override
-	public void apply(InputStream orig, OutputStream target) throws IOException {
+	public void apply(DataInput orig, DataOutput target) throws IOException {
 		switch(op) {
 		case DELETE:
-			orig.skip(run);
+			Data.skip(orig, run);
 			break;
 		case NEXT:
-			Streams.copy(orig, target, run);
+			Data.copy(orig, target, run);
 			break;
 		case INSERT:
 			target.write(data, 0, run);
@@ -150,7 +152,7 @@ public class Op implements Applyable, Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, OutputStream out)
+	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
 		long oprun = op | (data != null ? 0x4 : 0) | (((long) run) << 3);
 		serial.writeObject(out, Long.class, oprun);
@@ -159,7 +161,7 @@ public class Op implements Applyable, Serialized {
 	}
 
 	@Override
-	public void deserialize(Serialization serial, InputStream in)
+	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
 		long oprun = serial.readObject(in, Long.class);
 		op = (byte)(oprun & 0x3);

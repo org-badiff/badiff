@@ -30,6 +30,7 @@
 package org.badiff;
 
 import java.io.IOException;
+
 import org.badiff.imp.MemoryDiff;
 import org.badiff.q.OneWayOpQueue;
 import org.badiff.q.UndoOpQueue;
