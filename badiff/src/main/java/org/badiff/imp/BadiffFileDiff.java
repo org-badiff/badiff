@@ -158,22 +158,22 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			@Override
 			public void serialize(Serialization serial, DataOutput out)
 					throws IOException {
-				serial.writeObject(out, Long.class, rewindCount);
-				serial.writeObject(out, Long.class, nextCount);
-				serial.writeObject(out, Long.class, insertCount);
-				serial.writeObject(out, Long.class, deleteCount);
-				serial.writeObject(out, Long.class, inputSize);
-				serial.writeObject(out, Long.class, outputSize);
+				serial.writeObject(out, long.class, rewindCount);
+				serial.writeObject(out, long.class, nextCount);
+				serial.writeObject(out, long.class, insertCount);
+				serial.writeObject(out, long.class, deleteCount);
+				serial.writeObject(out, long.class, inputSize);
+				serial.writeObject(out, long.class, outputSize);
 			}
 			@Override
 			public void deserialize(Serialization serial, DataInput in)
 					throws IOException {
-				rewindCount = serial.readObject(in, Long.class);
-				nextCount = serial.readObject(in, Long.class);
-				insertCount = serial.readObject(in, Long.class);
-				deleteCount = serial.readObject(in, Long.class);
-				inputSize = serial.readObject(in, Long.class);
-				outputSize = serial.readObject(in, Long.class);
+				rewindCount = serial.readObject(in, long.class);
+				nextCount = serial.readObject(in, long.class);
+				insertCount = serial.readObject(in, long.class);
+				deleteCount = serial.readObject(in, long.class);
+				inputSize = serial.readObject(in, long.class);
+				outputSize = serial.readObject(in, long.class);
 			}
 		
 			/**
@@ -859,7 +859,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	@Override
 	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
-		serial.writeObject(out, Long.class, length());
+		serial.writeObject(out, long.class, length());
 		FileInputStream in = new FileInputStream(this);
 		Data.copy(new DataInputStream(in), out);
 		in.close();
@@ -868,7 +868,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	@Override
 	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
-		long length = serial.readObject(in, Long.class);
+		long length = serial.readObject(in, long.class);
 		FileOutputStream out = new FileOutputStream(this);
 		Data.copy(in, new DataOutputStream(out), length);
 		out.close();

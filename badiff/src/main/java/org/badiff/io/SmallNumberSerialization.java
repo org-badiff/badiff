@@ -89,7 +89,7 @@ public class SmallNumberSerialization implements Serialization {
 				return serializers.get((int) readLong(in)).type();
 			}
 		});
-		serializers.add(new Serializer<Byte>(Byte.class) {
+		serializers.add(new Serializer<Byte>(byte.class) {
 
 			@Override
 			public void write(DataOutput out, Byte obj) throws IOException {
@@ -101,7 +101,7 @@ public class SmallNumberSerialization implements Serialization {
 				return in.readByte();
 			}
 		});
-		serializers.add(new Serializer<Integer>(Integer.class) {
+		serializers.add(new Serializer<Integer>(int.class) {
 
 			@Override
 			public void write(DataOutput out, Integer obj) throws IOException {
@@ -113,7 +113,7 @@ public class SmallNumberSerialization implements Serialization {
 				return (int) readLong(in);
 			}
 		});
-		serializers.add(new Serializer<Long>(Long.class) {
+		serializers.add(new Serializer<Long>(long.class) {
 
 			@Override
 			public void write(DataOutput out, Long obj) throws IOException {

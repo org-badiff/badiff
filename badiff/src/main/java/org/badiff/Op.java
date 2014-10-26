@@ -32,6 +32,7 @@ package org.badiff;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
@@ -153,7 +154,7 @@ public class Op implements Applyable, Serialized {
 	public void serialize(Serialization serial, DataOutput out)
 			throws IOException {
 		long oprun = op | (data != null ? 0x4 : 0) | (((long) run) << 3);
-		serial.writeObject(out, Long.class, oprun);
+		serial.writeObject(out, long.class, oprun);
 		if((op == INSERT || op == DELETE) && data != null)
 			serial.writeObject(out, byte[].class, data);
 	}
@@ -161,11 +162,30 @@ public class Op implements Applyable, Serialized {
 	@Override
 	public void deserialize(Serialization serial, DataInput in)
 			throws IOException {
-		long oprun = serial.readObject(in, Long.class);
+		long oprun = serial.readObject(in, long.class);
 		op = (byte)(oprun & 0x3);
 		boolean hasData = (oprun & 0x4) != 0;
 		run = (int)(oprun >>> 3);
 		if((op == INSERT || op == DELETE) && hasData)
 			data = serial.readObject(in, byte[].class);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this)
+			return true;
+		if(obj instanceof Op) {
+			Op other = (Op) obj;
+			return op == other.op && run == other.run && Arrays.equals(data, other.data);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		int hc = op | (run << 2);
+		if(data != null)
+			hc |= ((0xff & data[0]) << 12);
+		return hc;
 	}
 }

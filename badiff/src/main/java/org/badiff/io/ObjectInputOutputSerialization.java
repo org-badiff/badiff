@@ -39,12 +39,10 @@ public class ObjectInputOutputSerialization implements Serialization {
 				else if(type == int.class) oo.writeInt((Integer) object);
 				else if(type == long.class) oo.writeLong((Long) object);
 				else if(type == short.class) oo.writeShort((Short) object);
-			} else if(!type.isInstance(object))
-				throw new IllegalArgumentException("Object does not have specified type (" + type + "): " + object);
-			else if(!Serialized.class.isAssignableFrom(type))
-				throw new IllegalArgumentException("Specified type (" + type + ") does not inherit from " + Serialized.class);
-			else
+			} else if(Serialized.class.isAssignableFrom(type))
 				((Serialized) object).serialize(this, oo);
+			else
+				oo.writeObject(object);
 		} finally {
 			depth--;
 		}
@@ -68,9 +66,7 @@ public class ObjectInputOutputSerialization implements Serialization {
 				else if(type == long.class) return (T) (Long) oi.readLong();
 				else if(type == short.class) return (T) (Short) oi.readShort();
 				else throw new IllegalStateException(type + " supposedly primitive but not");
-			} else if(!Serialized.class.isAssignableFrom(type))
-				throw new IllegalArgumentException("Specified type (" + type + ") does not inherit from " + Serialized.class);
-			else {
+			} else if(Serialized.class.isAssignableFrom(type)) {
 				T object;
 				try {
 					object = type.newInstance();
@@ -79,7 +75,12 @@ public class ObjectInputOutputSerialization implements Serialization {
 				}
 				((Serialized) object).deserialize(this, oi);
 				return object;
-			}
+			} else
+				try {
+					return type.cast(oi.readObject());
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
 		} finally {
 			depth--;
 		}
