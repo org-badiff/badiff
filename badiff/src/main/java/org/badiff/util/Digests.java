@@ -29,7 +29,6 @@
  */
 package org.badiff.util;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -84,14 +83,14 @@ public class Digests {
 	 */
 	public static byte[] digest(File file, MessageDigest digest) throws IOException {
 		DigestInputStream digin = new DigestInputStream(new FileInputStream(file), digest);
-		Data.copy(new DataInputStream(digin), Data.NOOP_OUT);
+		Data.copy(digin, Data.NOOP_OUT);
 		digin.close();
 		return digin.getMessageDigest().digest();
 	}
 	
 	public static byte[] digest(RandomInput input, MessageDigest digest) throws IOException {
 		DigestInputStream digin = new DigestInputStream(new RandomInputStream(input), digest);
-		Data.copy(new DataInputStream(digin), Data.NOOP_OUT);
+		Data.copy(digin, Data.NOOP_OUT);
 		return digin.getMessageDigest().digest();
 	}
 	

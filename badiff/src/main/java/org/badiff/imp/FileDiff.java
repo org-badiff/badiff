@@ -191,7 +191,7 @@ public class FileDiff extends File implements Diff, Serialized {
 		 */
 		InputStream in = new FileInputStream(this);
 		try {
-			Data.copy(new DataInputStream(in), out);
+			Data.copy(in, out);
 		} finally {
 			in.close();
 		}

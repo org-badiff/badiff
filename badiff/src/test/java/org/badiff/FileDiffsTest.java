@@ -30,10 +30,10 @@
 package org.badiff;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
@@ -51,12 +51,12 @@ public class FileDiffsTest {
 		File target = File.createTempFile("target", ".tmp");
 		target.deleteOnExit();
 		
-		DataInputStream random = new DataInputStream(new FileInputStream("/dev/urandom"));
+		InputStream random = new DataInputStream(new FileInputStream("/dev/urandom"));
 		
 		OutputStream out;
 		
-		Data.copy(random, new DataOutputStream(out = new FileOutputStream(orig)), SIZE); out.close();
-		Data.copy(random, new DataOutputStream(out = new FileOutputStream(target)), SIZE); out.close();
+		Data.copy(random, out = new FileOutputStream(orig), SIZE); out.close();
+		Data.copy(random, out = new FileOutputStream(target), SIZE); out.close();
 		
 		random.close();
 		

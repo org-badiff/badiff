@@ -861,7 +861,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			throws IOException {
 		serial.writeObject(out, long.class, length());
 		FileInputStream in = new FileInputStream(this);
-		Data.copy(new DataInputStream(in), out);
+		Data.copy(in, out);
 		in.close();
 	}
 
@@ -870,7 +870,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			throws IOException {
 		long length = serial.readObject(in, long.class);
 		FileOutputStream out = new FileOutputStream(this);
-		Data.copy(in, new DataOutputStream(out), length);
+		Data.copy(in, out, length);
 		out.close();
 	}
 }

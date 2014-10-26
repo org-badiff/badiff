@@ -89,7 +89,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 		bd.deleteOnExit();
 		
 		FileOutputStream bdo = new FileOutputStream(bd);
-		Data.copy(ext, new DataOutputStream(bdo));
+		Data.copy(ext, bdo);
 		bdo.close();
 		
 		Header.Optional opt = bd.header().getOptional();
@@ -99,7 +99,7 @@ public class BadiffFormat implements InputFormat, OutputFormat {
 				DigestInputStream digin = new DigestInputStream(
 						Data.asStream(orig),
 						Digests.digest(opt.getHashAlgorithm()));
-				Data.copy(new DataInputStream(digin), Data.NOOP_OUT);
+				Data.copy(digin, Data.NOOP_OUT);
 				orig.seek(opos);
 				byte[] actualPreHash = digin.getMessageDigest().digest();
 				if(!Arrays.equals(opt.getPreHash(), actualPreHash))

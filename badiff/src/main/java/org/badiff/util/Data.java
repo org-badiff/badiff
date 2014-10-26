@@ -50,6 +50,18 @@ public class Data {
 	public static final DataInput NOOP_INPUT = new DataInputStream(new EmptyInputStream());
 	public static final DataOutput NOOP_OUT = new DataOutputStream(new NoopOutputStream());
 	
+	public static long copy(InputStream in, OutputStream out) throws IOException {
+		return copy((DataInput) asInput(in), (DataOutput) asOutput(out));
+	}
+	
+	public static long copy(DataInput in, OutputStream out) throws IOException {
+		return copy(in, (DataOutput) asOutput(out));
+	}
+	
+	public static long copy(InputStream in, DataOutput out) throws IOException {
+		return copy((DataInput) asInput(in), out);
+	}
+	
 	/**
 	 * Copy all data from {@code in} to {@code out} without closing either
 	 * @param in
@@ -72,6 +84,18 @@ public class Data {
 			out.write(buf, 0, r);
 			count += r;
 		}
+	}
+	
+	public static long copy(InputStream in, OutputStream out, long length) throws IOException {
+		return copy((DataInput) asInput(in), (DataOutput) asOutput(out), length);
+	}
+	
+	public static long copy(DataInput in, OutputStream out, long length) throws IOException {
+		return copy(in, (DataOutput) asOutput(out), length);
+	}
+	
+	public static long copy(InputStream in, DataOutput out, long length) throws IOException {
+		return copy((DataInput) asInput(in), out, length);
 	}
 	
 	/**
@@ -100,6 +124,10 @@ public class Data {
 		return count;
 	}
 	
+	public static long skip(InputStream in, long length) throws IOException {
+		return skip((DataInput) asInput(in), length);
+	}
+	
 	public static long skip(DataInput in, long length) throws IOException {
 		long count = copy(in, NOOP_OUT, length);
 		if(count < length)
@@ -119,6 +147,18 @@ public class Data {
 			return (DataOutputStream) out;
 		OutputStream wrapper = new WrapperOutputStream(out);
 		return new DataOutputStream(wrapper);
+	}
+	
+	public static DataInputStream asInput(InputStream in) {
+		if(in instanceof DataInputStream)
+			return (DataInputStream) in;
+		return new DataInputStream(in);
+	}
+	
+	public static DataOutputStream asOutput(OutputStream out) {
+		if(out instanceof DataOutputStream)
+			return (DataOutputStream) out;
+		return new DataOutputStream(out);
 	}
 	
 	private static class WrapperOutputStream extends OutputStream {
