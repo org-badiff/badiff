@@ -6,9 +6,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class HierarchicalSet<E> extends FilterSet<E> {
-	protected Set<? extends E> parent;
+	protected Set<E> parent;
 	
-	public HierarchicalSet(Set<E> wrapped, Set<? extends E> parent) {
+	public HierarchicalSet(Set<E> wrapped, Set<E> parent) {
 		super(wrapped);
 		this.parent = parent;
 	}
@@ -87,8 +87,9 @@ public class HierarchicalSet<E> extends FilterSet<E> {
 
 	private class HierarchicalSetIterator implements Iterator<E> {
 		private Iterator<E> superItr = superIterator();
-		private Iterator<? extends E> parentItr = parent.iterator();
+		private Iterator<E> parentItr = parent.iterator();
 		private E next;
+		private boolean removable = true;
 	
 		@Override
 		public boolean hasNext() {
@@ -110,6 +111,7 @@ public class HierarchicalSet<E> extends FilterSet<E> {
 				throw new NoSuchElementException();
 			if(superItr.hasNext())
 				return superItr.next();
+			removable = false;
 			E e = next;
 			next = null;
 			return e;
@@ -117,7 +119,10 @@ public class HierarchicalSet<E> extends FilterSet<E> {
 	
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException();
+			if(removable)
+				superItr.remove();
+			else
+				throw new UnsupportedOperationException();
 		}
 	}
 }
