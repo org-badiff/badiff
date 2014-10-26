@@ -45,19 +45,17 @@ import org.badiff.io.RandomInputStream;
  *
  */
 public class Digests {
+	public static final String DEFAULT_ALGORITHM = "SHA-1";
+	
 	/**
 	 * Return a default message digest.  Tries SHA-1, then MD5, then throws an exception.
 	 * @return
 	 */
 	public static MessageDigest defaultDigest() {
 		try {
-			return MessageDigest.getInstance("SHA-1");
+			return MessageDigest.getInstance(DEFAULT_ALGORITHM);
 		} catch(NoSuchAlgorithmException nsae) {
-			try {
-				return MessageDigest.getInstance("MD5");
-			} catch(NoSuchAlgorithmException nsae2) {
-				throw new RuntimeException("Could not find SHA-1 or MD5");
-			}
+			throw new RuntimeException("Could not find " + DEFAULT_ALGORITHM);
 		}
 	}
 	
@@ -106,6 +104,15 @@ public class Digests {
 			sb.append(String.format("%02x", 0xff & b));
 		}
 		return sb.toString();
+	}
+	
+	public static byte[] parse(String pretty) {
+		if((pretty.length() % 2) == 1)
+			throw new IllegalArgumentException("odd number of hex chars");
+		byte[] buf = new byte[pretty.length() / 2];
+		for(int i = 0; i < pretty.length() - 1; i += 2)
+			buf[i / 2] = (byte) Integer.parseInt(pretty.substring(i, i+2), 16);
+		return buf;
 	}
 	
 	private Digests() {}

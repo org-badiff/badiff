@@ -7,4 +7,10 @@
     <relativePath>../badiff-parent</relativePath>
   </parent>
   <artifactId>badiff-patcher</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.badiff</groupId>
+  		<artifactId>badiff</artifactId>
+  	</dependency>
+  </dependencies>
 </project>
