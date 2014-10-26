@@ -2,7 +2,7 @@ package org.badiff.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -19,10 +19,10 @@ public class HierarchicalSetTest {
 
 	@Before
 	public void setUp() throws Exception {
-		child = new HashSet<Integer>(Arrays.asList(1,2,3,4,5));
-		parent = new HashSet<Integer>(Arrays.asList(4,5,6,7,8));
+		child = new TreeSet<Integer>(Arrays.asList(1,2,3,4,5));
+		parent = new TreeSet<Integer>(Arrays.asList(4,5,6,7,8));
 		hier = new HierarchicalSet<Integer>(child, parent);
-		all = new HashSet<Integer>(parent);
+		all = new TreeSet<Integer>(parent);
 		all.addAll(child);
 	}
 
@@ -118,7 +118,7 @@ public class HierarchicalSetTest {
 		Assert.assertFalse(hier.addAll(Arrays.asList(8)));
 		Assert.assertTrue(hier.addAll(Arrays.asList(0,6)));
 		parent.clear();
-		Set<Integer> exp = new HashSet<Integer>(Arrays.asList(0,1,2,3,4,5,6,8));
+		Set<Integer> exp = new TreeSet<Integer>(Arrays.asList(0,1,2,3,4,5,6,8));
 		Assert.assertEquals(exp, hier);
 	}
 
@@ -128,7 +128,7 @@ public class HierarchicalSetTest {
 		Assert.assertTrue(hier.retainAll(parent));
 		Assert.assertEquals(parent, hier);
 		parent.clear();
-		Assert.assertEquals(new HashSet<Integer>(Arrays.asList(4,5)), hier);
+		Assert.assertEquals(new TreeSet<Integer>(Arrays.asList(4,5)), hier);
 	}
 
 }
