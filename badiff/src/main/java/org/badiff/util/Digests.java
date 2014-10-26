@@ -80,6 +80,8 @@ public class Digests {
 	 * @throws IOException
 	 */
 	public static byte[] digest(File file, MessageDigest digest) throws IOException {
+		if(!file.canRead())
+			return digest.digest();
 		DigestInputStream digin = new DigestInputStream(new FileInputStream(file), digest);
 		Data.copy(digin, Data.NOOP_OUT);
 		digin.close();
