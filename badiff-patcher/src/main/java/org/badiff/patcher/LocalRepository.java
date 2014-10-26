@@ -76,9 +76,14 @@ public class LocalRepository {
 			
 			BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
 			tmpDiff.diff(fromFile, toFile);
-			PathDiff tmpPD = new PathDiff(path, tmpDiff);
-			BadiffFileDiff diff = new BadiffFileDiff(getPathDiffsRoot(), tmpPD.getName());
-			tmpDiff.renameTo(diff);
+			PathDiff pd = new PathDiff(path, tmpDiff);
+
+			Serialization serial = PatcherSerialization.newInstance();
+			OutputStream out = new FileOutputStream(new File(getPathDiffsRoot(), pd.getName()));
+			serial.writeObject(Data.asOutput(out), PathDiff.class, pd);
+			out.close();
+			
+			tmpDiff.delete();
 			
 			pathDigests.add(new PathDigest(path, toDigest));
 		}

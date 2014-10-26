@@ -4,12 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
 public abstract class Files {
+	public static Comparator<File> LAST_MODIFIED_ORDER = new Comparator<File>() {
+		@Override
+		public int compare(File o1, File o2) {
+			return ((Long) o1.lastModified()).compareTo(o2.lastModified());
+		}
+	};
 
 	public static boolean isChild(File root, File file) throws IOException {
 		if(root == null)
