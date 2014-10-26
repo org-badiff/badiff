@@ -19,7 +19,7 @@ public abstract class Sets {
 	
 	public static <T> Set<T> subtraction(Set<? extends T> lhs, Set<? extends T> rhs) {
 		Set<T> s = new HashSet<T>(lhs);
-		lhs.removeAll(rhs);
+		s.removeAll(rhs);
 		return s;
 	}
 	

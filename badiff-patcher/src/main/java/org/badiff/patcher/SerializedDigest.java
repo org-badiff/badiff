@@ -29,13 +29,14 @@ public class SerializedDigest implements Serialized {
 	}
 	
 	public SerializedDigest(String algorithm, byte[] digest) {
-		if(digest == null)
+		if(algorithm == null || digest == null)
 			throw new IllegalArgumentException();
+		this.algorithm = algorithm;
 		this.digest = digest;
 	}
 	
 	public SerializedDigest(String asString) {
-		String[] f = asString.split(" ", 2);
+		String[] f = asString.split("_", 2);
 		algorithm = f[0];
 		digest = Digests.parse(f[1]);
 	}
@@ -56,7 +57,7 @@ public class SerializedDigest implements Serialized {
 	
 	@Override
 	public String toString() {
-		return algorithm + " " + Digests.pretty(digest);
+		return algorithm + "_" + Digests.pretty(digest);
 	}
 	
 	public String getAlgorithm() {

@@ -19,6 +19,8 @@ public class LocalRepositoryTest {
 	
 	@Test
 	public void testCommit() throws Exception {
-		repo.commit(new File("src"));
+		repo.commit(new File("src/test/resources/working_copies/0"));
+		repo.commit(new File("src/test/resources/working_copies/1"));
+		repo.commit(new File("src/test/resources/working_copies/2"));
 	}
 }

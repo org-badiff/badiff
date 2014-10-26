@@ -253,6 +253,7 @@ public class DefaultSerialization implements Serialization {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T readObject(DataInput in, Class<T> type) throws IOException {
 		if(depth == 0)
@@ -261,7 +262,7 @@ public class DefaultSerialization implements Serialization {
 		try {
 			for(@SuppressWarnings("rawtypes") Serializer s : serializers) {
 				if(s.type() == type) {
-					return type.cast(s.read(in));
+					return (T) s.read(in);
 				}
 			}
 			throw new NotSerializableException(type.getName());

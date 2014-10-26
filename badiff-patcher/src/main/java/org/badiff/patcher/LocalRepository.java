@@ -8,14 +8,20 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
 import org.badiff.patcher.util.Files;
 import org.badiff.patcher.util.Sets;
 import org.badiff.util.Data;
 import org.badiff.util.Digests;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalRepository {
+	private static final Logger log = LoggerFactory.getLogger(LocalRepository.class);
+	
 	protected File root;
 	
 	public LocalRepository(File root) {
@@ -29,29 +35,32 @@ public class LocalRepository {
 	}
 	
 	public void commit(File newWorkingCopyRoot) throws IOException {
+		// compute what needs to happen
 		Set<String> diffsNames = new HashSet<String>(Files.listRelativePaths(getPathDiffsRoot()));
 		Set<String> fromPaths = new HashSet<String>(Files.listRelativePaths(getWorkingCopyRoot()));
 		Set<String> toPaths = new HashSet<String>(Files.listRelativePaths(newWorkingCopyRoot));
+		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
 		
 		Set<String> deletedPaths = Sets.subtraction(fromPaths, toPaths);
 		Set<String> createdOrModifiedPaths = toPaths;
 		
 		Set<String> deletedPrefixes = new HashSet<String>();
 		for(String path : deletedPaths)
-			deletedPrefixes.add(new SerializedDigest(path).toString());
+			deletedPrefixes.add(new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString());
 		
+		// remote diffs for files that have been deleted
 		Iterator<String> dni = diffsNames.iterator();
 		while(dni.hasNext()) {
 			String diffName = dni.next();
 			if(deletedPrefixes.contains(diffName.split("\\.")[0])) {
+				log.info("Dropping stale diff:" + diffName);
 				if(!new File(getPathDiffsRoot(), diffName).delete())
 					throw new IOException("unable to delete " + diffName);
 				dni.remove();
 			}
 		}
 		
-		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
-		
+		// compute diffs for files that have changed
 		for(String path : createdOrModifiedPaths) {
 			File fromFile = new File(getWorkingCopyRoot(), path);
 			if(!fromFile.exists())
@@ -74,6 +83,7 @@ public class LocalRepository {
 			pathDigests.add(new PathDigest(path, toDigest));
 		}
 		
+		// store the most recent digests
 		OutputStream out = new FileOutputStream(new File(root, "digests"));
 		DataOutput data = Data.asOutput(out);
 		Serialization serial = PatcherSerialization.newInstance();
@@ -81,6 +91,18 @@ public class LocalRepository {
 		for(PathDigest pd : pathDigests)
 			serial.writeObject(data, PathDigest.class, pd);
 		out.close();
+		
+		// copy over the new working copy
+		File tmpwc = new File(root, "working_copy.tmp");
+		File oldwc = new File(root, "working_copy.old");
+		
+		FileUtils.deleteQuietly(tmpwc);
+		tmpwc.mkdirs();
+		FileUtils.copyDirectory(newWorkingCopyRoot, tmpwc);
+		
+		if(!getWorkingCopyRoot().renameTo(oldwc) || !tmpwc.renameTo(getWorkingCopyRoot()))
+			throw new IOException("unable to move new working copy into place");
+		FileUtils.deleteQuietly(oldwc);
 	}
 	
 	public File getRoot() {

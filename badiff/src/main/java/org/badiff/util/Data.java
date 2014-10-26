@@ -75,8 +75,10 @@ public class Data {
 		for(;;) {
 			int r = 0;
 			try {
-				while(r < buf.length)
-					buf[r++] = in.readByte();
+				while(r < buf.length) {
+					byte b = in.readByte();
+					buf[r++] = b;
+				}
 			} catch(EOFException e) {
 			}
 			if(r == 0)
@@ -112,8 +114,10 @@ public class Data {
 			long max = Math.min(buf.length, length);
 			int r = 0;
 			try {
-				while(r < max)
-					buf[r++] = in.readByte();
+				while(r < max) {
+					byte b = in.readByte();
+					buf[r++] = b;
+				}
 			} catch(EOFException e) {
 			}
 			if(r == 0)
