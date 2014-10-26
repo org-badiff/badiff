@@ -16,8 +16,8 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 		keys = new HierarchicalSet<K>(wrapped.keySet(), parent.keySet());
 	}
 
-	public Set<Map.Entry<K, V>> superEntrySet() {
-		return super.entrySet();
+	protected Set<Map.Entry<K, V>> wrappedEntrySet() {
+		return wrapped.entrySet();
 	}
 	
 	@Override
@@ -37,7 +37,7 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 
 	@Override
 	public V get(Object key) {
-		return super.containsKey(key) ? super.get(key) : parent.get(key);
+		return wrapped.containsKey(key) ? wrapped.get(key) : parent.get(key);
 	}
 
 	@Override
@@ -49,22 +49,35 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 
 	@Override
 	public V remove(Object key) {
-		return super.remove(key);
+		return wrapped.remove(key);
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
 		return keys.contains(key);
 	}
+	
+	@Override
+	public boolean containsValue(Object value) {
+		Iterator<Map.Entry<K, V>> ei = entrySet().iterator();
+		while(ei.hasNext()) {
+			V val = ei.next().getValue();
+			if(value == null ? val == null : value.equals(val))
+				return true;
+		}
+		return false;
+	}
 
-	public Set<K> superKeySet() {
-		return super.keySet();
+	protected Set<K> wrappedKeySet() {
+		return wrapped.keySet();
 	}
 	
 	@Override
 	public Set<K> keySet() {
 		return keys;
 	}
+	
+	
 	
 	protected class EntrySet extends AbstractSet<Map.Entry<K, V>> {
 
@@ -81,18 +94,18 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 	}
 	
 	protected class EntryIterator implements Iterator<Map.Entry<K, V>> {
-		protected Iterator<Map.Entry<K, V>> superItr = superEntrySet().iterator();
+		protected Iterator<Map.Entry<K, V>> wrappedItr = wrappedEntrySet().iterator();
 		protected Iterator<Map.Entry<K, V>> parentItr = parent.entrySet().iterator();
 		private Map.Entry<K, V> next;
 		private boolean removable = true;
 	
 		@Override
 		public boolean hasNext() {
-			if(superItr.hasNext() || next != null)
+			if(wrappedItr.hasNext() || next != null)
 				return true;
 			while(parentItr.hasNext()) {
 				Map.Entry<K, V> e = parentItr.next();
-				if(superKeySet().contains(e.getKey()))
+				if(wrappedKeySet().contains(e.getKey()))
 					continue;
 				next = e;
 				return true;
@@ -104,8 +117,8 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 		public Map.Entry<K, V> next() {
 			if(!hasNext())
 				throw new NoSuchElementException();
-			if(superItr.hasNext())
-				return superItr.next();
+			if(wrappedItr.hasNext())
+				return wrappedItr.next();
 			removable = false;
 			Map.Entry<K, V> e = next;
 			next = null;
@@ -115,7 +128,7 @@ public class HierarchicalMap<K, V> extends FilterMap<K, V> {
 		@Override
 		public void remove() {
 			if(removable)
-				superItr.remove();
+				wrappedItr.remove();
 			else
 				throw new UnsupportedOperationException();
 		}
