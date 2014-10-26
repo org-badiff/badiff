@@ -51,7 +51,7 @@ public class SmallNumberSerialization implements Serialization {
 		return new SmallNumberSerialization();
 	}
 
-	private static abstract class Serializer<T> {
+	protected static abstract class Serializer<T> {
 		protected Class<T> type;
 		
 		public Serializer(Class<T> type) {
@@ -205,6 +205,10 @@ public class SmallNumberSerialization implements Serialization {
 			}
 		});
 		
+	}
+	
+	protected void addSerializer(Serializer<?> s) {
+		serializers.add(s);
 	}
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
