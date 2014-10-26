@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class FlatCollections {
-	public static class FlatMap<K, V> extends AbstractMap<K, V> {
+public abstract class HashArrays {
+	public static class HashArrayMap<K, V> extends AbstractMap<K, V> {
 		protected static Object[][] entriesOf(Map<?, ?> m) {
 			if(m.size() == 0)
 				return new Object[2][0];
@@ -32,16 +32,16 @@ public abstract class FlatCollections {
 		protected Object[] values;
 		protected int[] indexes;
 		
-		public FlatMap(Map<? extends K, ? extends V> m) {
+		public HashArrayMap(Map<? extends K, ? extends V> m) {
 			this(entriesOf(m));
 		}
 		
 		@SuppressWarnings("unchecked")
-		protected FlatMap(Object[][] entries) {
+		protected HashArrayMap(Object[][] entries) {
 			this((K[]) entries[0], (V[]) entries[1]);
 		}
 		
-		public FlatMap(K[] keys, V[] values) {
+		public HashArrayMap(K[] keys, V[] values) {
 			if(keys.length != values.length)
 				throw new IllegalArgumentException("keys and values arrays must have same length");
 			size = keys.length;
@@ -56,13 +56,13 @@ public abstract class FlatCollections {
 						throw new IllegalArgumentException("Duplicate keys: " + keys[i] + " and " + keys[j]);
 			}
 			
-			modulo = FlatCollections.arrayLength(keys);
+			modulo = HashArrays.arrayLength(keys);
 			this.keys = new Object[modulo];
 			this.values = new Object[modulo];
 			indexes = new int[size];
 			
 			for(int i = 0; i < size; i++) {
-				int idx = FlatCollections.scanKeyPosition(keys[i], this.keys);
+				int idx = HashArrays.scanKeyPosition(keys[i], this.keys);
 				if(idx == -1)
 					throw new IllegalStateException("No more room in keys array?");
 				if(idx < 0)
@@ -97,7 +97,7 @@ public abstract class FlatCollections {
 		public boolean containsKey(Object key) {
 			if(key == null)
 				return false;
-			int idx = FlatCollections.scanKeyPosition(key, keys);
+			int idx = HashArrays.scanKeyPosition(key, keys);
 			return idx >= 0;
 		}
 
@@ -106,7 +106,7 @@ public abstract class FlatCollections {
 		public V get(Object key) {
 			if(key == null)
 				return null;
-			int idx = FlatCollections.scanKeyPosition(key, keys);
+			int idx = HashArrays.scanKeyPosition(key, keys);
 			if(idx < 0)
 				return null;
 			return (V) values[idx];
@@ -169,18 +169,18 @@ public abstract class FlatCollections {
 
 	}
 
-	public static class FlatSet<E> extends AbstractSet<E> {
+	public static class HashArraySet<E> extends AbstractSet<E> {
 		protected int size;
 		protected int modulo;
 		protected Object[] keys;
 		protected int[] indexes;
 		
 		@SuppressWarnings("unchecked")
-		public FlatSet(Collection<? extends E> c) {
+		public HashArraySet(Collection<? extends E> c) {
 			this((E[]) c.toArray());
 		}
 		
-		public FlatSet(E[] keys) {
+		public HashArraySet(E[] keys) {
 			size = keys.length;
 			
 			// Ensure no null keys
@@ -193,13 +193,13 @@ public abstract class FlatCollections {
 						throw new IllegalArgumentException("Duplicate keys: " + keys[i] + " and " + keys[j]);
 			}
 			
-			modulo = FlatCollections.arrayLength(keys);
+			modulo = HashArrays.arrayLength(keys);
 			
 			this.keys = new Object[modulo];
 			indexes = new int[size];
 			
 			for(int i = 0; i < size; i++) {
-				int idx = FlatCollections.scanKeyPosition(keys[i], this.keys);
+				int idx = HashArrays.scanKeyPosition(keys[i], this.keys);
 				if(idx == -1)
 					throw new IllegalStateException("No more room in keys array?");
 				if(idx < 0)
@@ -229,7 +229,7 @@ public abstract class FlatCollections {
 		public boolean contains(Object o) {
 			if(o == null)
 				return false;
-			int idx = FlatCollections.scanKeyPosition(o, keys);
+			int idx = HashArrays.scanKeyPosition(o, keys);
 			return idx >= 0;
 		}
 
@@ -321,5 +321,5 @@ public abstract class FlatCollections {
 	}
 
 	
-	private FlatCollections() {}
+	private HashArrays() {}
 }

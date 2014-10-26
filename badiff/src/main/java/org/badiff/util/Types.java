@@ -32,13 +32,13 @@ public abstract class Types {
 	private static final int PRIMITIVE_COUNT = PRIMITIVE_TYPES.length;
 
 	private static final Set<Class<?>> WRAPPER_TYPES_SET =
-			new FlatCollections.FlatSet<Class<?>>(WRAPPER_TYPES);
+			new HashArrays.HashArraySet<Class<?>>(WRAPPER_TYPES);
 	
 	private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER =
-			new FlatCollections.FlatMap<Class<?>, Class<?>>(PRIMITIVE_TYPES, WRAPPER_TYPES);
+			new HashArrays.HashArrayMap<Class<?>, Class<?>>(PRIMITIVE_TYPES, WRAPPER_TYPES);
 	
 	private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE =
-			new FlatCollections.FlatMap<Class<?>, Class<?>>(WRAPPER_TYPES, PRIMITIVE_TYPES);
+			new HashArrays.HashArrayMap<Class<?>, Class<?>>(WRAPPER_TYPES, PRIMITIVE_TYPES);
 	
 	public static Class<?> toPrimitive(Class<?> type) {
 		if(isPrimitive(type))
