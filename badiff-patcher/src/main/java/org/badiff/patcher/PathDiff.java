@@ -12,6 +12,10 @@ import org.badiff.util.Digests;
 public class PathDiff implements Serialized {
 	public static final Object DESERIALIZE_ROOT = new Object();
 	
+	public static String getName(SerializedDigest pathId, SerializedDigest from, SerializedDigest to) {
+		return pathId + "." + from + "." + to + ".badiff";
+	}
+	
 	protected String path;
 	protected BadiffFileDiff diff;
 	protected SerializedDigest pathId;
@@ -53,7 +57,7 @@ public class PathDiff implements Serialized {
 	}
 	
 	public String getName() {
-		return pathId + "." + from + "." + to + ".badiff";
+		return getName(pathId, from, to);
 	}
 
 	@Override

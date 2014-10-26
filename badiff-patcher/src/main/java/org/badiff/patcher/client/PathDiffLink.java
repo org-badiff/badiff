@@ -1,7 +1,9 @@
 package org.badiff.patcher.client;
 
 import java.security.MessageDigest;
+import java.util.Arrays;
 
+import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Digests;
 
@@ -30,6 +32,14 @@ public class PathDiffLink {
 		md.update(prefix.getDigest());
 		md.update(toRaw.getDigest());
 		to = new SerializedDigest(md.getAlgorithm(), md.digest());
+	}
+	
+	public PathDiffLink createPrevious() {
+		String[] f = name.split("\\.");
+		SerializedDigest pr = new SerializedDigest(f[0]);
+		SerializedDigest fr = new SerializedDigest(pr.getAlgorithm(), new byte[pr.getDigest().length]);
+		SerializedDigest to = new SerializedDigest(f[1]);
+		return new PathDiffLink(PathDiff.getName(pr, fr, to));
 	}
 	
 	public String getName() {

@@ -17,7 +17,10 @@ public class PathDiffChain {
 	
 	public void add(PathDiffLink link) {
 		links.put(link.getTo(), link);
-		link.setPrev(links.get(link.getFrom()));
+		PathDiffLink prev = links.get(link.getFrom());
+		if(prev == null) 
+			prev = link.createPrevious();
+		link.setPrev(prev);
 	}
 	
 	public PathDiffLink get(PathDigest pd) {
