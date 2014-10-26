@@ -8,20 +8,15 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.badiff.util.HierarchicalMap;
 import org.badiff.util.Types;
 
 public class ObjectInputOutputSerialization implements Serialization {
 	
-	protected Map<Object, Object> context;
-	protected GraphContext graphContext;
-	protected int depth;
+	protected Map<Object, Object> context = new HashMap<Object, Object>();
+	private Map<Object, Object> graphContext = new HierarchicalMap<Object, Object>(new HashMap<Object, Object>(), context);
+	protected int depth = 0;
 	
-	public ObjectInputOutputSerialization() {
-		context = new HashMap<Object, Object>();
-		graphContext = new GraphContext(context);
-		depth = 0;
-	}
-
 	@Override
 	public <T> void writeObject(DataOutput out, Class<T> type, T object)
 			throws IOException {
@@ -92,7 +87,7 @@ public class ObjectInputOutputSerialization implements Serialization {
 	}
 
 	@Override
-	public GraphContext graphContext() {
+	public Map<Object, Object> graphContext() {
 		return graphContext;
 	}
 

@@ -71,5 +71,5 @@ public interface Serialization {
 	 * Storage for data which is erased immediately prior to each top-level serialization or deserialization.
 	 * @return
 	 */
-	public GraphContext graphContext();
+	public Map<Object, Object> graphContext();
 }

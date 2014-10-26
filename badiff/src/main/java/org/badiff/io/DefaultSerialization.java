@@ -43,6 +43,7 @@ import org.badiff.Op;
 import org.badiff.imp.FileDiff;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.util.Data;
+import org.badiff.util.HierarchicalMap;
 
 public class DefaultSerialization implements Serialization {
 	
@@ -67,7 +68,7 @@ public class DefaultSerialization implements Serialization {
 	private List<Serializer<?>> serializers = new ArrayList<Serializer<?>>();
 	private int depth;
 	private Map<Object, Object> context = new HashMap<Object, Object>();
-	private GraphContext graphContext = new GraphContext(context);
+	private Map<Object, Object> graphContext = new HierarchicalMap<Object, Object>(new HashMap<Object, Object>(), context);
 	
 	@SuppressWarnings("rawtypes")
 	public DefaultSerialization() {
@@ -275,7 +276,7 @@ public class DefaultSerialization implements Serialization {
 	}
 
 	@Override
-	public GraphContext graphContext() {
+	public Map<Object, Object> graphContext() {
 		return graphContext;
 	}
 	
