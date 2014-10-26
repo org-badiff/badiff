@@ -32,8 +32,6 @@ package org.badiff;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;

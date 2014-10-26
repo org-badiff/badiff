@@ -37,7 +37,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.badiff.io.NoopOutputStream;
 import org.badiff.io.RandomInput;
 import org.badiff.io.RandomInputStream;
 
