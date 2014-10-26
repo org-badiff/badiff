@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class HierarchicalSet<E> extends FilterSet<E> {
+	
 	protected Set<E> parent;
 	
 	public HierarchicalSet(Set<E> wrapped, Set<E> parent) {
