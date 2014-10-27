@@ -15,6 +15,10 @@ public class PathDiffChain {
 		links = new HashMap<SerializedDigest, PathDiffLink>();
 	}
 	
+	public void clear() {
+		links.clear();
+	}
+	
 	public void add(PathDiffLink link) {
 		links.put(link.getTo(), link);
 		PathDiffLink prev = links.get(link.getFrom());

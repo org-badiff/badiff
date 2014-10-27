@@ -63,11 +63,13 @@ public class LocalRepository {
 		// compute diffs for files that have changed
 		for(String path : createdOrModifiedPaths) {
 			File fromFile = new File(getWorkingCopyRoot(), path);
-			if(!fromFile.exists())
-				continue;
 			File toFile = new File(newWorkingCopyRoot, path);
-			SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
 			SerializedDigest toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
+			if(!fromFile.exists()) {
+				pathDigests.add(new PathDigest(path, toDigest));
+				continue;
+			}
+			SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
 			if(fromDigest.equals(toDigest)) {
 				pathDigests.add(new PathDigest(path, toDigest));
 				continue;
