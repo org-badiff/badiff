@@ -38,7 +38,7 @@ public class RepositoryClient {
 	
 	public void updateChain() throws IOException {
 		chain.clear();
-		List<RemotePath> diffs = Arrays.asList(access.get("diffs").list());
+		List<RemotePath> diffs = Arrays.asList(access.get("ff").list());
 		Collections.sort(diffs, RemotePath.LAST_MODIFIED_ORDER);
 		for(RemotePath d : diffs) {
 			chain.add(PathDiff.parseName(d.name()));
