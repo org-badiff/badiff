@@ -1,7 +1,5 @@
 package org.badiff.patcher.client;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,11 +9,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
-import org.badiff.Op;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
-import org.badiff.q.OpQueue;
-import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
