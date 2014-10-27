@@ -2,14 +2,18 @@ package org.badiff.patcher.client;
 
 import java.io.DataInput;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
 import org.badiff.patcher.PatcherSerialization;
 import org.badiff.patcher.PathDiff;
@@ -51,6 +55,38 @@ public class RepositoryClient {
 			PathDigest pd = serial.readObject(data, PathDigest.class);
 			digests.put(pd.getPath(), pd.getDigest());
 		}
+	}
+	
+	public PathDiff localFastForward(PathDiff pd) throws IOException {
+		BadiffFileDiff ff = new BadiffFileDiff(storage, "ff/" + pd.getName());
+		if(!ff.exists()) {
+			File tmp = new File(ff.getParentFile(), ff.getName() + ".download");
+			ff.getParentFile().mkdirs();
+			OutputStream out = new FileOutputStream(tmp);
+			InputStream in = access.get("ff/" + pd.getName()).open();
+			IOUtils.copy(in, out);
+			in.close();
+			out.close();
+			if(!tmp.renameTo(ff))
+				throw new IOException("Unable to replace " + ff);
+		}
+		return new PathDiff(pd.getName(), ff);
+	}
+	
+	public PathDiff localRewind(PathDiff pd) throws IOException {
+		BadiffFileDiff rw = new BadiffFileDiff(storage, "rw/" + pd.getName());
+		if(!rw.exists()) {
+			File tmp = new File(rw.getParentFile(), rw.getName() + ".download");
+			rw.getParentFile().mkdirs();
+			OutputStream out = new FileOutputStream(tmp);
+			InputStream in = access.get("rw/" + pd.getName()).open();
+			IOUtils.copy(in, out);
+			in.close();
+			out.close();
+			if(!tmp.renameTo(rw))
+				throw new IOException("Unable to replace " + rw);
+		}
+		return new PathDiff(pd.getName(), rw);
 	}
 	
 	public RepositoryAccess getAccess() {

@@ -29,8 +29,10 @@ public class LocalRepository {
 		this.root = root;
 		if(!getWorkingCopyRoot().isDirectory() && !getWorkingCopyRoot().mkdirs())
 			throw new IllegalArgumentException(getWorkingCopyRoot() + " is not a directory");
-		if(!getPathDiffsRoot().isDirectory() && !getPathDiffsRoot().mkdirs())
-			throw new IllegalArgumentException(getPathDiffsRoot() + " is not a directory");
+		if(!getFastForwardRoot().isDirectory() && !getFastForwardRoot().mkdirs())
+			throw new IllegalArgumentException(getFastForwardRoot() + " is not a directory");
+		if(!getRewindRoot().isDirectory() && !getRewindRoot().mkdirs())
+			throw new IllegalArgumentException(getRewindRoot() + " is not a directory");
 	}
 	
 	public void commit(File newWorkingCopyRoot) throws IOException {
@@ -57,13 +59,11 @@ public class LocalRepository {
 			BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
 			tmpDiff.diff(fromFile, toFile);
 			PathDiff pd = new PathDiff(ts, path, tmpDiff);
-
-			Serialization serial = PatcherSerialization.newInstance();
-			OutputStream out = new FileOutputStream(new File(getPathDiffsRoot(), pd.getName()));
-			serial.writeObject(Data.asOutput(out), PathDiff.class, pd);
-			out.close();
+			tmpDiff.renameTo(new File(getFastForwardRoot(), pd.getName()));
 			
-			tmpDiff.delete();
+			tmpDiff.diff(toFile, fromFile);
+			pd = pd.reverse();
+			tmpDiff.renameTo(new File(getRewindRoot(), pd.getName()));
 			
 			pathDigests.add(new PathDigest(path, toDigest));
 		}
@@ -98,7 +98,11 @@ public class LocalRepository {
 		return new File(root, "working_copy");
 	}
 	
-	public File getPathDiffsRoot() {
-		return new File(root, "diffs");
+	public File getFastForwardRoot() {
+		return new File(root, "ff");
+	}
+	
+	public File getRewindRoot() {
+		return new File(root, "rw");
 	}
 }

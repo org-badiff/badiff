@@ -47,6 +47,11 @@ public class PathDiff implements Serialized {
 		to = new SerializedDigest(fields[3]);
 	}
 	
+	public PathDiff(String name, BadiffFileDiff diff) {
+		this(name);
+		this.diff = diff;
+	}
+	
 	public PathDiff(long ts, String path, BadiffFileDiff diff) throws IOException {
 		BadiffFileDiff.Header.Optional opt;
 		if(path == null || diff == null || (opt = diff.header().getOptional()) == null)
@@ -58,6 +63,18 @@ public class PathDiff implements Serialized {
 		pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
 		from = new SerializedDigest(opt.getHashAlgorithm(), opt.getPreHash());
 		to = new SerializedDigest(opt.getHashAlgorithm(), opt.getPostHash());
+	}
+	
+	protected PathDiff(String path, long ts, SerializedDigest from, SerializedDigest to) {
+		this.path = path;
+		this.ts = ts;
+		this.pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
+		this.from = from;
+		this.to = to;
+	}
+	
+	public PathDiff reverse() {
+		return new PathDiff(path, ts, to, from);
 	}
 	
 	public String getPath() {
