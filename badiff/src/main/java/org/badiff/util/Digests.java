@@ -47,6 +47,10 @@ import org.badiff.io.RandomInputStream;
 public class Digests {
 	public static final String DEFAULT_ALGORITHM = "SHA-1";
 	
+	public static byte[] defaultZeroes() {
+		return new byte[defaultDigest().digest().length];
+	}
+	
 	/**
 	 * Return a default message digest.  Tries SHA-1, then MD5, then throws an exception.
 	 * @return

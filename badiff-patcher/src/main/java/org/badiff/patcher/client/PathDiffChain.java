@@ -45,11 +45,12 @@ public class PathDiffChain {
 		List<PathDiff> pathHistory = historyFor(pathId);
 		if(pathHistory.size() == 0)
 			return -1;
+		for(int i = pathHistory.size() - 1; i >= 0; i--) {
+			if(pathHistory.get(i).getTo().equals(contentId))
+				return i + 1;
+		}
 		if(pathHistory.get(0).getFrom().equals(contentId))
 			return 0;
-		for(int i = 0; i < pathHistory.size(); i++)
-			if(pathHistory.get(i).getTo().equals(contentId))
-				return i+1;
 		return -1;
 	}
 	

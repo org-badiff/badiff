@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -19,6 +20,7 @@ import org.badiff.patcher.SerializedDigest;
 import org.badiff.q.OpQueue;
 import org.badiff.q.UndoOpQueue;
 import org.badiff.util.Data;
+import org.badiff.util.Digests;
 
 public class PathAction extends ArrayList<PathDiff> {
 	public static enum Direction {
@@ -111,7 +113,13 @@ public class PathAction extends ArrayList<PathDiff> {
 			
 			orig.close();
 			target.close();
-			tmp.renameTo(to);
+			if(!tmp.renameTo(to))
+				throw new IOException("Unable to replace " + to);
+			
+			if(Arrays.equals(Digests.defaultZeroes(), pd.getTo().getDigest())) {
+				if(!to.delete())
+					throw new IOException("Unable to delete " + to);
+			}
 		}
 	}
 }
