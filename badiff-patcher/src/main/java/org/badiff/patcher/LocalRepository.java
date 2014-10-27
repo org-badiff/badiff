@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
 import org.badiff.patcher.util.Files;
@@ -33,6 +35,8 @@ public class LocalRepository {
 			throw new IllegalArgumentException(getFastForwardRoot() + " is not a directory");
 		if(!getRewindRoot().isDirectory() && !getRewindRoot().mkdirs())
 			throw new IllegalArgumentException(getRewindRoot() + " is not a directory");
+		if(!getIdRoot().isDirectory() && !getIdRoot().mkdirs())
+			throw new IllegalArgumentException(getIdRoot() + " is not a directory");
 	}
 	
 	public void commit(File newWorkingCopyRoot) throws IOException {
@@ -66,6 +70,13 @@ public class LocalRepository {
 			tmpDiff.renameTo(new File(getRewindRoot(), pd.getName()));
 			
 			pathDigests.add(new PathDigest(path, toDigest));
+			
+			File id = new File(getIdRoot(), pd.getPathId().toString());
+			if(!id.isFile()) {
+				OutputStream out = new FileOutputStream(id);
+				IOUtils.write(path, out, Charset.forName("UTF-8"));
+				out.close();
+			}
 		}
 		
 		// store the most recent digests
@@ -104,5 +115,9 @@ public class LocalRepository {
 	
 	public File getRewindRoot() {
 		return new File(root, "rw");
+	}
+	
+	public File getIdRoot() {
+		return new File(root, "id");
 	}
 }

@@ -54,6 +54,8 @@ public class FileRepositoryAccess implements RepositoryAccess {
 	@Override
 	public InputStream open(RemotePath file) throws IOException {
 		File f = new File(root, file.path());
+		if(!f.exists())
+			return null;
 		if(!f.isFile())
 			throw new IOException("not a file:" + f);
 		return new FileInputStream(f);

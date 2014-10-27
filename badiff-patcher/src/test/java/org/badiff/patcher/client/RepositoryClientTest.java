@@ -21,8 +21,11 @@ public class RepositoryClientTest {
 		local.commit(new File("src/test/resources/working_copies/0"));
 		local.commit(new File("src/test/resources/working_copies/1"));
 		local.commit(new File("src/test/resources/working_copies/2"));
+		local.commit(new File("src/test/resources/working_copies/3"));
 		
-		client = new RepositoryClient(new FileRepositoryAccess(local.getRoot()));
+		File storage = new File("target/client/storage");
+		
+		client = new RepositoryClient(new FileRepositoryAccess(root), storage);
 	}
 	
 	@Test
@@ -34,7 +37,7 @@ public class RepositoryClientTest {
 	@Test
 	public void testUpdateChain() throws Exception {
 		client.updateChain();
-		System.out.println(client.getChain().keys());
+		System.out.println(client.getChain().getPaths());
 	}
 
 }

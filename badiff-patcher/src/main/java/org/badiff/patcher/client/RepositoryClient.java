@@ -2,10 +2,12 @@ package org.badiff.patcher.client;
 
 import java.io.DataInput;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,11 +31,51 @@ public class RepositoryClient {
 	
 	protected File storage;
 	
-	public RepositoryClient(RepositoryAccess access) {
+	public RepositoryClient(RepositoryAccess access, File storage) throws IOException {
 		this.serverAccess = access;
-		chain = new PathDiffChain();
+		chain = new PathDiffChain(this);
 		digests = new HashMap<String, SerializedDigest>();
-		storage = new File(System.getProperty("java.io.tmpdir"), "badiff-patcher");
+		if(!storage.isDirectory() && !storage.mkdirs())
+			throw new IOException("Unable to create directory " + storage);
+		File ff = new File(storage, "ff");
+		if(!ff.isDirectory() && !ff.mkdirs())
+			throw new IOException("Unable to create directory " + ff);
+		File rw = new File(storage, "rw");
+		if(!rw.isDirectory() && !rw.mkdirs())
+			throw new IOException("Unable to create directory " + rw);
+		File id = new File(storage, "id");
+		if(!id.isDirectory() && !id.mkdirs())
+			throw new IOException("Unable to create directory " + id);
+		this.storage = storage;
+	}
+	
+	public String pathForId(SerializedDigest pathId) throws IOException {
+		File id = new File(storage, "id/" + pathId);
+		if(id.isFile()) {
+			InputStream in = new FileInputStream(id);
+			try {
+				return IOUtils.toString(in, Charset.forName("UTF-8"));
+			} finally {
+				in.close();
+			}
+		}
+		
+		InputStream in = serverAccess.get("id/" + pathId).open();
+		if(in == null)
+			return null;
+		String path;
+		try {
+			path = IOUtils.toString(in, Charset.forName("UTF-8"));
+		} finally {
+			in.close();
+		}
+		OutputStream out = new FileOutputStream(id);
+		try {
+			IOUtils.write(path, out, Charset.forName("UTF-8"));
+		} finally {
+			out.close();
+		}
+		return path;
 	}
 	
 	public void updateChain() throws IOException {

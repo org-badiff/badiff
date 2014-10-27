@@ -1,8 +1,10 @@
 package org.badiff.patcher.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,10 +15,14 @@ import org.badiff.patcher.SerializedDigest;
 import org.badiff.patcher.client.PathAction.Direction;
 
 public class PathDiffChain {
+	protected RepositoryClient client;
+	protected Set<String> paths;
 	protected Map<SerializedDigest, List<PathDiff>> history;
 	protected Set<Long> timestamps;
 	
-	public PathDiffChain() {
+	public PathDiffChain(RepositoryClient client) {
+		this.client = client;
+		paths = new HashSet<String>();
 		history = new HashMap<SerializedDigest, List<PathDiff>>();
 		timestamps = new TreeSet<Long>();
 	}
@@ -25,17 +31,18 @@ public class PathDiffChain {
 		history.clear();
 	}
 	
-	public void add(PathDiff link) {
+	public void add(PathDiff link) throws IOException {
 		List<PathDiff> pathHistory = historyFor(link.getPathId());
 		if(!pathHistory.contains(link)) {
+			paths.add(client.pathForId(link.getPathId()));
 			pathHistory.add(link);
 			Collections.sort(pathHistory, PathDiff.TS_ORDER);
 			timestamps.add(link.getTs());
 		}
 	}
-	
-	public Set<SerializedDigest> keys() {
-		return history.keySet();
+
+	public Set<String> getPaths() {
+		return paths;
 	}
 	
 	public Set<Long> getTimestamps() {

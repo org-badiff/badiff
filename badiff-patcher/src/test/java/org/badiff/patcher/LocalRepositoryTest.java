@@ -22,5 +22,6 @@ public class LocalRepositoryTest {
 		repo.commit(new File("src/test/resources/working_copies/0"));
 		repo.commit(new File("src/test/resources/working_copies/1"));
 		repo.commit(new File("src/test/resources/working_copies/2"));
+		repo.commit(new File("src/test/resources/working_copies/3"));
 	}
 }
