@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
@@ -13,9 +14,11 @@ import org.badiff.patcher.client.PathAction.Direction;
 
 public class PathDiffChain {
 	protected Map<SerializedDigest, List<PathDiff>> history;
+	protected Set<Long> timestamps;
 	
 	public PathDiffChain() {
 		history = new HashMap<SerializedDigest, List<PathDiff>>();
+		timestamps = new TreeSet<Long>();
 	}
 	
 	public void clear() {
@@ -27,11 +30,16 @@ public class PathDiffChain {
 		if(!pathHistory.contains(link)) {
 			pathHistory.add(link);
 			Collections.sort(pathHistory, PathDiff.TS_ORDER);
+			timestamps.add(link.getTs());
 		}
 	}
 	
 	public Set<SerializedDigest> keys() {
 		return history.keySet();
+	}
+	
+	public Set<Long> getTimestamps() {
+		return timestamps;
 	}
 	
 	public List<PathDiff> historyFor(SerializedDigest pathId) {
@@ -54,6 +62,17 @@ public class PathDiffChain {
 		return -1;
 	}
 	
+	protected int indexOf(SerializedDigest pathId, long timestamp) {
+		List<PathDiff> pathHistory = historyFor(pathId);
+		if(pathHistory.size() == 0)
+			return -1;
+		for(int i = pathHistory.size() - 1; i >= 0; i--) {
+			if(pathHistory.get(i).getTs() < timestamp)
+				return i + 1;
+		}
+		return 0;
+	}
+	
 	public PathAction actionFor(SerializedDigest pathId, SerializedDigest fromId, SerializedDigest toId) {
 		int fromIndex = indexOf(pathId, fromId);
 		int toIndex = indexOf(pathId, toId);
@@ -62,6 +81,34 @@ public class PathDiffChain {
 		if(toIndex < 0)
 			throw new IllegalArgumentException(pathId + " does not have content id " + toId);
 		
+		return actionFor(pathId, fromId, toId, fromIndex, toIndex);
+	}
+	
+	public PathAction actionFor(SerializedDigest pathId, SerializedDigest fromId, long toTimestamp) {
+		int fromIndex = indexOf(pathId, fromId);
+		int toIndex = indexOf(pathId, toTimestamp);
+
+		if(fromIndex < 0)
+			throw new IllegalArgumentException(pathId + " does not have content id " + fromId);
+		
+		SerializedDigest toId;
+		if(fromIndex == toIndex)
+			toId = fromId;
+		else if(fromIndex < toIndex)
+			toId = historyFor(pathId).get(toIndex).getTo();
+		else
+			toId = historyFor(pathId).get(toIndex).getFrom();
+		
+		return actionFor(pathId, fromId, toId, fromIndex, toIndex);
+	}
+	
+	protected PathAction actionFor(
+			SerializedDigest pathId, 
+			SerializedDigest fromId, 
+			SerializedDigest toId, 
+			int fromIndex, 
+			int toIndex) {
+	
 		if(fromIndex == toIndex)
 			return new PathAction(pathId, Direction.PAUSE);
 		
