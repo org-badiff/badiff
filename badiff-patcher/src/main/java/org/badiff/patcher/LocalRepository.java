@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -38,39 +37,16 @@ public class LocalRepository {
 		long ts = System.currentTimeMillis();
 		
 		// compute what needs to happen
-		Set<String> diffsNames = new HashSet<String>(Files.listRelativePaths(getPathDiffsRoot()));
 		Set<String> fromPaths = new HashSet<String>(Files.listRelativePaths(getWorkingCopyRoot()));
 		Set<String> toPaths = new HashSet<String>(Files.listRelativePaths(newWorkingCopyRoot));
+		Set<String> allPaths = Sets.union(fromPaths, toPaths);
 		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
 		
-		Set<String> deletedPaths = Sets.subtraction(fromPaths, toPaths);
-		Set<String> createdOrModifiedPaths = toPaths;
-		
-		Set<String> deletedPrefixes = new HashSet<String>();
-		for(String path : deletedPaths)
-			deletedPrefixes.add(new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString());
-		
-		// remote diffs for files that have been deleted
-		Iterator<String> dni = diffsNames.iterator();
-		while(dni.hasNext()) {
-			String diffName = dni.next();
-			if(deletedPrefixes.contains(diffName.split("\\.")[0])) {
-				log.info("Dropping stale diff:" + diffName);
-				if(!new File(getPathDiffsRoot(), diffName).delete())
-					throw new IOException("unable to delete " + diffName);
-				dni.remove();
-			}
-		}
-		
 		// compute diffs for files that have changed
-		for(String path : createdOrModifiedPaths) {
+		for(String path : allPaths) {
 			File fromFile = new File(getWorkingCopyRoot(), path);
 			File toFile = new File(newWorkingCopyRoot, path);
 			SerializedDigest toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
-			if(!fromFile.exists()) {
-				pathDigests.add(new PathDigest(path, toDigest));
-				continue;
-			}
 			SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
 			if(fromDigest.equals(toDigest)) {
 				pathDigests.add(new PathDigest(path, toDigest));

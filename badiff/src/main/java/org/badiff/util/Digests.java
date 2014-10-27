@@ -89,6 +89,8 @@ public class Digests {
 	}
 	
 	public static byte[] digest(RandomInput input, MessageDigest digest) throws IOException {
+		if(input == null)
+			return new byte[digest.digest().length];
 		DigestInputStream digin = new DigestInputStream(new RandomInputStream(input), digest);
 		Data.copy(digin, Data.NOOP_OUT);
 		return digin.getMessageDigest().digest();

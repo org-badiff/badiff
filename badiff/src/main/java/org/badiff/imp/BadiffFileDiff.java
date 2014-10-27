@@ -48,6 +48,7 @@ import org.badiff.Diff;
 import org.badiff.Op;
 import org.badiff.Queueable;
 import org.badiff.io.DefaultSerialization;
+import org.badiff.io.EmptyInputStream;
 import org.badiff.io.FileRandomInput;
 import org.badiff.io.Random;
 import org.badiff.io.RandomInput;
@@ -55,6 +56,7 @@ import org.badiff.io.RuntimeIOException;
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 import org.badiff.io.SmallNumberSerialization;
+import org.badiff.io.StreamRandomInput;
 import org.badiff.p.Pipe;
 import org.badiff.p.Pipeline;
 import org.badiff.p.Pipes;
@@ -615,29 +617,45 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 	}
 	
 	public void diff(File orig, File target, String pipeline) throws IOException {
-		FileRandomInput oin = new FileRandomInput(orig);
+		RandomInput oin;
+		if(orig.canRead())
+			oin = new FileRandomInput(orig);
+		else
+			oin = null;
 		try {
-			FileRandomInput tin = new FileRandomInput(target);
+			RandomInput tin;
+			if(target.canRead())
+				tin = new FileRandomInput(target);
+			else
+				tin = null;
 			try {
 				diff(oin, tin, pipeline);
 			} finally {
-				tin.close();
+				if(tin != null)
+					tin.close();
 			}
 		} finally {
-			oin.close();
+			if(oin != null)
+				oin.close();
 		}
 	}
 	
 	public void diff(RandomInput orig, RandomInput target, String pipeline) throws IOException {
 	
-		long opos = orig.position();
-		long tpos = target.position();
+		long opos = orig != null ? orig.position() : -1;
+		long tpos = target != null ? target.position() : -1;
 		
 		byte[] preHash = Digests.digest(orig, Digests.defaultDigest());
 		byte[] postHash = Digests.digest(target, Digests.defaultDigest());
 		
-		orig.seek(opos);
-		target.seek(tpos);
+		if(orig != null)
+			orig.seek(opos);
+		else
+			orig = new StreamRandomInput(new EmptyInputStream(), 1);
+		if(target != null)
+			target.seek(tpos);
+		else
+			target = new StreamRandomInput(new EmptyInputStream(), 1);
 		
 		FileDiff tmp = new FileDiff(getParentFile(), getName() + ".tmp");
 		

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.badiff.patcher.SerializedDigest;
 
@@ -21,8 +22,14 @@ public class PathDiffChain {
 	
 	public void add(PathDiffLink link) {
 		List<PathDiffLink> pathHistory = get(link.getPathId());
-		pathHistory.add(link);
-		Collections.sort(pathHistory, PathDiffLink.TS_ORDER);
+		if(!pathHistory.contains(link)) {
+			pathHistory.add(link);
+			Collections.sort(pathHistory, PathDiffLink.TS_ORDER);
+		}
+	}
+	
+	public Set<SerializedDigest> keys() {
+		return history.keySet();
 	}
 	
 	public List<PathDiffLink> get(SerializedDigest pathId) {

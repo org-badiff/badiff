@@ -37,8 +37,13 @@ public class SerializedDigest implements Serialized {
 	
 	public SerializedDigest(String asString) {
 		String[] f = asString.split("_", 2);
-		algorithm = f[0];
-		digest = Digests.parse(f[1]);
+		if(f.length == 1) {
+			algorithm = Digests.DEFAULT_ALGORITHM;
+			digest = Digests.parse(f[0]);
+		} else {
+			algorithm = f[0];
+			digest = Digests.parse(f[1]);
+		}
 	}
 
 	@Override
@@ -57,7 +62,7 @@ public class SerializedDigest implements Serialized {
 	
 	@Override
 	public String toString() {
-		return algorithm + "_" + Digests.pretty(digest);
+		return (Digests.DEFAULT_ALGORITHM.equals(algorithm) ? "" : algorithm + "_") + Digests.pretty(digest);
 	}
 	
 	public String getAlgorithm() {

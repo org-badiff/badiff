@@ -30,5 +30,11 @@ public class RepositoryClientTest {
 		client.updateDigests();
 		System.out.println(client.getDigests());
 	}
+	
+	@Test
+	public void testUpdateChain() throws Exception {
+		client.updateChain();
+		System.out.println(client.getChain().keys());
+	}
 
 }
