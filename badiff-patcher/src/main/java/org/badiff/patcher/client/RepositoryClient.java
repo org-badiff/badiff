@@ -37,7 +37,7 @@ public class RepositoryClient {
 		List<RemotePath> diffs = Arrays.asList(access.get("diffs").list());
 		Collections.sort(diffs, RemotePath.LAST_MODIFIED_ORDER);
 		for(RemotePath d : diffs) {
-			chain.add(new PathDiffLink(PathDiff.parseName(d.name())));
+			chain.add(PathDiff.parseName(d.name()));
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Comparator;
 
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
@@ -13,6 +14,13 @@ import org.badiff.util.Digests;
 
 public class PathDiff implements Serialized {
 	public static final Object DESERIALIZE_ROOT = new Object();
+	
+	public static final Comparator<PathDiff> TS_ORDER = new Comparator<PathDiff>() {
+		@Override
+		public int compare(PathDiff o1, PathDiff o2) {
+			return ((Long) o1.getTs()).compareTo(o2.getTs());
+		}
+	};
 	
 	public static String getName(long ts, SerializedDigest pathId, SerializedDigest from, SerializedDigest to) {
 		return String.format("%016x.%s.%s.%s.badiff", ts, pathId, from, to);
