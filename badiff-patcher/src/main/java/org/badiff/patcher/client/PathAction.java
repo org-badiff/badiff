@@ -10,10 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.badiff.Op;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
@@ -23,52 +20,12 @@ import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
 public class PathAction extends ArrayList<PathDiff> {
+	private static final long serialVersionUID = 0;
+	
 	public static enum Direction {
-		FAST_FORWARD {
-			@Override
-			public void apply(File from, File to, File tmp, PathDiff pd)
-					throws IOException {
-				InputStream orig = new FileInputStream(from);
-				OutputStream target = new FileOutputStream(tmp);
-				
-				pd.getDiff().apply(Data.asInput(orig), Data.asOutput(target));
-				
-				orig.close();
-				target.close();
-				tmp.renameTo(to);
-			}
-		},
-		PAUSE {
-			@Override
-			public void apply(File from, File to, File tmp, PathDiff pd)
-					throws IOException {
-				// do nothing
-			}
-		},
-		REWIND {
-			@Override
-			public void apply(File from, File to, File tmp, PathDiff pd)
-					throws IOException {
-				InputStream orig = new FileInputStream(from);
-				OutputStream target = new FileOutputStream(tmp);
-				DataInput dataIn = Data.asInput(orig);
-				DataOutput dataOut = Data.asOutput(target);
-				
-				OpQueue q = pd.getDiff().queue();
-				q = new UndoOpQueue(q);
-				while(q.hasNext()) {
-					Op op = q.next();
-					op.apply(dataIn, dataOut);
-				}
-				
-				orig.close();
-				target.close();
-				tmp.renameTo(to);
-			}
-		},
-		;
-		
-		public abstract void apply(File from, File to, File tmp, PathDiff pd) throws IOException;
+		FAST_FORWARD,
+		PAUSE,
+		REWIND 
 	}
 	
 	protected SerializedDigest pathId;
