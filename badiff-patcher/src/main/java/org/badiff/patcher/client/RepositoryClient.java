@@ -22,7 +22,7 @@ import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
 
 public class RepositoryClient {
-	protected RepositoryAccess access;
+	protected RepositoryAccess serverAccess;
 	
 	protected PathDiffChain chain;
 	protected Map<String, SerializedDigest> digests;
@@ -30,7 +30,7 @@ public class RepositoryClient {
 	protected File storage;
 	
 	public RepositoryClient(RepositoryAccess access) {
-		this.access = access;
+		this.serverAccess = access;
 		chain = new PathDiffChain();
 		digests = new HashMap<String, SerializedDigest>();
 		storage = new File(System.getProperty("java.io.tmpdir"), "badiff-patcher");
@@ -38,6 +38,11 @@ public class RepositoryClient {
 	
 	public void updateChain() throws IOException {
 		chain.clear();
+		loadChain(new FileRepositoryAccess(storage));
+		loadChain(serverAccess);
+	}
+	
+	protected void loadChain(RepositoryAccess access) throws IOException {
 		List<RemotePath> diffs = Arrays.asList(access.get("ff").list());
 		Collections.sort(diffs, RemotePath.LAST_MODIFIED_ORDER);
 		for(RemotePath d : diffs) {
@@ -47,7 +52,7 @@ public class RepositoryClient {
 	
 	public void updateDigests() throws IOException {
 		digests.clear();
-		InputStream in = access.get("digests").open();
+		InputStream in = serverAccess.get("digests").open();
 		DataInput data = Data.asInput(in);
 		Serialization serial = PatcherSerialization.newInstance();
 		int size = serial.readObject(data, int.class);
@@ -63,7 +68,7 @@ public class RepositoryClient {
 			File tmp = new File(ff.getParentFile(), ff.getName() + ".download");
 			ff.getParentFile().mkdirs();
 			OutputStream out = new FileOutputStream(tmp);
-			InputStream in = access.get("ff/" + pd.getName()).open();
+			InputStream in = serverAccess.get("ff/" + pd.getName()).open();
 			IOUtils.copy(in, out);
 			in.close();
 			out.close();
@@ -79,7 +84,7 @@ public class RepositoryClient {
 			File tmp = new File(rw.getParentFile(), rw.getName() + ".download");
 			rw.getParentFile().mkdirs();
 			OutputStream out = new FileOutputStream(tmp);
-			InputStream in = access.get("rw/" + pd.getName()).open();
+			InputStream in = serverAccess.get("rw/" + pd.getName()).open();
 			IOUtils.copy(in, out);
 			in.close();
 			out.close();
@@ -89,8 +94,8 @@ public class RepositoryClient {
 		return new PathDiff(pd.getName(), rw);
 	}
 	
-	public RepositoryAccess getAccess() {
-		return access;
+	public RepositoryAccess getServerAccess() {
+		return serverAccess;
 	}
 	
 	public PathDiffChain getChain() {
