@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.badiff.io.Serialization;
 import org.badiff.patcher.PatcherSerialization;
+import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.PathDigest;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
@@ -36,7 +37,7 @@ public class RepositoryClient {
 		List<RemotePath> diffs = Arrays.asList(access.get("diffs").list());
 		Collections.sort(diffs, RemotePath.LAST_MODIFIED_ORDER);
 		for(RemotePath d : diffs) {
-			chain.add(new PathDiffLink(d.name()));
+			chain.add(new PathDiffLink(PathDiff.parseName(d.name())));
 		}
 	}
 	

@@ -1,36 +1,40 @@
 package org.badiff.patcher.client;
 
 import java.security.MessageDigest;
-import java.util.Arrays;
+import java.util.Comparator;
 
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Digests;
 
 public class PathDiffLink {
+	public static final Comparator<PathDiffLink> TS_ORDER = new Comparator<PathDiffLink>() {
+		@Override
+		public int compare(PathDiffLink o1, PathDiffLink o2) {
+			return ((Long) o1.getTs()).compareTo(o2.getTs());
+		}
+	};
+	
 	protected String name;
-	protected SerializedDigest prefix;
+	protected long ts;
+	protected SerializedDigest pathId;
 	protected SerializedDigest from;
 	protected SerializedDigest to;
 	
-	protected PathDiffLink prev;
-	
-	public PathDiffLink(String name) {
-		this.name = name;
-		String[] f = name.split("\\.");
+	public PathDiffLink(PathDiff pd) {
+		this.name = pd.getName();
 		
-		prefix = new SerializedDigest(f[0]);
-		SerializedDigest fromRaw = new SerializedDigest(f[1]);
-		SerializedDigest toRaw = new SerializedDigest(f[2]);
+		ts = pd.getTs();
+		pathId = pd.getPathId();
 		
 		MessageDigest md = Digests.digest(Digests.DEFAULT_ALGORITHM);
 		
-		md.update(prefix.getDigest());
-		md.update(fromRaw.getDigest());
+		md.update(pathId.getDigest());
+		md.update(pd.getFrom().getDigest());
 		from = new SerializedDigest(md.getAlgorithm(), md.digest());
 		
-		md.update(prefix.getDigest());
-		md.update(toRaw.getDigest());
+		md.update(pathId.getDigest());
+		md.update(pd.getTo().getDigest());
 		to = new SerializedDigest(md.getAlgorithm(), md.digest());
 	}
 	
@@ -38,8 +42,12 @@ public class PathDiffLink {
 		return name;
 	}
 	
-	public SerializedDigest getPrefix() {
-		return prefix;
+	public long getTs() {
+		return ts;
+	}
+	
+	public SerializedDigest getPathId() {
+		return pathId;
 	}
 	
 	public SerializedDigest getFrom() {
@@ -50,14 +58,6 @@ public class PathDiffLink {
 		return to;
 	}
 	
-	public PathDiffLink getPrev() {
-		return prev;
-	}
-	
-	public void setPrev(PathDiffLink next) {
-		this.prev = next;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == this)
@@ -65,16 +65,16 @@ public class PathDiffLink {
 		if(obj instanceof PathDiffLink) {
 			PathDiffLink other = (PathDiffLink) obj;
 			return
-					prefix.equals(other.prefix)
+					ts == other.ts
+					&& pathId.equals(other.pathId)
 					&& from.equals(other.from)
-					&& to.equals(other.to)
-					&& (prev == null ? other.prev == null : prev.equals(other.prev));
+					&& to.equals(other.to);
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return prefix.hashCode() ^ from.hashCode() ^ to.hashCode();
+		return ((int) ts) ^ pathId.hashCode() ^ from.hashCode() ^ to.hashCode();
 	}
 }

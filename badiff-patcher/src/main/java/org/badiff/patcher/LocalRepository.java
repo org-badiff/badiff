@@ -35,6 +35,8 @@ public class LocalRepository {
 	}
 	
 	public void commit(File newWorkingCopyRoot) throws IOException {
+		long ts = System.currentTimeMillis();
+		
 		// compute what needs to happen
 		Set<String> diffsNames = new HashSet<String>(Files.listRelativePaths(getPathDiffsRoot()));
 		Set<String> fromPaths = new HashSet<String>(Files.listRelativePaths(getWorkingCopyRoot()));
@@ -78,7 +80,7 @@ public class LocalRepository {
 			
 			BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
 			tmpDiff.diff(fromFile, toFile);
-			PathDiff pd = new PathDiff(path, tmpDiff);
+			PathDiff pd = new PathDiff(ts, path, tmpDiff);
 
 			Serialization serial = PatcherSerialization.newInstance();
 			OutputStream out = new FileOutputStream(new File(getPathDiffsRoot(), pd.getName()));
