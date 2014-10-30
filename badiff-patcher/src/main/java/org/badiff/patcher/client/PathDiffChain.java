@@ -137,8 +137,6 @@ public class PathDiffChain {
 					contentId = head.getTo();
 				}
 			}
-			if(!toId.equals(contentId))
-				throw new IllegalStateException("No history link for " + pathId + " from " + fromId + " to " + toId);
 			return pa;
 		} else {
 			PathAction pa = new PathAction(pathId, Direction.REWIND);
@@ -152,8 +150,6 @@ public class PathDiffChain {
 					contentId = head.getFrom();
 				}
 			}
-			if(!toId.equals(contentId))
-				throw new IllegalStateException("No history link for " + pathId + " from " + fromId + " to " + toId);
 			return pa;
 		}
 	}
