@@ -46,6 +46,9 @@ public class RepositoryClientTest {
 		client.updateChain();
 		PathAction pa = client.actionFor(new File("src/test/resources/working_copies/1"), "foo.txt", client.getDigests().get("foo.txt"));
 		System.out.println(pa);
+		
+		pa = client.actionFor(new File("src/test/resources/working_copies/1"), "foo.txt", 0);
+		System.out.println(pa);
 	}
 
 }

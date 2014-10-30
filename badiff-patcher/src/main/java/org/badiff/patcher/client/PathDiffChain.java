@@ -69,13 +69,15 @@ public class PathDiffChain {
 		return -1;
 	}
 	
-	protected int indexOf(SerializedDigest pathId, long timestamp) {
+	protected Integer indexOf(SerializedDigest pathId, long timestamp) {
 		List<PathDiff> pathHistory = historyFor(pathId);
 		if(pathHistory.size() == 0)
-			return -1;
+			return null;
 		for(int i = pathHistory.size() - 1; i >= 0; i--) {
+			if(pathHistory.get(i).getTs() == timestamp)
+				return i+1;
 			if(pathHistory.get(i).getTs() < timestamp)
-				return i + 1;
+				return -(i + 1);
 		}
 		return 0;
 	}
@@ -94,7 +96,9 @@ public class PathDiffChain {
 	public PathAction actionFor(SerializedDigest pathId, SerializedDigest fromId, long toTimestamp) {
 		int fromIndex = indexOf(pathId, fromId);
 		int toIndex = indexOf(pathId, toTimestamp);
-
+		boolean inexact = toIndex < 0;
+		toIndex = Math.abs(toIndex);
+		
 		if(fromIndex < 0)
 			throw new IllegalArgumentException(pathId + " does not have content id " + fromId);
 		
@@ -102,7 +106,7 @@ public class PathDiffChain {
 		if(fromIndex == toIndex)
 			toId = fromId;
 		else if(fromIndex < toIndex)
-			toId = historyFor(pathId).get(toIndex).getTo();
+			toId = historyFor(pathId).get(inexact ? toIndex - 1 : toIndex).getTo();
 		else
 			toId = historyFor(pathId).get(toIndex).getFrom();
 		

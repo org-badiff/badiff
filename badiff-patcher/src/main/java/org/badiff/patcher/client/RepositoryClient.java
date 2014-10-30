@@ -146,6 +146,12 @@ public class RepositoryClient {
 		return chain.actionFor(pathId, fromId, toId);
 	}
 	
+	public PathAction actionFor(File root, String path, long timestamp) throws IOException {
+		SerializedDigest pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
+		SerializedDigest fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
+		return chain.actionFor(pathId, fromId, timestamp);
+	}
+	
 	public RepositoryAccess getServerAccess() {
 		return serverAccess;
 	}
