@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.PathDigest;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
+import org.badiff.util.Digests;
 
 public class RepositoryClient {
 	protected RepositoryAccess serverAccess;
@@ -134,6 +136,14 @@ public class RepositoryClient {
 				throw new IOException("Unable to replace " + rw);
 		}
 		return new PathDiff(pd.getName(), rw);
+	}
+	
+	public PathAction actionFor(File root, String path, SerializedDigest toId) throws IOException {
+		if(toId == null)
+			toId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+		SerializedDigest pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
+		SerializedDigest fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
+		return chain.actionFor(pathId, fromId, toId);
 	}
 	
 	public RepositoryAccess getServerAccess() {

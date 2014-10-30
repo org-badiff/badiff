@@ -40,7 +40,7 @@ public abstract class Files {
 		if(root.equals(file))
 			return "";
 		String rel = relativePath(root, file.getParentFile()) + "/" + file.getName();
-		if(rel.startsWith("/"))
+		while(rel.startsWith("/"))
 			rel = rel.substring(1);
 		return rel;
 	}

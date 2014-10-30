@@ -39,5 +39,13 @@ public class RepositoryClientTest {
 		client.updateChain();
 		System.out.println(client.getChain().getPaths());
 	}
+	
+	@Test
+	public void testPathAction() throws Exception {
+		client.updateDigests();
+		client.updateChain();
+		PathAction pa = client.actionFor(new File("src/test/resources/working_copies/1"), "foo.txt", client.getDigests().get("foo.txt"));
+		System.out.println(pa);
+	}
 
 }

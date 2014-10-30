@@ -39,6 +39,11 @@ public class PathDiff implements Serialized {
 	
 	public PathDiff() {}
 	
+	@Override
+	public String toString() {
+		return from + "->" + to;
+	}
+	
 	protected PathDiff(String name) {
 		String[] fields = name.split("\\.");
 		ts = new BigInteger(fields[0], 16).longValue();
