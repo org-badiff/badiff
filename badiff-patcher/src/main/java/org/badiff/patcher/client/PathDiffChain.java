@@ -108,7 +108,7 @@ public class PathDiffChain {
 		else if(fromIndex < toIndex)
 			toId = historyFor(pathId).get(inexact ? toIndex - 1 : toIndex).getTo();
 		else
-			toId = historyFor(pathId).get(toIndex).getFrom();
+			toId = historyFor(pathId).get(inexact ? toIndex : toIndex + 1).getFrom();
 		
 		return actionFor(pathId, fromId, toId, fromIndex, toIndex);
 	}
@@ -143,7 +143,7 @@ public class PathDiffChain {
 			PathDiff head = history.get(fromIndex - 1);
 			pa.add(head);
 			SerializedDigest contentId = head.getFrom();
-			for(int i = fromIndex - 2; i > toIndex; i--) {
+			for(int i = fromIndex - 2; i >= toIndex; i--) {
 				head = history.get(i);
 				if(contentId.equals(head.getTo())) {
 					pa.add(head);
