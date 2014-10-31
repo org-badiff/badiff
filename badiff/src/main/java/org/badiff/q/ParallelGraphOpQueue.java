@@ -219,7 +219,8 @@ public class ParallelGraphOpQueue extends FilterOpQueue {
 				flush();
 				pool.shutdown();
 			}
-		}
+		} else
+			flush();
 	}
 
 	@Override
