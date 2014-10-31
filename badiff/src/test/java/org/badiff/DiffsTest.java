@@ -54,4 +54,20 @@ public class DiffsTest {
 		Assert.assertEquals(target, new String(result));
 	}
 
+	@Test
+	public void testDiffFromEmpty() throws Exception {
+		String orig = "";
+		String target = "Hellish cruel world!";
+		
+		OpQueue diff = Diffs.queue(orig.getBytes(), target.getBytes());
+		diff = new GraphOpQueue(diff, 1024);
+		
+		MemoryDiff md = new MemoryDiff(diff);
+		
+		byte[] result = Diffs.apply(md, orig.getBytes());
+		
+		
+		Assert.assertEquals(target, new String(result));
+	}
+	
 }

@@ -74,7 +74,7 @@ import org.badiff.util.Digests;
 public class BadiffFileDiff extends File implements Diff, Serialized {
 	private static final long serialVersionUID = 0;
 
-	public static String PIPELINE_CODE = "sGccruC";
+	public static String PIPELINE_CODE = "s" + "G" + "c" + "c" + "r" + "u" + "C";
 	public static Pipe[] PIPES = Pipes.fromCodes(PIPELINE_CODE);
 	public static Pipe PIPE = new Pipe() {
 		@Override
