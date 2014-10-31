@@ -48,6 +48,21 @@ public class PathAction {
 		diffs.add(pd);
 	}
 	
+	public void load(RepositoryClient client) throws IOException {
+		for(PathDiff pd : diffs) {
+			switch(direction) {
+			case FAST_FORWARD:
+				pd = client.localFastForward(pd);
+				break;
+			case REWIND:
+				pd = client.localRewind(pd);
+				break;
+			case PAUSE:
+				break;
+			}
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return direction.toString() + diffs;

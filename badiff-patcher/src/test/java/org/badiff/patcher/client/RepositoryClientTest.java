@@ -49,11 +49,11 @@ public class RepositoryClientTest {
 		
 		pa = client.actionFor(new File("src/test/resources/working_copies/1"), "foo.txt", 0);
 		System.out.println(pa);
+		pa.load(client);
+		System.out.println(pa);
 		
 		pa = client.actionFor(new File("src/test/resources/working_copies/3"), "bar.txt", Long.MAX_VALUE);
 		System.out.println(pa);
-		
-		
 	}
 
 }
