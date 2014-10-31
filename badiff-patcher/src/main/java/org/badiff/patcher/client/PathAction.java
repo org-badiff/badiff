@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.badiff.io.EmptyInputStream;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
@@ -87,10 +88,18 @@ public class PathAction {
 				throw new IllegalStateException("Unhandled direction:" + direction);
 			}
 			
-			InputStream orig = new FileInputStream(from);
+			tmp.getParentFile().mkdirs();
+			
+			InputStream orig;
+			if(from.canRead())
+				orig = new FileInputStream(from);
+			else
+				orig = new EmptyInputStream();
 			OutputStream target = new FileOutputStream(tmp);
 			
 			pd.getDiff().apply(Data.asInput(orig), Data.asOutput(target));
+			
+			to.getParentFile().mkdirs();
 			
 			orig.close();
 			target.close();

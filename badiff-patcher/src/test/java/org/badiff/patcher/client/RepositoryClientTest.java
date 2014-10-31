@@ -24,6 +24,8 @@ public class RepositoryClientTest {
 		local.commit(new File("src/test/resources/working_copies/2"));
 		local.commit(new File("src/test/resources/working_copies/3"));
 		
+		FileUtils.deleteQuietly(new File("target/client"));
+		
 		File storage = new File("target/client/storage");
 		
 		client = new RepositoryClient(new FileRepositoryAccess(root), storage);
@@ -64,6 +66,26 @@ public class RepositoryClientTest {
 		
 		Map<String, PathAction> actions = client.actionsFor(new File("src/test/resources/working_copies/3"), 0);
 		System.out.println(actions);
+	}
+	
+	@Test
+	public void testApplyUpdates() throws Exception {
+		client.updateDigests();
+		client.updateChain();
+		
+		File wc = new File("target/client/wc");
+		FileUtils.copyDirectory(new File("src/test/resources/working_copies/3"), wc);
+		
+		File tmp = new File("target/client/tmp");
+		
+		Map<String, PathAction> actions = client.actionsFor(wc, 0);
+		for(Map.Entry<String, PathAction> e : actions.entrySet()) {
+			String path = e.getKey();
+			PathAction action = e.getValue();
+			action.apply(client, new File(wc, path), new File(wc, path), new File(tmp, path));
+		}
+
+		
 	}
 
 }
