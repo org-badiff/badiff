@@ -17,7 +17,6 @@ import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
 public class PathAction {
-	private static final long serialVersionUID = 0;
 	
 	public static enum Direction {
 		FAST_FORWARD,
