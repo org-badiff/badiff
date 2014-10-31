@@ -8,13 +8,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
-public class PathAction extends ArrayList<PathDiff> {
+public class PathAction {
 	private static final long serialVersionUID = 0;
 	
 	public static enum Direction {
@@ -25,10 +27,12 @@ public class PathAction extends ArrayList<PathDiff> {
 	
 	protected SerializedDigest pathId;
 	protected Direction direction;
+	protected List<PathDiff> diffs;
 	
 	public PathAction(SerializedDigest pathId, Direction direction) {
 		this.pathId = pathId;
 		this.direction = direction;
+		diffs = new ArrayList<PathDiff>();
 	}
 	
 	public SerializedDigest getPathId() {
@@ -39,6 +43,17 @@ public class PathAction extends ArrayList<PathDiff> {
 		return direction;
 	}
 	
+	public void add(PathDiff pd) {
+		if(direction == Direction.REWIND)
+			pd = pd.reverse();
+		diffs.add(pd);
+	}
+	
+	@Override
+	public String toString() {
+		return direction.toString() + diffs;
+	}
+	
 	public void apply(RepositoryClient client, File from, File to, File tmp) throws IOException {
 		if(direction == Direction.PAUSE) {
 			FileUtils.copyFile(from, tmp);
@@ -46,13 +61,13 @@ public class PathAction extends ArrayList<PathDiff> {
 				throw new IOException("Unable to replace " + to);
 			return;
 		}
-		for(PathDiff pd : this) {
+		for(PathDiff pd : diffs) {
 			switch(direction) {
 			case FAST_FORWARD:
 				pd = client.localFastForward(pd);
 				break;
 			case REWIND:
-				pd = client.localRewind(pd.reverse());
+				pd = client.localRewind(pd);
 				break;
 			default:
 				throw new IllegalStateException("Unhandled direction:" + direction);

@@ -78,8 +78,15 @@ public class PathDiff implements Serialized {
 		this.to = to;
 	}
 	
+	protected PathDiff(SerializedDigest pathId, long ts, SerializedDigest from, SerializedDigest to) {
+		this.pathId = pathId;
+		this.ts = ts;
+		this.from = from;
+		this.to = to;
+	}
+	
 	public PathDiff reverse() {
-		return new PathDiff(path, ts, to, from);
+		return new PathDiff(pathId, ts, to, from);
 	}
 	
 	public String getPath() {
