@@ -1,6 +1,7 @@
 package org.badiff.patcher.client;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.badiff.patcher.LocalRepository;
@@ -54,6 +55,15 @@ public class RepositoryClientTest {
 		
 		pa = client.actionFor(new File("src/test/resources/working_copies/3"), "bar.txt", Long.MAX_VALUE);
 		System.out.println(pa);
+	}
+	
+	@Test
+	public void testPathActions() throws Exception {
+		client.updateDigests();
+		client.updateChain();
+		
+		Map<String, PathAction> actions = client.actionsFor(new File("src/test/resources/working_copies/3"), 0);
+		System.out.println(actions);
 	}
 
 }

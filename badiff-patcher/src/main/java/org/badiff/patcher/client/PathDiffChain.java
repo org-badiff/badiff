@@ -108,7 +108,7 @@ public class PathDiffChain {
 		else if(fromIndex < toIndex)
 			toId = historyFor(pathId).get(inexact ? toIndex - 1 : toIndex).getTo();
 		else
-			toId = historyFor(pathId).get(inexact ? toIndex : toIndex + 1).getFrom();
+			toId = historyFor(pathId).get(toIndex).getFrom();
 		
 		return actionFor(pathId, fromId, toId, fromIndex, toIndex);
 	}

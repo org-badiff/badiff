@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.badiff.imp.BadiffFileDiff;
@@ -147,8 +149,22 @@ public class RepositoryClient {
 	
 	public PathAction actionFor(File root, String path, long timestamp) throws IOException {
 		SerializedDigest pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
-		SerializedDigest fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
+		File file = new File(root, path);
+		SerializedDigest fromId;
+		if(file.canRead())
+			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
+		else
+			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+		
 		return chain.actionFor(pathId, fromId, timestamp);
+	}
+	
+	public Map<String, PathAction> actionsFor(File root, long timestamp) throws IOException {
+		Map<String, PathAction> actions = new TreeMap<String, PathAction>();
+		for(String path : chain.getPaths()) {
+			actions.put(path, actionFor(root, path, timestamp));
+		}
+		return actions;
 	}
 	
 	public RepositoryAccess getServerAccess() {
