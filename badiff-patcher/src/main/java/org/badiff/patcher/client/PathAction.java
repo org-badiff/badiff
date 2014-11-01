@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.badiff.io.EmptyInputStream;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
@@ -22,7 +23,8 @@ public class PathAction {
 	public static enum Direction {
 		FAST_FORWARD,
 		PAUSE,
-		REWIND 
+		REWIND,
+		REPLACE,
 	}
 	
 	protected SerializedDigest pathId;
@@ -74,6 +76,18 @@ public class PathAction {
 			FileUtils.copyFile(from, tmp);
 			if(!tmp.renameTo(to))
 				throw new IOException("Unable to replace " + to);
+			return;
+		}
+		if(direction == Direction.REPLACE) {
+			InputStream in = client.getWorkingCopy(pathId);
+			if(in == null)
+				to.delete();
+			else {
+				FileOutputStream out = new FileOutputStream(to);
+				IOUtils.copy(in, out);
+				out.close();
+				in.close();
+			}
 			return;
 		}
 		for(PathDiff pd : diffs) {

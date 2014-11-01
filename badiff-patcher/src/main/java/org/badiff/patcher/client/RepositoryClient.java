@@ -3,6 +3,7 @@ package org.badiff.patcher.client;
 import java.io.DataInput;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import org.badiff.patcher.PatcherSerialization;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.PathDigest;
 import org.badiff.patcher.SerializedDigest;
+import org.badiff.patcher.client.PathAction.Direction;
 import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
@@ -155,6 +157,9 @@ public class RepositoryClient {
 		else
 			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
 		
+		if(chain.indexOf(pathId, fromId) == -1) // just replace with latest
+			throw new IllegalArgumentException("Cannot compute time-based update for path with unknown content id");
+		
 		return chain.actionFor(pathId, fromId, timestamp);
 	}
 	
@@ -164,6 +169,38 @@ public class RepositoryClient {
 			actions.put(path, actionFor(root, path, timestamp));
 		}
 		return actions;
+	}
+	
+	public PathAction actionForLatest(File root, String path) throws IOException {
+		SerializedDigest pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
+		File file = new File(root, path);
+		SerializedDigest fromId;
+		if(file.canRead())
+			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
+		else
+			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+		
+		if(chain.indexOf(pathId, fromId) == -1) // just replace with latest
+			return new PathAction(pathId, Direction.REPLACE);
+		else
+			return actionFor(root, path, Long.MAX_VALUE);
+	}
+	
+	public Map<String, PathAction> actionsForLatest(File root) throws IOException {
+		Map<String, PathAction> actions = new TreeMap<String, PathAction>();
+		for(String path : chain.getPaths()) {
+			actions.put(path, actionForLatest(root, path));
+		}
+		return actions;
+	}
+	
+	public InputStream getWorkingCopy(SerializedDigest pathId) throws IOException {
+		String path = pathForId(pathId);
+		try {
+			return serverAccess.get(path).open();
+		} catch(IOException e) {
+			return null;
+		}
 	}
 	
 	public RepositoryAccess getServerAccess() {

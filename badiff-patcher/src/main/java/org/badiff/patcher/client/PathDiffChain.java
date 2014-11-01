@@ -56,7 +56,7 @@ public class PathDiffChain {
 		return pathHistory;
 	}
 	
-	protected int indexOf(SerializedDigest pathId, SerializedDigest contentId) {
+	public int indexOf(SerializedDigest pathId, SerializedDigest contentId) {
 		List<PathDiff> pathHistory = historyFor(pathId);
 		if(pathHistory.size() == 0)
 			return -1;
