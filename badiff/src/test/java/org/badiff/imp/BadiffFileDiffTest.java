@@ -8,9 +8,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
-import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
-import org.badiff.util.Diffs;
 import org.junit.Assert;
 import org.junit.Test;
 

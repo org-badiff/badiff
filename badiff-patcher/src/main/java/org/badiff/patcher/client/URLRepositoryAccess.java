@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +139,6 @@ public class URLRepositoryAccess implements RepositoryAccess {
 		List<String> subfiles = subfiles(dir.path());
 		List<String> subdirs = subdirs(dir.path());
 		List<RemotePath> paths = new ArrayList<RemotePath>();
-		String p = dir.path().replaceAll("/$", "");
 		for(String f : subfiles)
 			paths.add(get(f));
 		for(String d : subdirs)
