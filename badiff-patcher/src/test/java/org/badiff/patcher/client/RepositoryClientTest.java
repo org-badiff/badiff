@@ -78,13 +78,11 @@ public class RepositoryClientTest {
 		File wc = new File("target/client/wc");
 		FileUtils.copyDirectory(new File("src/test/resources/working_copies/3"), wc);
 		
-		File tmp = new File("target/client/tmp");
-		
 		Map<String, PathAction> actions = client.actionsFor(wc, 0);
 		for(Map.Entry<String, PathAction> e : actions.entrySet()) {
 			String path = e.getKey();
 			PathAction action = e.getValue();
-			action.apply(client, new File(wc, path), new File(wc, path), new File(tmp, path));
+			action.apply(client, new File(wc, path), new File(wc, path));
 		}
 
 		
@@ -101,14 +99,12 @@ public class RepositoryClientTest {
 		new File(wc, "foo.txt").createNewFile();
 		new File(wc, "qux.txt").createNewFile();
 		
-		File tmp = new File("target/client/tmp");
-		
-		Map<String, PathAction> actions = client.actionsFor(wc, Long.MAX_VALUE);
+		Map<String, PathAction> actions = client.actionsFor(wc, 0);
 		for(Map.Entry<String, PathAction> e : actions.entrySet()) {
 			String path = e.getKey();
 			PathAction action = e.getValue();
 			System.out.println(path + ":" + action);
-			action.apply(client, new File(wc, path), new File(wc, path), new File(tmp, path));
+			action.apply(client, new File(wc, path), new File(wc, path));
 		}
 	}
 }

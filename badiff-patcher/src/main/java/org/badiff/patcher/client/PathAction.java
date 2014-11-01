@@ -80,45 +80,12 @@ public class PathAction {
 		return direction.toString() + diffs;
 	}
 	
-	public void apply(RepositoryClient client, File from, File to, File tmp) throws IOException {
-		if(direction == Direction.PAUSE) {
-			if(from.exists()) {
-				FileUtils.copyFile(from, tmp);
-				if(!tmp.renameTo(to))
-					throw new IOException("Unable to replace " + to);
-			} else {
-				if(to.exists() && !to.delete())
-					throw new IOException("Unable to delete " + to);
-			}
-				
-			return;
-		}
-		if(direction == Direction.REPLACE) {
-			InputStream in = client.getWorkingCopy(pathId);
-			if(in == null)
-				to.delete();
-			else {
-				FileOutputStream out = new FileOutputStream(to);
-				IOUtils.copy(in, out);
-				out.close();
-				in.close();
-			}
-			return;
-		}
-		if(direction == Direction.REPLACE_AND_REWIND) {
-			from = File.createTempFile(from.getName(), ".tmp");
-			from.deleteOnExit();
-			InputStream in = client.getWorkingCopy(pathId);
-			if(in == null)
-				from.delete();
-			else {
-				FileOutputStream out = new FileOutputStream(from);
-				IOUtils.copy(in, out);
-				out.close();
-				in.close();
-			}
-			if(diffs.size() == 0) {
-				if(in != null) {
+	public void apply(RepositoryClient client, File from, File to) throws IOException {
+		File tmp = File.createTempFile(from.getName(), ".tmp");
+		File tmp2 = File.createTempFile(from.getName(), ".tmp");
+		try {
+			if(direction == Direction.PAUSE) {
+				if(from.exists()) {
 					FileUtils.copyFile(from, tmp);
 					if(!tmp.renameTo(to))
 						throw new IOException("Unable to replace " + to);
@@ -126,45 +93,88 @@ public class PathAction {
 					if(to.exists() && !to.delete())
 						throw new IOException("Unable to delete " + to);
 				}
-					
+
 				return;
 			}
-		}
-		for(PathDiff pd : diffs) {
-			switch(direction) {
-			case FAST_FORWARD:
-				pd = client.localFastForward(pd);
-				break;
-			case REWIND:
-			case REPLACE_AND_REWIND:
-				pd = client.localRewind(pd);
-				break;
-			default:
-				throw new IllegalStateException("Unhandled direction:" + direction);
+			if(direction == Direction.REPLACE) {
+				InputStream in = client.getWorkingCopy(pathId);
+				if(in == null)
+					to.delete();
+				else {
+					FileOutputStream out = new FileOutputStream(to);
+					IOUtils.copy(in, out);
+					out.close();
+					in.close();
+				}
+				return;
 			}
-			
-			tmp.getParentFile().mkdirs();
-			
-			InputStream orig;
-			if(from.canRead())
-				orig = new FileInputStream(from);
-			else
-				orig = new EmptyInputStream();
-			OutputStream target = new FileOutputStream(tmp);
-			
-			pd.getDiff().apply(Data.asInput(orig), Data.asOutput(target));
-			
-			to.getParentFile().mkdirs();
-			
-			orig.close();
-			target.close();
+			if(direction == Direction.REPLACE_AND_REWIND) {
+				from = File.createTempFile(from.getName(), ".tmp");
+				from.deleteOnExit();
+				InputStream in = client.getWorkingCopy(pathId);
+				if(in == null)
+					from.delete();
+				else {
+					FileOutputStream out = new FileOutputStream(from);
+					IOUtils.copy(in, out);
+					out.close();
+					in.close();
+				}
+				if(diffs.size() == 0) {
+					if(in != null) {
+						FileUtils.copyFile(from, tmp);
+						if(!tmp.renameTo(to))
+							throw new IOException("Unable to replace " + to);
+					} else {
+						if(to.exists() && !to.delete())
+							throw new IOException("Unable to delete " + to);
+					}
+
+					return;
+				}
+			}
+			for(PathDiff pd : diffs) {
+				switch(direction) {
+				case FAST_FORWARD:
+					pd = client.localFastForward(pd);
+					break;
+				case REWIND:
+				case REPLACE_AND_REWIND:
+					pd = client.localRewind(pd);
+					break;
+				default:
+					throw new IllegalStateException("Unhandled direction:" + direction);
+				}
+
+				tmp.getParentFile().mkdirs();
+
+				InputStream orig;
+				if(from.canRead())
+					orig = new FileInputStream(from);
+				else
+					orig = new EmptyInputStream();
+				OutputStream target = new FileOutputStream(tmp);
+
+				pd.getDiff().apply(Data.asInput(orig), Data.asOutput(target));
+
+				to.getParentFile().mkdirs();
+
+				orig.close();
+				target.close();
+				if(Arrays.equals(Digests.defaultZeroes(), pd.getTo().getDigest())) {
+					if(!to.delete())
+						throw new IOException("Unable to delete " + to);
+				}
+
+				FileUtils.copyFile(tmp, tmp2);
+				from = tmp2;
+			}
+
 			if(!tmp.renameTo(to))
 				throw new IOException("Unable to replace " + to);
-			
-			if(Arrays.equals(Digests.defaultZeroes(), pd.getTo().getDigest())) {
-				if(!to.delete())
-					throw new IOException("Unable to delete " + to);
-			}
+		} finally {
+			tmp.delete();
+			tmp2.delete();
 		}
 	}
 }
