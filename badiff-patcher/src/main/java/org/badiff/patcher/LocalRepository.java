@@ -86,6 +86,19 @@ public class LocalRepository {
 			serial.writeObject(data, PathDigest.class, pd);
 		out.close();
 		
+		
+		// copy over the new working copy
+		File tmpwc = new File(root, "working_copy.tmp");
+		File oldwc = new File(root, "working_copy.old");
+		
+		FileUtils.deleteQuietly(tmpwc);
+		tmpwc.mkdirs();
+		FileUtils.copyDirectory(newWorkingCopyRoot, tmpwc);
+		
+		if(!getWorkingCopyRoot().renameTo(oldwc) || !tmpwc.renameTo(getWorkingCopyRoot()))
+			throw new IOException("unable to move new working copy into place");
+		FileUtils.deleteQuietly(oldwc);
+
 		Set<File> directories = new HashSet<File>();
 		for(File f : FileUtils.listFiles(root, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
 			directories.add(f.getParentFile());
@@ -130,18 +143,6 @@ public class LocalRepository {
 				serial.writeObject(data, String.class, f.getName());
 			out.close();
 		}
-		
-		// copy over the new working copy
-		File tmpwc = new File(root, "working_copy.tmp");
-		File oldwc = new File(root, "working_copy.old");
-		
-		FileUtils.deleteQuietly(tmpwc);
-		tmpwc.mkdirs();
-		FileUtils.copyDirectory(newWorkingCopyRoot, tmpwc);
-		
-		if(!getWorkingCopyRoot().renameTo(oldwc) || !tmpwc.renameTo(getWorkingCopyRoot()))
-			throw new IOException("unable to move new working copy into place");
-		FileUtils.deleteQuietly(oldwc);
 	}
 	
 	public File getRoot() {

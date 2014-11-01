@@ -200,7 +200,7 @@ public class RepositoryClient {
 	public InputStream getWorkingCopy(SerializedDigest pathId) throws IOException {
 		String path = pathForId(pathId);
 		try {
-			return serverAccess.get(path).open();
+			return serverAccess.get("working_copy/" + path).open();
 		} catch(IOException e) {
 			return null;
 		}

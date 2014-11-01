@@ -99,6 +99,7 @@ public class RepositoryClientTest {
 		wc.mkdirs();
 		
 		new File(wc, "foo.txt").createNewFile();
+		new File(wc, "qux.txt").createNewFile();
 		
 		File tmp = new File("target/client/tmp");
 		
