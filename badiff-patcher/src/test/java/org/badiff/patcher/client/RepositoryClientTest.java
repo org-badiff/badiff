@@ -90,4 +90,20 @@ public class RepositoryClientTest {
 		
 	}
 
+	@Test
+	public void testEmptyFrom() throws Exception {
+		client.updateDigests();
+		client.updateChain();
+		
+		File wc = new File("target/client/wc");
+		
+		File tmp = new File("target/client/tmp");
+		
+		Map<String, PathAction> actions = client.actionsFor(wc, 0);
+		for(Map.Entry<String, PathAction> e : actions.entrySet()) {
+			String path = e.getKey();
+			PathAction action = e.getValue();
+			action.apply(client, new File(wc, path), new File(wc, path), new File(tmp, path));
+		}
+	}
 }

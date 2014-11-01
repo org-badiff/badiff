@@ -82,9 +82,15 @@ public class PathAction {
 	
 	public void apply(RepositoryClient client, File from, File to, File tmp) throws IOException {
 		if(direction == Direction.PAUSE) {
-			FileUtils.copyFile(from, tmp);
-			if(!tmp.renameTo(to))
-				throw new IOException("Unable to replace " + to);
+			if(from.exists()) {
+				FileUtils.copyFile(from, tmp);
+				if(!tmp.renameTo(to))
+					throw new IOException("Unable to replace " + to);
+			} else {
+				if(to.exists() && !to.delete())
+					throw new IOException("Unable to delete " + to);
+			}
+				
 			return;
 		}
 		if(direction == Direction.REPLACE) {
