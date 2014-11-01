@@ -157,8 +157,12 @@ public class RepositoryClient {
 		else
 			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
 		
-		if(chain.indexOf(pathId, fromId) == -1) // just replace with latest
-			throw new IllegalArgumentException("Cannot compute time-based update for path with unknown content id");
+		if(chain.indexOf(pathId, fromId) == -1) { // just replace with latest
+			fromId = digests.get(path);
+			if(fromId == null)
+				fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+			return new PathAction(pathId, chain.actionFor(pathId, fromId, timestamp));
+		}
 		
 		return chain.actionFor(pathId, fromId, timestamp);
 	}

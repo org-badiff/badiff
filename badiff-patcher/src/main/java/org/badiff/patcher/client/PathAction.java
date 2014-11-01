@@ -25,6 +25,7 @@ public class PathAction {
 		PAUSE,
 		REWIND,
 		REPLACE,
+		REPLACE_AND_REWIND,
 	}
 	
 	protected SerializedDigest pathId;
@@ -35,6 +36,12 @@ public class PathAction {
 		this.pathId = pathId;
 		this.direction = direction;
 		diffs = new ArrayList<PathDiff>();
+	}
+	
+	public PathAction(SerializedDigest pathId, PathAction replaceAndRewind) {
+		this.pathId = pathId;
+		direction = Direction.REPLACE_AND_REWIND;
+		diffs = new ArrayList<PathDiff>(replaceAndRewind.diffs);
 	}
 	
 	public SerializedDigest getPathId() {
@@ -90,12 +97,27 @@ public class PathAction {
 			}
 			return;
 		}
+		if(direction == Direction.REPLACE_AND_REWIND) {
+			from = File.createTempFile(from.getName(), ".tmp");
+			from.deleteOnExit();
+			InputStream in = client.getWorkingCopy(pathId);
+			if(in == null)
+				from.delete();
+			else {
+				FileOutputStream out = new FileOutputStream(from);
+				IOUtils.copy(in, out);
+				out.close();
+				in.close();
+			}
+			return;
+		}
 		for(PathDiff pd : diffs) {
 			switch(direction) {
 			case FAST_FORWARD:
 				pd = client.localFastForward(pd);
 				break;
 			case REWIND:
+			case REPLACE_AND_REWIND:
 				pd = client.localRewind(pd);
 				break;
 			default:
