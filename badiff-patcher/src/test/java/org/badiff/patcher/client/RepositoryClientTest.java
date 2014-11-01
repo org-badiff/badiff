@@ -9,12 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RepositoryClientTest {
-	private LocalRepository local;
-	private RepositoryClient client;
+	protected File root;
+	protected LocalRepository local;
+	protected File storage;
+	protected RepositoryClient client;
 	
 	@Before
 	public void before() throws Exception {
-		File root = new File("target/repo");
+		root = new File("target/repo");
 		FileUtils.deleteQuietly(root);
 		root.mkdirs();
 		
@@ -26,7 +28,7 @@ public class RepositoryClientTest {
 		
 		FileUtils.deleteQuietly(new File("target/client"));
 		
-		File storage = new File("target/client/storage");
+		storage = new File("target/client/storage");
 		
 		client = new RepositoryClient(new FileRepositoryAccess(root), storage);
 	}

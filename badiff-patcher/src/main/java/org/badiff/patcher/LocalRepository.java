@@ -6,11 +6,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
 import org.badiff.patcher.util.Files;
@@ -87,6 +91,51 @@ public class LocalRepository {
 		for(PathDigest pd : pathDigests)
 			serial.writeObject(data, PathDigest.class, pd);
 		out.close();
+		
+		Set<File> directories = new HashSet<File>();
+		for(File f : FileUtils.listFiles(root, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
+			directories.add(f.getParentFile());
+		}
+		
+		for(File dir : directories) {
+			List<File> files = new ArrayList<File>();
+			List<File> dirs = new ArrayList<File>();
+			for(File f : dir.listFiles()) {
+				if(f.getName().startsWith("."))
+					continue;
+				if(f.isFile())
+					files.add(f);
+				if(f.isDirectory())
+					dirs.add(f);
+			}
+			out = new FileOutputStream(new File(dir, ".files"));
+			data = Data.asOutput(out);
+			serial.writeObject(data, int.class, files.size());
+			for(File f : files)
+				serial.writeObject(data, String.class, f.getName());
+			out.close();
+			
+			out = new FileOutputStream(new File(dir, ".lengths"));
+			data = Data.asOutput(out);
+			serial.writeObject(data, int.class, files.size());
+			for(File f : files)
+				serial.writeObject(data, long.class, f.length());
+			out.close();
+			
+			out = new FileOutputStream(new File(dir, ".modified"));
+			data = Data.asOutput(out);
+			serial.writeObject(data, int.class, files.size());
+			for(File f : files)
+				serial.writeObject(data, long.class, f.lastModified());
+			out.close();
+			
+			out = new FileOutputStream(new File(dir, ".dirs"));
+			data = Data.asOutput(out);
+			serial.writeObject(data, int.class, dirs.size());
+			for(File f : dirs)
+				serial.writeObject(data, String.class, f.getName());
+			out.close();
+		}
 		
 		// copy over the new working copy
 		File tmpwc = new File(root, "working_copy.tmp");
