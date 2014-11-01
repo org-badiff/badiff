@@ -137,12 +137,14 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	@Override
 	public RemotePath[] list(RemotePath dir) throws IOException {
 		List<String> subfiles = subfiles(dir.path());
+		List<Long> sublengths = sublengths(dir.path());
+		List<Long> submodified = submodified(dir.path());
 		List<String> subdirs = subdirs(dir.path());
 		List<RemotePath> paths = new ArrayList<RemotePath>();
-		for(String f : subfiles)
-			paths.add(get(f));
+		for(int i = 0; i < subfiles.size(); i++)
+			paths.add(new RemotePath(this, subfiles.get(i), PathType.FILE, sublengths.get(i), submodified.get(i)));
 		for(String d : subdirs)
-			paths.add(get(d));
+			paths.add(new RemotePath(this, d, PathType.DIRECTORY, 0, 0));
 		return paths.toArray(new RemotePath[paths.size()]);
 	}
 
