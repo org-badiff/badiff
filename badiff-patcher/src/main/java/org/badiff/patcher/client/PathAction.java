@@ -117,7 +117,12 @@ public class PathAction {
 				out.close();
 				in.close();
 			}
-			return;
+			if(diffs.size() == 0) {
+				FileUtils.copyFile(from, tmp);
+				if(!tmp.renameTo(to))
+					throw new IOException("Unable to replace " + to);
+				return;
+			}
 		}
 		for(PathDiff pd : diffs) {
 			switch(direction) {
