@@ -99,10 +99,11 @@ public class RepositoryClientTest {
 		
 		File tmp = new File("target/client/tmp");
 		
-		Map<String, PathAction> actions = client.actionsFor(wc, 0);
+		Map<String, PathAction> actions = client.actionsFor(wc, Long.MAX_VALUE);
 		for(Map.Entry<String, PathAction> e : actions.entrySet()) {
 			String path = e.getKey();
 			PathAction action = e.getValue();
+			System.out.println(path + ":" + action);
 			action.apply(client, new File(wc, path), new File(wc, path), new File(tmp, path));
 		}
 	}
