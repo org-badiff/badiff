@@ -162,7 +162,7 @@ public class PathAction {
 				orig.close();
 				target.close();
 				if(Arrays.equals(Digests.defaultZeroes(), pd.getTo().getDigest())) {
-					if(!to.delete())
+					if(to.exists() && !to.delete())
 						throw new IOException("Unable to delete " + to);
 				}
 

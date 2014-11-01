@@ -18,8 +18,47 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	
 	protected URL root;
 	
-	public URLRepositoryAccess(URL root) {
+	protected List<String> files;
+	protected List<Long> lengths;
+	protected List<Long> modified;
+	protected List<String> dirs;
+	
+	public URLRepositoryAccess(URL root) throws IOException {
 		this.root = root;
+		
+		files = new ArrayList<String>();
+		lengths = new ArrayList<Long>();
+		modified = new ArrayList<Long>();
+		dirs = new ArrayList<String>();
+		
+		InputStream in = open("files");
+		DataInput data = Data.asInput(in);
+		Serialization serial = PatcherSerialization.newInstance();
+		int size = serial.readObject(data, int.class);
+		for(int i = 0; i < size; i++)
+			files.add(serial.readObject(data, String.class));
+		in.close();
+		
+		in = open("lengths");
+		data = Data.asInput(in);
+		size = serial.readObject(data, int.class);
+		for(int i = 0; i < size; i++)
+			lengths.add(serial.readObject(data, long.class));
+		in.close();
+		
+		in = open("modified");
+		data = Data.asInput(in);
+		size = serial.readObject(data, int.class);
+		for(int i = 0; i < size; i++)
+			modified.add(serial.readObject(data, long.class));
+		in.close();
+		
+		in = open("dirs");
+		data = Data.asInput(in);
+		size = serial.readObject(data, int.class);
+		for(int i = 0; i < size; i++)
+			dirs.add(serial.readObject(data, String.class));
+		in.close();
 	}
 	
 	protected URL suburl(String path) {
@@ -48,103 +87,31 @@ public class URLRepositoryAccess implements RepositoryAccess {
 		}
 	}
 	
-	protected List<String> subfiles(String path) throws IOException {
-		String files = path.replaceAll("/$", "") + "/.__files";
-		files = files.replaceAll("^/", "");
-		InputStream in = open(files);
-		if(in == null)
-			throw new IllegalArgumentException("not a directory:" + path);
-		Serialization serial = PatcherSerialization.newInstance();
-		DataInput data = Data.asInput(in);
-		int size = serial.readObject(data, int.class);
-		List<String> subfiles = new ArrayList<String>();
-		for(int i = 0; i < size; i++) {
-			String f = path.replaceAll("/$", "") + "/" + serial.readObject(data, String.class);
-			f = f.replaceAll("^/", "");
-			subfiles.add(f);
-		}
-		in.close();
-		return subfiles;
-	}
-	
-	protected List<String> subdirs(String path) throws IOException {
-		String dirs = path.replaceAll("/$", "") + "/.__dirs";
-		dirs = dirs.replaceAll("^/", "");
-		InputStream in = open(dirs);
-		if(in == null)
-			throw new IllegalArgumentException("not a directory:" + path);
-		Serialization serial = PatcherSerialization.newInstance();
-		DataInput data = Data.asInput(in);
-		int size = serial.readObject(data, int.class);
-		List<String> subdirs = new ArrayList<String>();
-		for(int i = 0; i < size; i++) {
-			String d = path.replaceAll("/$", "") + "/" + serial.readObject(data, String.class);
-			d = d.replaceAll("^/", "");
-			subdirs.add(d);
-		}
-		in.close();
-		return subdirs;
-	}
-
-	protected List<Long> sublengths(String path) throws IOException {
-		String lengths = path.replaceAll("/$", "") + "/.__lengths";
-		lengths = lengths.replaceAll("^/", "");
-		InputStream in = open(lengths);
-		if(in == null)
-			throw new IllegalArgumentException("not a directory:" + path);
-		Serialization serial = PatcherSerialization.newInstance();
-		DataInput data = Data.asInput(in);
-		int size = serial.readObject(data, int.class);
-		List<Long> sublengths = new ArrayList<Long>();
-		for(int i = 0; i < size; i++)
-			sublengths.add(serial.readObject(data, long.class));
-		in.close();
-		return sublengths;
-	}
-
-	protected List<Long> submodified(String path) throws IOException {
-		String modified = path.replaceAll("/$", "") + "/.__modified";
-		modified = modified.replaceAll("^/", "");
-		InputStream in = open(modified);
-		if(in == null)
-			throw new IllegalArgumentException("not a directory:" + path);
-		Serialization serial = PatcherSerialization.newInstance();
-		DataInput data = Data.asInput(in);
-		int size = serial.readObject(data, int.class);
-		List<Long> submodified = new ArrayList<Long>();
-		for(int i = 0; i < size; i++)
-			submodified.add(serial.readObject(data, long.class));
-		in.close();
-		return submodified;
-	}
-
 	@Override
 	public RemotePath get(String path) throws IOException {
 		path = path.replaceAll("/$", "");
-		String name = path.replaceAll(".*/", "");
-		String parent = path.replaceAll("/?[^/]*$", "");
-		List<String> nl;
-		if((nl = subfiles(parent)).contains(path)) {
-			int idx = nl.indexOf(path);	
-			return new RemotePath(this, path, PathType.FILE, sublengths(parent).get(idx), submodified(parent).get(idx));
+		if(files.contains(path)) {
+			int idx = files.indexOf(path);	
+			return new RemotePath(this, path, PathType.FILE, lengths.get(idx), modified.get(idx));
 		}
-		if(subdirs(parent).contains(path)) {
+		if(dirs.contains(path)) {
 			return new RemotePath(this, path, PathType.DIRECTORY, 0, 0);
 		}
-		throw new IOException("Neither file nor directory:" + path + " (parent:" + parent + " name:" + name + ")");
+		throw new FileNotFoundException(path);
 	}
 
 	@Override
 	public RemotePath[] list(RemotePath dir) throws IOException {
-		List<String> subfiles = subfiles(dir.path());
-		List<Long> sublengths = sublengths(dir.path());
-		List<Long> submodified = submodified(dir.path());
-		List<String> subdirs = subdirs(dir.path());
+		String path = dir.path();
+		if(!path.endsWith("/"))
+			path = path + "/";
 		List<RemotePath> paths = new ArrayList<RemotePath>();
-		for(int i = 0; i < subfiles.size(); i++)
-			paths.add(new RemotePath(this, subfiles.get(i), PathType.FILE, sublengths.get(i), submodified.get(i)));
-		for(String d : subdirs)
-			paths.add(new RemotePath(this, d, PathType.DIRECTORY, 0, 0));
+		for(int i = 0; i < files.size(); i++)
+			if(files.get(i).startsWith(path) && !files.get(i).substring(path.length()).contains("/"))
+				paths.add(new RemotePath(this, files.get(i), PathType.FILE, lengths.get(i), modified.get(i)));
+		for(String d : dirs)
+			if(d.startsWith(path) && !d.substring(path.length()).contains("/"))
+				paths.add(new RemotePath(this, d, PathType.DIRECTORY, 0, 0));
 		return paths.toArray(new RemotePath[paths.size()]);
 	}
 

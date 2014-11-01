@@ -22,7 +22,7 @@ import org.badiff.util.Digests;
 
 public class LocalRepository {
 	protected File root;
-	
+
 	public LocalRepository(File root) {
 		if(!root.isDirectory())
 			throw new IllegalArgumentException("repository root must be a directory");
@@ -36,20 +36,16 @@ public class LocalRepository {
 		if(!getIdRoot().isDirectory() && !getIdRoot().mkdirs())
 			throw new IllegalArgumentException(getIdRoot() + " is not a directory");
 	}
-	
+
 	public void commit(File newWorkingCopyRoot) throws IOException {
 		long ts = System.currentTimeMillis();
-		
+
 		// compute what needs to happen
 		Set<String> fromPaths = new HashSet<String>(Files.listRelativePaths(getWorkingCopyRoot()));
-		fromPaths.remove(".__files");
-		fromPaths.remove(".__dirs");
-		fromPaths.remove(".__lengths");
-		fromPaths.remove(".__modified");
 		Set<String> toPaths = new HashSet<String>(Files.listRelativePaths(newWorkingCopyRoot));
 		Set<String> allPaths = Sets.union(fromPaths, toPaths);
 		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
-		
+
 		// compute diffs for files that have changed
 		for(String path : allPaths) {
 			File fromFile = new File(getWorkingCopyRoot(), path);
@@ -61,18 +57,18 @@ public class LocalRepository {
 				continue;
 			}
 			String prefix = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString();
-			
+
 			BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
 			tmpDiff.diff(fromFile, toFile);
 			PathDiff pd = new PathDiff(ts, path, tmpDiff);
 			tmpDiff.renameTo(new File(getFastForwardRoot(), pd.getName()));
-			
+
 			tmpDiff.diff(toFile, fromFile);
 			pd = pd.reverse();
 			tmpDiff.renameTo(new File(getRewindRoot(), pd.getName()));
-			
+
 			pathDigests.add(new PathDigest(path, toDigest));
-			
+
 			File id = new File(getIdRoot(), pd.getPathId().toString());
 			if(!id.isFile()) {
 				OutputStream out = new FileOutputStream(id);
@@ -80,7 +76,7 @@ public class LocalRepository {
 				out.close();
 			}
 		}
-		
+
 		// store the most recent digests
 		OutputStream out = new FileOutputStream(new File(root, "digests"));
 		DataOutput data = Data.asOutput(out);
@@ -89,82 +85,73 @@ public class LocalRepository {
 		for(PathDigest pd : pathDigests)
 			serial.writeObject(data, PathDigest.class, pd);
 		out.close();
-		
-		
+
+
 		// copy over the new working copy
 		File tmpwc = new File(root, "working_copy.tmp");
 		File oldwc = new File(root, "working_copy.old");
-		
+
 		FileUtils.deleteQuietly(tmpwc);
 		tmpwc.mkdirs();
 		FileUtils.copyDirectory(newWorkingCopyRoot, tmpwc);
-		
+
 		if(!getWorkingCopyRoot().renameTo(oldwc) || !tmpwc.renameTo(getWorkingCopyRoot()))
 			throw new IOException("unable to move new working copy into place");
 		FileUtils.deleteQuietly(oldwc);
 
-		Set<File> directories = new HashSet<File>();
+		List<File> files = new ArrayList<File>();
+		Set<File> dirs = new HashSet<File>();
 		for(File f : FileUtils.listFiles(root, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
-			directories.add(f.getParentFile());
+			files.add(f);
+			dirs.add(f.getParentFile());
 		}
+		dirs.remove(root);
 		
-		for(File dir : directories) {
-			List<File> files = new ArrayList<File>();
-			List<File> dirs = new ArrayList<File>();
-			for(File f : dir.listFiles()) {
-				if(f.getName().startsWith("."))
-					continue;
-				if(f.isFile())
-					files.add(f);
-				if(f.isDirectory())
-					dirs.add(f);
-			}
-			out = new FileOutputStream(new File(dir, ".__files"));
-			data = Data.asOutput(out);
-			serial.writeObject(data, int.class, files.size());
-			for(File f : files)
-				serial.writeObject(data, String.class, f.getName());
-			out.close();
-			
-			out = new FileOutputStream(new File(dir, ".__lengths"));
-			data = Data.asOutput(out);
-			serial.writeObject(data, int.class, files.size());
-			for(File f : files)
-				serial.writeObject(data, long.class, f.length());
-			out.close();
-			
-			out = new FileOutputStream(new File(dir, ".__modified"));
-			data = Data.asOutput(out);
-			serial.writeObject(data, int.class, files.size());
-			for(File f : files)
-				serial.writeObject(data, long.class, f.lastModified());
-			out.close();
-			
-			out = new FileOutputStream(new File(dir, ".__dirs"));
-			data = Data.asOutput(out);
-			serial.writeObject(data, int.class, dirs.size());
-			for(File f : dirs)
-				serial.writeObject(data, String.class, f.getName());
-			out.close();
-		}
+		out = new FileOutputStream(new File(root, "files"));
+		data = Data.asOutput(out);
+		serial.writeObject(data, int.class, files.size());
+		for(File f : files)
+			serial.writeObject(data, String.class, Files.relativePath(root, f));
+		out.close();
+
+		out = new FileOutputStream(new File(root, "lengths"));
+		data = Data.asOutput(out);
+		serial.writeObject(data, int.class, files.size());
+		for(File f : files)
+			serial.writeObject(data, long.class, f.length());
+		out.close();
+
+		out = new FileOutputStream(new File(root, "modified"));
+		data = Data.asOutput(out);
+		serial.writeObject(data, int.class, files.size());
+		for(File f : files)
+			serial.writeObject(data, long.class, f.lastModified());
+		out.close();
+
+		out = new FileOutputStream(new File(root, "dirs"));
+		data = Data.asOutput(out);
+		serial.writeObject(data, int.class, dirs.size());
+		for(File f : dirs)
+			serial.writeObject(data, String.class, Files.relativePath(root, f));
+		out.close();
 	}
-	
+
 	public File getRoot() {
 		return root;
 	}
-	
+
 	public File getWorkingCopyRoot() {
 		return new File(root, "working_copy");
 	}
-	
+
 	public File getFastForwardRoot() {
 		return new File(root, "ff");
 	}
-	
+
 	public File getRewindRoot() {
 		return new File(root, "rw");
 	}
-	
+
 	public File getIdRoot() {
 		return new File(root, "id");
 	}
