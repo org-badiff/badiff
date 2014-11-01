@@ -65,9 +65,11 @@ public class PathAction {
 				pd = client.localFastForward(pd);
 				break;
 			case REWIND:
+			case REPLACE_AND_REWIND:
 				pd = client.localRewind(pd);
 				break;
 			case PAUSE:
+			case REPLACE:
 				break;
 			}
 		}
