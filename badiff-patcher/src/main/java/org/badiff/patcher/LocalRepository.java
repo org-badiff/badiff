@@ -102,6 +102,9 @@ public class LocalRepository {
 		List<File> files = new ArrayList<File>();
 		Set<File> dirs = new HashSet<File>();
 		for(File f : FileUtils.listFiles(root, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
+			String path = Files.relativePath(root, f);
+			if(path.matches("files|lengths|modified|dirs"))
+				continue;
 			files.add(f);
 			dirs.add(f.getParentFile());
 		}
