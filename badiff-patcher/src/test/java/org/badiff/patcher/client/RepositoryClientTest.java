@@ -96,6 +96,9 @@ public class RepositoryClientTest {
 		client.updateChain();
 		
 		File wc = new File("target/client/wc");
+		wc.mkdirs();
+		
+		new File(wc, "foo.txt").createNewFile();
 		
 		File tmp = new File("target/client/tmp");
 		

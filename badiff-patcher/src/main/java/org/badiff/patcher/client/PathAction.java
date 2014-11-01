@@ -118,9 +118,15 @@ public class PathAction {
 				in.close();
 			}
 			if(diffs.size() == 0) {
-				FileUtils.copyFile(from, tmp);
-				if(!tmp.renameTo(to))
-					throw new IOException("Unable to replace " + to);
+				if(in != null) {
+					FileUtils.copyFile(from, tmp);
+					if(!tmp.renameTo(to))
+						throw new IOException("Unable to replace " + to);
+				} else {
+					if(to.exists() && !to.delete())
+						throw new IOException("Unable to delete " + to);
+				}
+					
 				return;
 			}
 		}

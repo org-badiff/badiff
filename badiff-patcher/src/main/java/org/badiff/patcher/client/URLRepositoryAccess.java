@@ -131,7 +131,7 @@ public class URLRepositoryAccess implements RepositoryAccess {
 		if(subdirs(parent).contains(path)) {
 			return new RemotePath(this, path, PathType.DIRECTORY, 0, 0);
 		}
-		throw new IllegalArgumentException("Neither file nor directory:" + path + " (parent:" + parent + " name:" + name + ")");
+		throw new IOException("Neither file nor directory:" + path + " (parent:" + parent + " name:" + name + ")");
 	}
 
 	@Override
