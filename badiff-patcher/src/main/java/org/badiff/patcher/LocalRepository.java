@@ -19,12 +19,8 @@ import org.badiff.patcher.util.Files;
 import org.badiff.patcher.util.Sets;
 import org.badiff.util.Data;
 import org.badiff.util.Digests;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LocalRepository {
-	private static final Logger log = LoggerFactory.getLogger(LocalRepository.class);
-	
 	protected File root;
 	
 	public LocalRepository(File root) {
