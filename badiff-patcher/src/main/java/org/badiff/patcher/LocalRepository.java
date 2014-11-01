@@ -42,6 +42,10 @@ public class LocalRepository {
 		
 		// compute what needs to happen
 		Set<String> fromPaths = new HashSet<String>(Files.listRelativePaths(getWorkingCopyRoot()));
+		fromPaths.remove(".__files");
+		fromPaths.remove(".__dirs");
+		fromPaths.remove(".__lengths");
+		fromPaths.remove(".__modified");
 		Set<String> toPaths = new HashSet<String>(Files.listRelativePaths(newWorkingCopyRoot));
 		Set<String> allPaths = Sets.union(fromPaths, toPaths);
 		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
@@ -115,28 +119,28 @@ public class LocalRepository {
 				if(f.isDirectory())
 					dirs.add(f);
 			}
-			out = new FileOutputStream(new File(dir, ".files"));
+			out = new FileOutputStream(new File(dir, ".__files"));
 			data = Data.asOutput(out);
 			serial.writeObject(data, int.class, files.size());
 			for(File f : files)
 				serial.writeObject(data, String.class, f.getName());
 			out.close();
 			
-			out = new FileOutputStream(new File(dir, ".lengths"));
+			out = new FileOutputStream(new File(dir, ".__lengths"));
 			data = Data.asOutput(out);
 			serial.writeObject(data, int.class, files.size());
 			for(File f : files)
 				serial.writeObject(data, long.class, f.length());
 			out.close();
 			
-			out = new FileOutputStream(new File(dir, ".modified"));
+			out = new FileOutputStream(new File(dir, ".__modified"));
 			data = Data.asOutput(out);
 			serial.writeObject(data, int.class, files.size());
 			for(File f : files)
 				serial.writeObject(data, long.class, f.lastModified());
 			out.close();
 			
-			out = new FileOutputStream(new File(dir, ".dirs"));
+			out = new FileOutputStream(new File(dir, ".__dirs"));
 			data = Data.asOutput(out);
 			serial.writeObject(data, int.class, dirs.size());
 			for(File f : dirs)

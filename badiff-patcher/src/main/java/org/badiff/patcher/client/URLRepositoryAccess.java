@@ -49,7 +49,7 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	}
 	
 	protected List<String> subfiles(String path) throws IOException {
-		String files = path.replaceAll("/$", "") + "/.files";
+		String files = path.replaceAll("/$", "") + "/.__files";
 		files = files.replaceAll("^/", "");
 		InputStream in = open(files);
 		if(in == null)
@@ -68,7 +68,7 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	}
 	
 	protected List<String> subdirs(String path) throws IOException {
-		String dirs = path.replaceAll("/$", "") + "/.dirs";
+		String dirs = path.replaceAll("/$", "") + "/.__dirs";
 		dirs = dirs.replaceAll("^/", "");
 		InputStream in = open(dirs);
 		if(in == null)
@@ -87,7 +87,7 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	}
 
 	protected List<Long> sublengths(String path) throws IOException {
-		String lengths = path.replaceAll("/$", "") + "/.lengths";
+		String lengths = path.replaceAll("/$", "") + "/.__lengths";
 		lengths = lengths.replaceAll("^/", "");
 		InputStream in = open(lengths);
 		if(in == null)
@@ -103,7 +103,7 @@ public class URLRepositoryAccess implements RepositoryAccess {
 	}
 
 	protected List<Long> submodified(String path) throws IOException {
-		String modified = path.replaceAll("/$", "") + "/.modified";
+		String modified = path.replaceAll("/$", "") + "/.__modified";
 		modified = modified.replaceAll("^/", "");
 		InputStream in = open(modified);
 		if(in == null)
