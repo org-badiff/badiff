@@ -12,6 +12,8 @@ import org.badiff.io.Serialized;
 import org.badiff.util.Digests;
 
 public class SerializedDigest implements Serialized {
+	public static final SerializedDigest DEFAULT_ZEROES = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+	
 	private String algorithm;
 	private byte[] digest;
 	

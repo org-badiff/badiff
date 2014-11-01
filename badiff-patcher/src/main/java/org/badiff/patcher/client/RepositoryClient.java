@@ -141,7 +141,7 @@ public class RepositoryClient {
 	
 	public PathAction actionFor(File root, String path, SerializedDigest toId) throws IOException {
 		if(toId == null)
-			toId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+			toId = SerializedDigest.DEFAULT_ZEROES;
 		SerializedDigest pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
 		SerializedDigest fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
 		return chain.actionFor(pathId, fromId, toId);
@@ -154,7 +154,7 @@ public class RepositoryClient {
 		if(file.canRead())
 			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
 		else
-			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+			fromId = SerializedDigest.DEFAULT_ZEROES;
 		
 		if(chain.indexOf(pathId, fromId) == -1) { // just replace with latest
 			fromId = digests.get(path);
@@ -181,7 +181,7 @@ public class RepositoryClient {
 		if(file.canRead())
 			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, new File(root, path));
 		else
-			fromId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, Digests.defaultZeroes());
+			fromId = SerializedDigest.DEFAULT_ZEROES;
 		
 		if(chain.indexOf(pathId, fromId) == -1) // just replace with latest
 			return new PathAction(pathId, Direction.REPLACE);
