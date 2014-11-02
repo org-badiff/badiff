@@ -21,7 +21,7 @@ public class GitTreeRepoBuilder {
 		
 		BufferedReader commits = new BufferedReader(new InputStreamReader(invoke("git", "log", "--pretty=format:%H", "--reverse").getInputStream()));
 		for(String line = commits.readLine(); line != null; line = commits.readLine()) {
-			System.out.println(line);
+			System.out.print(line);
 			FileUtils.deleteQuietly(tree);
 			invoke("git", "read-tree", "-u", "--prefix=badiff-patcher/target/tree", line).waitFor();
 			invoke("git", "reset", "--mixed").waitFor();
