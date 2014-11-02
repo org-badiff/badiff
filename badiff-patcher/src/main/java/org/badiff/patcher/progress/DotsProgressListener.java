@@ -13,6 +13,8 @@ public class DotsProgressListener implements ProgressListener {
 		while(epc > percent) {
 			System.out.print(".");
 			percent++;
+			if(percent == 100)
+				System.out.println();
 		}
 	}
 
