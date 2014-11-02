@@ -60,7 +60,7 @@ public class PathDiffChain {
 		List<PathDiff> pathHistory = historyFor(pathId);
 		if(pathHistory.size() == 0)
 			return -1;
-		for(int i = pathHistory.size() - 1; i >= 0; i--) {
+		for(int i = 0; i < pathHistory.size(); i++) {
 			if(pathHistory.get(i).getTo().equals(contentId))
 				return i + 1;
 		}
@@ -73,7 +73,7 @@ public class PathDiffChain {
 		List<PathDiff> pathHistory = historyFor(pathId);
 		if(pathHistory.size() == 0)
 			return null;
-		for(int i = pathHistory.size() - 1; i >= 0; i--) {
+		for(int i = pathHistory.size()-1; i >= 0; i--) {
 			if(pathHistory.get(i).getTs() == timestamp)
 				return i+1;
 			if(pathHistory.get(i).getTs() < timestamp)
@@ -106,9 +106,11 @@ public class PathDiffChain {
 		if(fromIndex == toIndex)
 			toId = fromId;
 		else if(fromIndex < toIndex)
-			toId = historyFor(pathId).get(inexact ? toIndex - 1 : toIndex).getTo();
+			toId = historyFor(pathId).get(toIndex - 1).getTo();
+		else if(inexact)
+			toId = historyFor(pathId).get(Math.max(0, toIndex - 1)).getFrom();
 		else
-			toId = historyFor(pathId).get(toIndex).getFrom();
+			toId = historyFor(pathId).get(Math.max(toIndex - 1, 0)).getTo();
 		
 		return actionFor(pathId, fromId, toId, fromIndex, toIndex);
 	}

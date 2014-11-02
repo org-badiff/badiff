@@ -5,16 +5,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 
-public class FileRandomInput extends FilterInputStream implements RandomInput {
+public class FileRandomInput extends InputStream implements RandomInput {
 	protected File file;
-	protected long pos;
-	protected DataInputStream data;
+	protected RandomAccessFile data;
 	
 	public FileRandomInput(File file) throws IOException {
-		super(new FileInputStream(file));
 		this.file = file;
-		data = new DataInputStream(this);
+		data = new RandomAccessFile(file, "r");
 	}
 
 	@Override
@@ -29,20 +29,21 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 
 	@Override
 	public long position() {
-		return pos;
+		try {
+			return data.getFilePointer();
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public void seek(long pos) throws IOException {
-		skip(pos - this.pos);
+		data.seek(pos);
 	}
 
 	@Override
 	public int read() throws IOException {
-		int b = super.read();
-		if(b >= 0)
-			pos++;
-		return b;
+		return data.read();
 	}
 
 	@Override
@@ -52,26 +53,12 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		int r = super.read(b, off, len);
-		if(r > 0)
-			pos += r;
-		return r;
+		return data.read(b, off, len);
 	}
 
 	@Override
 	public long skip(long n) throws IOException {
-		if(n > 0) {
-			long s = in.skip(n);
-			pos += s;
-			return s;
-		} else if(n < 0) {
-			in.close();
-			in = new FileInputStream(file);
-			in.skip(pos + n);
-			pos = pos + n;
-			return n;
-		} else
-			return 0;
+		return data.skipBytes((int) n);
 	}
 
 	public final void readFully(byte[] b) throws IOException {

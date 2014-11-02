@@ -13,6 +13,9 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.badiff.io.EmptyInputStream;
+import org.badiff.io.FileRandomInput;
+import org.badiff.io.RandomInput;
+import org.badiff.io.StreamRandomInput;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.util.Data;
@@ -53,7 +56,7 @@ public class PathAction {
 	}
 	
 	public void add(PathDiff pd) {
-		if(direction == Direction.REWIND)
+		if(direction == Direction.REWIND || direction == Direction.REPLACE_AND_REWIND)
 			pd = pd.reverse();
 		diffs.add(pd);
 	}
@@ -109,17 +112,16 @@ public class PathAction {
 				return;
 			}
 			if(direction == Direction.REPLACE_AND_REWIND) {
-				from = File.createTempFile(from.getName(), ".tmp");
-				from.deleteOnExit();
 				InputStream in = client.getWorkingCopy(pathId);
 				if(in == null)
-					from.delete();
+					tmp.delete();
 				else {
-					FileOutputStream out = new FileOutputStream(from);
+					FileOutputStream out = new FileOutputStream(tmp);
 					IOUtils.copy(in, out);
 					out.close();
 					in.close();
 				}
+				from = tmp;
 				if(diffs.size() == 0) {
 					if(in != null) {
 						FileUtils.copyFile(from, tmp);
@@ -134,6 +136,7 @@ public class PathAction {
 				}
 			}
 			for(PathDiff pd : diffs) {
+				System.out.println(pd);
 				switch(direction) {
 				case FAST_FORWARD:
 					pd = client.localFastForward(pd);
@@ -146,32 +149,24 @@ public class PathAction {
 					throw new IllegalStateException("Unhandled direction:" + direction);
 				}
 
-				tmp.getParentFile().mkdirs();
-
-				InputStream orig;
-				if(from.canRead())
-					orig = new FileInputStream(from);
-				else
-					orig = new EmptyInputStream();
-				OutputStream target = new FileOutputStream(tmp);
-
-				pd.getDiff().apply(Data.asInput(orig), Data.asOutput(target));
-
 				to.getParentFile().mkdirs();
-
-				orig.close();
-				target.close();
-				if(Arrays.equals(Digests.defaultZeroes(), pd.getTo().getDigest())) {
-					if(to.exists() && !to.delete())
-						throw new IOException("Unable to delete " + to);
+				
+				pd.getDiff().apply(from, to);
+				
+				
+				from = to;
+			}
+			
+			if(!to.exists()) {
+				String path = client.pathForId(pathId);
+				File f = to;
+				while(!path.isEmpty()) {
+					f.delete();
+					f = f.getParentFile();
+					path = path.replaceAll("/?[^/]*$", "");
 				}
-
-				FileUtils.copyFile(tmp, tmp2);
-				from = tmp2;
 			}
 
-			if(!tmp.renameTo(to))
-				throw new IOException("Unable to replace " + to);
 		} finally {
 			tmp.delete();
 			tmp2.delete();
