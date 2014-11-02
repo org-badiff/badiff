@@ -27,23 +27,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff.fmt;
+package org.badiff.io;
 
-import java.io.IOException;
-import org.badiff.io.RandomInput;
-import org.badiff.q.OpQueue;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * An object which can import a diff from an external format
- * @author robin
- *
- */
-public interface InputFormat {
-	/**
-	 * Import the externally formatted diff
-	 * @param orig The original file
-	 * @param extDiff The diff to import
-	 * @return A badiff diff
-	 */
-	public OpQueue importDiff(RandomInput orig, RandomInput ext) throws IOException;
+public class GraphContext extends HashMap<Object, Object> {
+	private static final long serialVersionUID = 0;
+	
+	private Map<Object, Object> context;
+	
+	public GraphContext(Map<Object, Object> context) {
+		this.context = context;
+	}
+	
+	@Override
+	public boolean containsKey(Object key) {
+		return super.containsKey(key) || context.containsKey(key);
+	}
+	
+	@Override
+	public Object get(Object key) {
+		return super.containsKey(key) ? super.get(key) : context.get(key);
+	}
 }

@@ -4,6 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.Comparator;
 
@@ -57,17 +59,17 @@ public class PathDiff implements Serialized {
 		this.diff = diff;
 	}
 	
-	public PathDiff(long ts, String path, BadiffFileDiff diff) throws IOException {
+	public PathDiff(long ts, String path, SerializedDigest from, SerializedDigest to, BadiffFileDiff diff) throws IOException {
 		BadiffFileDiff.Header.Optional opt;
 		if(path == null || diff == null || (opt = diff.header().getOptional()) == null)
 			throw new IllegalArgumentException();
 		
 		this.ts = ts;
 		this.path = path;
+		this.from = from;
+		this.to = to;
 		this.diff = diff;
 		pathId = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path);
-		from = new SerializedDigest(opt.getHashAlgorithm(), opt.getPreHash());
-		to = new SerializedDigest(opt.getHashAlgorithm(), opt.getPostHash());
 	}
 	
 	protected PathDiff(String path, long ts, SerializedDigest from, SerializedDigest to) {
@@ -118,9 +120,9 @@ public class PathDiff implements Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, DataOutput out)
+	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
-		serial.writeObject(out, long.class, ts);
+		serial.writeObject(out, Long.class, ts);
 		serial.writeObject(out, String.class, path);
 		serial.writeObject(out, SerializedDigest.class, from);
 		serial.writeObject(out, SerializedDigest.class, to);
@@ -128,9 +130,9 @@ public class PathDiff implements Serialized {
 	}
 
 	@Override
-	public void deserialize(Serialization serial, DataInput in)
+	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
-		ts = serial.readObject(in, long.class);
+		ts = serial.readObject(in, Long.class);
 		path = serial.readObject(in, String.class);
 		from = serial.readObject(in, SerializedDigest.class);
 		to = serial.readObject(in, SerializedDigest.class);

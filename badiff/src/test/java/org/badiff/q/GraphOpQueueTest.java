@@ -31,8 +31,6 @@ package org.badiff.q;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,8 +66,8 @@ public class GraphOpQueueTest {
 
 		long start = System.nanoTime();
 		q.apply(
-				new DataInputStream(new ByteArrayInputStream(orig.toByteArray())),
-				new DataOutputStream(result));
+				new ByteArrayInputStream(orig.toByteArray()),
+				result);
 		long end = System.nanoTime();
 		
 		System.out.println("Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");
@@ -111,8 +109,8 @@ public class GraphOpQueueTest {
 
 		long start = System.nanoTime();
 		q.apply(
-				new DataInputStream(new ByteArrayInputStream(orig.toByteArray())),
-				new DataOutputStream(result));
+				new ByteArrayInputStream(orig.toByteArray()),
+				result);
 		long end = System.nanoTime();
 		
 		System.out.println("Diffed " + SIZE + " bytes in " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + "ms.");

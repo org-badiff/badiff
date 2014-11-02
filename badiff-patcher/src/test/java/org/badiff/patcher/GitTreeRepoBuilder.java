@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.badiff.patcher.client.FileRepositoryAccess;
 import org.badiff.patcher.client.PathAction;
+import org.badiff.patcher.client.PathAction.Direction;
 import org.badiff.patcher.client.RepositoryClient;
 import org.badiff.patcher.progress.DotsProgressListener;
 import org.badiff.patcher.progress.Progress;
@@ -53,6 +54,8 @@ public class GitTreeRepoBuilder {
 			p.addProgressListener(new DotsProgressListener());
 			p.push(pas.size());
 			for(Map.Entry<String, PathAction> e : pas.entrySet()) {
+				if(e.getValue().getDirection() == Direction.PAUSE)
+					continue;
 				String path = e.getKey();
 				System.out.println(path + ":" + e.getValue());
 				e.getValue().apply(client, new File(tree, path), new File(tree, path));
@@ -68,6 +71,8 @@ public class GitTreeRepoBuilder {
 			p.addProgressListener(new DotsProgressListener());
 			p.push(pas.size());
 			for(Map.Entry<String, PathAction> e : pas.entrySet()) {
+				if(e.getValue().getDirection() == Direction.PAUSE)
+					continue;
 				String path = e.getKey();
 				System.out.println(path + ":" + e.getValue());
 				e.getValue().apply(client, new File(tree, path), new File(tree, path));

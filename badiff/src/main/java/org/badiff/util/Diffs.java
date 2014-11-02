@@ -30,8 +30,6 @@
 package org.badiff.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -65,10 +63,10 @@ public class Diffs {
 	}
 	
 	public static byte[] apply(Applyable a, byte[] orig) {
-		RandomInputStream in = new RandomInputStream(orig);
+		InputStream in = new RandomInputStream(orig);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			a.apply(new DataInputStream(in), new DataOutputStream(out));
+			a.apply(in, out);
 			if(in.available() > 0)
 				throw new IOException("Not all byts consumed from byte[]");
 		} catch(IOException ioe) {
@@ -82,7 +80,7 @@ public class Diffs {
 		try {
 			FileOutputStream out = new FileOutputStream(target);
 			try {
-				a.apply(new DataInputStream(in), new DataOutputStream(out));
+				a.apply(in, out);
 			} finally {
 				out.close();
 			}

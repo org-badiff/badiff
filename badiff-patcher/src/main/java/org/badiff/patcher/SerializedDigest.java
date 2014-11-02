@@ -4,6 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -49,14 +51,14 @@ public class SerializedDigest implements Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, DataOutput out)
+	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
 		serial.writeObject(out, String.class, algorithm);
 		serial.writeObject(out, byte[].class, digest);
 	}
 
 	@Override
-	public void deserialize(Serialization serial, DataInput in)
+	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
 		algorithm = serial.readObject(in, String.class);
 		digest = serial.readObject(in, byte[].class);

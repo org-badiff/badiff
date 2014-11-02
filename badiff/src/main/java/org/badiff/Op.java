@@ -29,14 +29,13 @@
  */
 package org.badiff;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
-import org.badiff.util.Data;
+import org.badiff.util.Streams;
 
 /**
  * A single run-length-encoded operation in a {@link Diff}.
@@ -111,13 +110,13 @@ public class Op implements Applyable, Serialized {
 	}
 	
 	@Override
-	public void apply(DataInput orig, DataOutput target) throws IOException {
+	public void apply(InputStream orig, OutputStream target) throws IOException {
 		switch(op) {
 		case DELETE:
-			Data.skip(orig, run);
+			orig.skip(run);
 			break;
 		case NEXT:
-			Data.copy(orig, target, run);
+			Streams.copy(orig, target, run);
 			break;
 		case INSERT:
 			target.write(data, 0, run);
@@ -151,41 +150,22 @@ public class Op implements Applyable, Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, DataOutput out)
+	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
 		long oprun = op | (data != null ? 0x4 : 0) | (((long) run) << 3);
-		serial.writeObject(out, long.class, oprun);
+		serial.writeObject(out, Long.class, oprun);
 		if((op == INSERT || op == DELETE) && data != null)
 			serial.writeObject(out, byte[].class, data);
 	}
 
 	@Override
-	public void deserialize(Serialization serial, DataInput in)
+	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
-		long oprun = serial.readObject(in, long.class);
+		long oprun = serial.readObject(in, Long.class);
 		op = (byte)(oprun & 0x3);
 		boolean hasData = (oprun & 0x4) != 0;
 		run = (int)(oprun >>> 3);
 		if((op == INSERT || op == DELETE) && hasData)
 			data = serial.readObject(in, byte[].class);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if(obj == this)
-			return true;
-		if(obj instanceof Op) {
-			Op other = (Op) obj;
-			return op == other.op && run == other.run && Arrays.equals(data, other.data);
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		int hc = op | (run << 2);
-		if(data != null)
-			hc |= ((0xff & data[0]) << 12);
-		return hc;
 	}
 }

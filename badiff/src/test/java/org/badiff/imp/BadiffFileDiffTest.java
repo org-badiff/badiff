@@ -2,13 +2,12 @@ package org.badiff.imp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.util.Arrays;
-
 import org.apache.commons.io.FileUtils;
+import org.badiff.q.GraphOpQueue;
 import org.badiff.q.OpQueue;
+import org.badiff.util.Diffs;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -91,8 +90,8 @@ public class BadiffFileDiffTest {
 		ByteArrayOutputStream result = new ByteArrayOutputStream(SIZE);
 		
 		q.apply(
-				new DataInputStream(new ByteArrayInputStream(orig.toByteArray())),
-				new DataOutputStream(result));
+				new ByteArrayInputStream(orig.toByteArray()),
+				result);
 		
 		Assert.assertTrue(Arrays.equals(target.toByteArray(), result.toByteArray()));
 	}

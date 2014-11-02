@@ -12,7 +12,6 @@ import java.util.List;
 import org.badiff.io.Serialization;
 import org.badiff.patcher.PatcherSerialization;
 import org.badiff.patcher.client.RemotePath.PathType;
-import org.badiff.util.Data;
 
 public class URLRepositoryAccess implements RepositoryAccess {
 	
@@ -32,32 +31,28 @@ public class URLRepositoryAccess implements RepositoryAccess {
 		dirs = new ArrayList<String>();
 		
 		InputStream in = open("files");
-		DataInput data = Data.asInput(in);
 		Serialization serial = PatcherSerialization.newInstance();
-		int size = serial.readObject(data, int.class);
+		int size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++)
-			files.add(serial.readObject(data, String.class));
+			files.add(serial.readObject(in, String.class));
 		in.close();
 		
 		in = open("lengths");
-		data = Data.asInput(in);
-		size = serial.readObject(data, int.class);
+		size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++)
-			lengths.add(serial.readObject(data, long.class));
+			lengths.add(serial.readObject(in, Long.class));
 		in.close();
 		
 		in = open("modified");
-		data = Data.asInput(in);
-		size = serial.readObject(data, int.class);
+		size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++)
-			modified.add(serial.readObject(data, long.class));
+			modified.add(serial.readObject(in, Long.class));
 		in.close();
 		
 		in = open("dirs");
-		data = Data.asInput(in);
-		size = serial.readObject(data, int.class);
+		size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++)
-			dirs.add(serial.readObject(data, String.class));
+			dirs.add(serial.readObject(in, String.class));
 		in.close();
 	}
 	

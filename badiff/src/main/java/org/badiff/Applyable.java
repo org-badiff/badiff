@@ -29,8 +29,6 @@
  */
 package org.badiff;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +48,6 @@ public interface Applyable {
 	 * @param target
 	 * @throws IOException
 	 */
-	public void apply(DataInput orig, DataOutput target) throws IOException;
+	public void apply(InputStream orig, OutputStream target) throws IOException;
 
 }

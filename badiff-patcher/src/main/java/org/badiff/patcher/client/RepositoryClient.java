@@ -23,7 +23,6 @@ import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.PathDigest;
 import org.badiff.patcher.SerializedDigest;
 import org.badiff.patcher.client.PathAction.Direction;
-import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
 public class RepositoryClient {
@@ -98,11 +97,10 @@ public class RepositoryClient {
 	public void updateDigests() throws IOException {
 		digests.clear();
 		InputStream in = serverAccess.get("digests").open();
-		DataInput data = Data.asInput(in);
 		Serialization serial = PatcherSerialization.newInstance();
-		int size = serial.readObject(data, int.class);
+		int size = serial.readObject(in, Integer.class);
 		for(int i = 0; i < size; i++) {
-			PathDigest pd = serial.readObject(data, PathDigest.class);
+			PathDigest pd = serial.readObject(in, PathDigest.class);
 			digests.put(pd.getPath(), pd.getDigest());
 		}
 	}

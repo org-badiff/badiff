@@ -27,92 +27,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.badiff.imp;
+package org.badiff.io;
 
+import java.io.DataOutput;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.badiff.Diff;
-import org.badiff.Op;
-import org.badiff.io.Serialization;
-import org.badiff.io.Serialized;
-import org.badiff.q.ListOpQueue;
-import org.badiff.q.OpQueue;
 
 /**
- * Implementation of {@link Diff} that lives entirely in memory, backed
- * by a {@link List} of {@link Op}.
+ * {@link OutputStream} that reads from an {@link ObjectOutput}
  * @author robin
  *
  */
-public class MemoryDiff implements Diff, Serialized {
+public class DataOutputOutputStream extends OutputStream {
+
+	protected DataOutput out;
 	
-	protected List<Op> ops = new ArrayList<Op>();
-
-	public MemoryDiff() {}
-	
-	public MemoryDiff(Iterator<Op> ops) {
-		this();
-		store(ops);
-	}
-	
-	@Override
-	public void apply(InputStream orig, OutputStream target)
-			throws IOException {
-		for(Op e : ops)
-			e.apply(orig, target);
+	public DataOutputOutputStream(DataOutput out) {
+		this.out = out;
 	}
 
 	@Override
-	public void store(Iterator<Op> ops) {
-		this.ops.clear();
-		while(ops.hasNext())
-			this.ops.add(ops.next());
-	}
-
-	@Override
-	public OpQueue queue() {
-		return new MemoryOpQueue(ops);
-	}
-
-	@Override
-	public String toString() {
-		return queue().consummerize();
-	}
-	
-	@Override
-	public void serialize(Serialization serial, OutputStream out)
-			throws IOException {
-		for(Op e : ops)
-			serial.writeObject(out, Op.class, e);
-		serial.writeObject(out, Op.class, new Op(Op.STOP, 1, null));
-	}
-
-	@Override
-	public void deserialize(Serialization serial, InputStream in)
-			throws IOException {
-		for(Op e = serial.readObject(in, Op.class); e.getOp() != Op.STOP; e = serial.readObject(in, Op.class))
-			ops.add(e);
-	}
-
-	private class MemoryOpQueue extends ListOpQueue {
-		private MemoryOpQueue(List<Op> ops) {
-			super(ops);
-		}
-	
-		@Override
-		public boolean offer(Op e) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public String toString() {
-			return getClass().getSimpleName();
-		}
+	public void write(int b) throws IOException {
+		out.write(b);
 	}
 
 }

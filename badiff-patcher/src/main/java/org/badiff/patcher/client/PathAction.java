@@ -18,7 +18,6 @@ import org.badiff.io.RandomInput;
 import org.badiff.io.StreamRandomInput;
 import org.badiff.patcher.PathDiff;
 import org.badiff.patcher.SerializedDigest;
-import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
 public class PathAction {
@@ -86,6 +85,7 @@ public class PathAction {
 	public void apply(RepositoryClient client, File from, File to) throws IOException {
 		File tmp = File.createTempFile(from.getName(), ".tmp");
 		File tmp2 = File.createTempFile(from.getName(), ".tmp");
+		File empty = File.createTempFile("empty", ".tmp");
 		try {
 			if(direction == Direction.PAUSE) {
 				if(from.exists()) {
@@ -151,6 +151,8 @@ public class PathAction {
 
 				to.getParentFile().mkdirs();
 				
+				if(!from.exists())
+					from = empty;
 				pd.getDiff().apply(from, to);
 				
 				
@@ -170,6 +172,7 @@ public class PathAction {
 		} finally {
 			tmp.delete();
 			tmp2.delete();
+			empty.delete();
 		}
 	}
 }

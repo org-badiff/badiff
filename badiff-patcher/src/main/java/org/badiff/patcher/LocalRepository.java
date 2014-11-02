@@ -19,7 +19,6 @@ import org.badiff.io.Serialization;
 import org.badiff.patcher.progress.Progress;
 import org.badiff.patcher.util.Files;
 import org.badiff.patcher.util.Sets;
-import org.badiff.util.Data;
 import org.badiff.util.Digests;
 
 public class LocalRepository {
@@ -54,22 +53,39 @@ public class LocalRepository {
 
 		prog.push(allPaths.size());
 		
+		File empty = File.createTempFile("empty", ".tmp");
+		
 		// compute diffs for files that have changed
 		for(String path : allPaths) {
 			try {
 				File fromFile = new File(getWorkingCopyRoot(), path);
 				File toFile = new File(newWorkingCopyRoot, path);
-				SerializedDigest toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
-				SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
+				SerializedDigest toDigest;
+				if(toFile.canRead())
+					toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
+				else 
+					toDigest = SerializedDigest.DEFAULT_ZEROES;
+				SerializedDigest fromDigest;
+				if(fromFile.canRead())
+					fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
+				else
+					fromDigest = SerializedDigest.DEFAULT_ZEROES;
 				if(fromDigest.equals(toDigest)) {
 					pathDigests.add(new PathDigest(path, toDigest));
 					continue;
 				}
 				String prefix = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString();
 
+				if(!fromFile.exists()) {
+					fromFile = empty;
+				}
+				if(!toFile.exists()) {
+					toFile = empty;
+				}
+				
 				BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
 				tmpDiff.diff(fromFile, toFile);
-				PathDiff pd = new PathDiff(ts, path, tmpDiff);
+				PathDiff pd = new PathDiff(ts, path, fromDigest, toDigest, tmpDiff);
 				tmpDiff.renameTo(new File(getFastForwardRoot(), pd.getName()));
 
 				tmpDiff.diff(toFile, fromFile);
@@ -89,13 +105,14 @@ public class LocalRepository {
 			}
 		}
 
+		empty.delete();
+		
 		// store the most recent digests
 		OutputStream out = new FileOutputStream(new File(root, "digests"));
-		DataOutput data = Data.asOutput(out);
 		Serialization serial = PatcherSerialization.newInstance();
-		serial.writeObject(data, int.class, pathDigests.size());
+		serial.writeObject(out, Integer.class, pathDigests.size());
 		for(PathDigest pd : pathDigests)
-			serial.writeObject(data, PathDigest.class, pd);
+			serial.writeObject(out, PathDigest.class, pd);
 		out.close();
 
 
@@ -123,31 +140,27 @@ public class LocalRepository {
 		dirs.remove(root);
 		
 		out = new FileOutputStream(new File(root, "files"));
-		data = Data.asOutput(out);
-		serial.writeObject(data, int.class, files.size());
+		serial.writeObject(out, Integer.class, files.size());
 		for(File f : files)
-			serial.writeObject(data, String.class, Files.relativePath(root, f));
+			serial.writeObject(out, String.class, Files.relativePath(root, f));
 		out.close();
 
 		out = new FileOutputStream(new File(root, "lengths"));
-		data = Data.asOutput(out);
-		serial.writeObject(data, int.class, files.size());
+		serial.writeObject(out, Integer.class, files.size());
 		for(File f : files)
-			serial.writeObject(data, long.class, f.length());
+			serial.writeObject(out, Long.class, f.length());
 		out.close();
 
 		out = new FileOutputStream(new File(root, "modified"));
-		data = Data.asOutput(out);
-		serial.writeObject(data, int.class, files.size());
+		serial.writeObject(out, Integer.class, files.size());
 		for(File f : files)
-			serial.writeObject(data, long.class, f.lastModified());
+			serial.writeObject(out, Long.class, f.lastModified());
 		out.close();
 
 		out = new FileOutputStream(new File(root, "dirs"));
-		data = Data.asOutput(out);
-		serial.writeObject(data, int.class, dirs.size());
+		serial.writeObject(out, Integer.class, dirs.size());
 		for(File f : dirs)
-			serial.writeObject(data, String.class, Files.relativePath(root, f));
+			serial.writeObject(out, String.class, Files.relativePath(root, f));
 		out.close();
 	}
 

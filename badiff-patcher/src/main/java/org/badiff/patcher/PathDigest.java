@@ -3,6 +3,8 @@ package org.badiff.patcher;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
@@ -34,14 +36,14 @@ public class PathDigest implements Serialized {
 	}
 
 	@Override
-	public void serialize(Serialization serial, DataOutput out)
+	public void serialize(Serialization serial, OutputStream out)
 			throws IOException {
 		serial.writeObject(out, String.class, path);
 		serial.writeObject(out, SerializedDigest.class, digest);
 	}
 
 	@Override
-	public void deserialize(Serialization serial, DataInput in)
+	public void deserialize(Serialization serial, InputStream in)
 			throws IOException {
 		path = serial.readObject(in, String.class);
 		digest = serial.readObject(in, SerializedDigest.class);

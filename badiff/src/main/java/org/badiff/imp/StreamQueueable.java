@@ -1,7 +1,5 @@
 package org.badiff.imp;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,8 +26,6 @@ public class StreamQueueable implements Queueable {
 	 * The input stream
 	 */
 	protected InputStream in;
-	
-	protected DataInput data;
 
 	/**
 	 * Create a {@link StreamQueueable} with the {@link DefaultSerialization}
@@ -47,7 +43,6 @@ public class StreamQueueable implements Queueable {
 	public StreamQueueable(InputStream in, Serialization serial) {
 		this.in = in;
 		this.serial = serial;
-		data = new DataInputStream(in);
 	}
 	
 	@Override
@@ -74,7 +69,7 @@ public class StreamQueueable implements Queueable {
 				return false;
 			
 			try {
-				Op e = serial.readObject(data, Op.class);
+				Op e = serial.readObject(in, Op.class);
 				if(e.getOp() == Op.STOP) {
 					closed = true;
 					return false;

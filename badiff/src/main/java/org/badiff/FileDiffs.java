@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.badiff.imp.FileDiff;
 import org.badiff.io.RandomInputStream;
 import org.badiff.q.OneWayOpQueue;
