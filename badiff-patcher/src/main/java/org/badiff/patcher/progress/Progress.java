@@ -24,6 +24,14 @@ public class Progress {
 		contexts.add(ctx);
 	}
 	
+	public void addProgressListener(ProgressListener l) {
+		listeners.add(ProgressListener.class, l);
+	}
+	
+	public void removeProgressListener(ProgressListener l) {
+		listeners.remove(ProgressListener.class, l);
+	}
+	
 	protected void fireProgressUpdated() {
 		Object[] ll = listeners.getListenerList();
 		ProgressEvent e = null;

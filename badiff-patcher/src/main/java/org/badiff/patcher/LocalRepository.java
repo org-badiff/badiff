@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.io.Serialization;
+import org.badiff.patcher.progress.Progress;
 import org.badiff.patcher.util.Files;
 import org.badiff.patcher.util.Sets;
 import org.badiff.util.Data;
@@ -38,6 +40,10 @@ public class LocalRepository {
 	}
 
 	public void commit(File newWorkingCopyRoot) throws IOException {
+		commit(newWorkingCopyRoot, new Progress());
+	}
+
+	public void commit(File newWorkingCopyRoot, Progress prog) throws IOException {
 		long ts = System.currentTimeMillis();
 
 		// compute what needs to happen
@@ -46,34 +52,40 @@ public class LocalRepository {
 		Set<String> allPaths = Sets.union(fromPaths, toPaths);
 		Set<PathDigest> pathDigests = new HashSet<PathDigest>();
 
+		prog.push(allPaths.size());
+		
 		// compute diffs for files that have changed
 		for(String path : allPaths) {
-			File fromFile = new File(getWorkingCopyRoot(), path);
-			File toFile = new File(newWorkingCopyRoot, path);
-			SerializedDigest toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
-			SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
-			if(fromDigest.equals(toDigest)) {
+			try {
+				File fromFile = new File(getWorkingCopyRoot(), path);
+				File toFile = new File(newWorkingCopyRoot, path);
+				SerializedDigest toDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, toFile);
+				SerializedDigest fromDigest = new SerializedDigest(Digests.DEFAULT_ALGORITHM, fromFile);
+				if(fromDigest.equals(toDigest)) {
+					pathDigests.add(new PathDigest(path, toDigest));
+					continue;
+				}
+				String prefix = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString();
+
+				BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
+				tmpDiff.diff(fromFile, toFile);
+				PathDiff pd = new PathDiff(ts, path, tmpDiff);
+				tmpDiff.renameTo(new File(getFastForwardRoot(), pd.getName()));
+
+				tmpDiff.diff(toFile, fromFile);
+				pd = pd.reverse();
+				tmpDiff.renameTo(new File(getRewindRoot(), pd.getName()));
+
 				pathDigests.add(new PathDigest(path, toDigest));
-				continue;
-			}
-			String prefix = new SerializedDigest(Digests.DEFAULT_ALGORITHM, path).toString();
 
-			BadiffFileDiff tmpDiff = new BadiffFileDiff(root, "tmp." + prefix + ".badiff");
-			tmpDiff.diff(fromFile, toFile);
-			PathDiff pd = new PathDiff(ts, path, tmpDiff);
-			tmpDiff.renameTo(new File(getFastForwardRoot(), pd.getName()));
-
-			tmpDiff.diff(toFile, fromFile);
-			pd = pd.reverse();
-			tmpDiff.renameTo(new File(getRewindRoot(), pd.getName()));
-
-			pathDigests.add(new PathDigest(path, toDigest));
-
-			File id = new File(getIdRoot(), pd.getPathId().toString());
-			if(!id.isFile()) {
-				OutputStream out = new FileOutputStream(id);
-				IOUtils.write(path, out, Charset.forName("UTF-8"));
-				out.close();
+				File id = new File(getIdRoot(), pd.getPathId().toString());
+				if(!id.isFile()) {
+					OutputStream out = new FileOutputStream(id);
+					IOUtils.write(path, out, Charset.forName("UTF-8"));
+					out.close();
+				}
+			} finally {
+				prog.complete(1);
 			}
 		}
 

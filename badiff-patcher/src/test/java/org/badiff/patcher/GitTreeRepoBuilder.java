@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;
+import org.badiff.patcher.progress.DotsProgressListener;
+import org.badiff.patcher.progress.Progress;
 
 public class GitTreeRepoBuilder {
 	public static void main(String[] args) throws Exception {
@@ -23,7 +25,9 @@ public class GitTreeRepoBuilder {
 			FileUtils.deleteQuietly(tree);
 			invoke("git", "read-tree", "-u", "--prefix=badiff-patcher/target/tree", line).waitFor();
 			invoke("git", "reset", "--mixed").waitFor();
-			repo.commit(tree);
+			Progress p = new Progress();
+			p.addProgressListener(new DotsProgressListener());
+			repo.commit(tree, p);
 		}
 		FileUtils.deleteQuietly(tree);
 	}
