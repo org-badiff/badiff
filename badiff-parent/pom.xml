@@ -17,7 +17,6 @@
 		<module>../badiff-examples</module>
 		<module>../badiff-hadoop</module>
 		<module>../badiff-cli</module>
-		<module>../badiff-patcher</module>
 	</modules>
 
 	<build>
