@@ -135,7 +135,11 @@ public class PathAction {
 					return;
 				}
 			}
+			
+			SerializedDigest last = null;
+			
 			for(PathDiff pd : diffs) {
+				last = pd.getTo();
 				System.out.println(pd);
 				switch(direction) {
 				case FAST_FORWARD:
@@ -159,7 +163,7 @@ public class PathAction {
 				from = to;
 			}
 			
-			if(!to.exists()) {
+			if(SerializedDigest.DEFAULT_ZEROES.equals(last)) {
 				String path = client.pathForId(pathId);
 				File f = to;
 				while(!path.isEmpty()) {
