@@ -17,25 +17,38 @@ import com.esotericsoftware.kryo.util.ObjectMap;
 
 @SuppressWarnings("unchecked")
 public class BadiffSerializer<T> extends Serializer<T> {
-	
-	
 	protected Kryo bytesKryo;
 	protected ObjectMap<Class<?>, Serializer<?>> serializers = new ObjectMap<Class<?>, Serializer<?>>(8);
 	protected SerializerFactory factory;
 	
 	public BadiffSerializer(Kryo bytesKryo) {
-		this(bytesKryo, new ReflectionSerializerFactory(FieldSerializer.class));
+		this(bytesKryo, null);
 	}
 	
 	public BadiffSerializer(Kryo bytesKryo, SerializerFactory factory) {
 		this.bytesKryo = bytesKryo;
-		this.factory = factory;
+		this.factory = factory != null ? factory : createSerializerFactory();
 	}
 	
 	public BadiffSerializer(Kryo bytesKryo, Class<T> bytesType, Serializer<T> bytesSerializer) {
 		this.bytesKryo = bytesKryo;
 		
 		serializers.put(bytesType, bytesSerializer);
+	}
+	
+	protected SerializerFactory createSerializerFactory() {
+		return new SerializerFactory() {
+			@Override
+			public Serializer makeSerializer(Kryo kryo, Class<?> type) {
+				Serializer s = kryo.getSerializer(type);
+				if(s == BadiffSerializer.this)
+					s = ReflectionSerializerFactory.makeSerializer(
+							kryo,
+							FieldSerializer.class,
+							type);
+				return s;
+			}
+		};
 	}
 	
 	protected Serializer<T> getBytesSerializer(Class<?> streamType) {
