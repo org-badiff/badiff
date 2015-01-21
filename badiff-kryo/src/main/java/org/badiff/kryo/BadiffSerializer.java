@@ -12,6 +12,7 @@ import com.esotericsoftware.kryo.factories.ReflectionSerializerFactory;
 import com.esotericsoftware.kryo.factories.SerializerFactory;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import com.esotericsoftware.kryo.util.ObjectMap;
 
@@ -36,6 +37,10 @@ public class BadiffSerializer<T> extends Serializer<T> {
 		serializers.put(bytesType, bytesSerializer);
 	}
 	
+	protected Class<? extends Serializer> getDefaultSerializerClass() {
+		return CompatibleFieldSerializer.class;
+	}
+	
 	protected SerializerFactory createSerializerFactory() {
 		return new SerializerFactory() {
 			@Override
@@ -44,7 +49,7 @@ public class BadiffSerializer<T> extends Serializer<T> {
 				if(s == BadiffSerializer.this)
 					s = ReflectionSerializerFactory.makeSerializer(
 							kryo,
-							FieldSerializer.class,
+							getDefaultSerializerClass(),
 							type);
 				return s;
 			}
