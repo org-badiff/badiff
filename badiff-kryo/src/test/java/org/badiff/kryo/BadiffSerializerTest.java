@@ -16,7 +16,7 @@ public class BadiffSerializerTest {
 		String def = "defghijklmnopqrstuvwxyzabc";
 		
 		Kryo kryo = new Kryo();
-		kryo.register(String.class, new BadiffSerializer<String>(kryo, String.class));
+		kryo.register(String.class, new BadiffSerializer<String>(kryo));
 		kryo.setAutoReset(false);
 		
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -67,7 +67,7 @@ public class BadiffSerializerTest {
 	}
 	
 	@Test
-	public void testDefaultSerializ() {
+	public void testDefaultSerialize() {
 		C abc = new C("abcdefghijklmnopqrstuvwxyz");
 		C def = new C("defghijklmnopqrstuvwxyzabc");
 		

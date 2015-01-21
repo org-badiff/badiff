@@ -2,38 +2,47 @@ package org.badiff.kryo;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import org.badiff.ByteArrayDiffs;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.factories.ReflectionSerializerFactory;
+import com.esotericsoftware.kryo.factories.SerializerFactory;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
+import com.esotericsoftware.kryo.util.ObjectMap;
 
 @SuppressWarnings("unchecked")
 public class BadiffSerializer<T> extends Serializer<T> {
-	protected Kryo bytesKryo;
-	protected Class<T> bytesType;
-	protected Serializer<T> bytesSerializer;
 	
-	public BadiffSerializer(Kryo bytesKryo, Class<T> bytesType) {
-		this(bytesKryo, bytesType, null);
+	
+	protected Kryo bytesKryo;
+	protected ObjectMap<Class<?>, Serializer<?>> serializers = new ObjectMap<Class<?>, Serializer<?>>(8);
+	protected SerializerFactory factory;
+	
+	public BadiffSerializer(Kryo bytesKryo) {
+		this(bytesKryo, new ReflectionSerializerFactory(FieldSerializer.class));
+	}
+	
+	public BadiffSerializer(Kryo bytesKryo, SerializerFactory factory) {
+		this.bytesKryo = bytesKryo;
+		this.factory = factory;
 	}
 	
 	public BadiffSerializer(Kryo bytesKryo, Class<T> bytesType, Serializer<T> bytesSerializer) {
 		this.bytesKryo = bytesKryo;
-		this.bytesType = bytesType;
-		this.bytesSerializer = bytesSerializer;
+		
+		serializers.put(bytesType, bytesSerializer);
 	}
 	
-	protected Serializer<T> getBytesSerializer() {
+	protected Serializer<T> getBytesSerializer(Class<?> streamType) {
+		Serializer<T> bytesSerializer = (Serializer<T>) serializers.get(streamType);
 		if(bytesSerializer == null) {
-			bytesSerializer = ReflectionSerializerFactory.makeSerializer(
-					bytesKryo,
-					FieldSerializer.class,
-					bytesType);
+			bytesSerializer = factory.makeSerializer(bytesKryo, streamType);
+			serializers.put(streamType, bytesSerializer);
 		}
 		return bytesSerializer;
 	}
@@ -44,7 +53,7 @@ public class BadiffSerializer<T> extends Serializer<T> {
 		bytesOutput.write(object == null ? 0 : 1);
 		if(object != null) {
 			if(bytesKryo == streamKryo)
-				getBytesSerializer().write(bytesKryo, bytesOutput, object);
+				getBytesSerializer(object.getClass()).write(bytesKryo, bytesOutput, object);
 			else
 				bytesKryo.writeObject(bytesOutput, object);
 		}
@@ -52,14 +61,14 @@ public class BadiffSerializer<T> extends Serializer<T> {
 		return bytes.toByteArray();
 	}
 	
-	protected T fromBytes(Kryo streamKryo, byte[] buf, Class<T> bytesType) {
+	protected T fromBytes(Kryo streamKryo, byte[] buf, Class<T> streamType) {
 		Input bytesInput = new Input(buf);
 		if(bytesInput.read() == 0)
 			return null;
 		if(bytesKryo == streamKryo)
-			return getBytesSerializer().read(bytesKryo, bytesInput, bytesType);
+			return getBytesSerializer(streamType).read(bytesKryo, bytesInput, streamType);
 		else
-			return bytesKryo.readObject(bytesInput, bytesType);
+			return bytesKryo.readObject(bytesInput, streamType);
 	}
 	
 	protected byte[] getPreviousBytes(Kryo kryo) {
