@@ -34,6 +34,30 @@ public class BadiffSerializerTest {
 		Assert.assertEquals(def, kryo.readObject(input, String.class));
 	}
 	
+	@Test
+	public void testSerialize2() {
+		String abc = "abcdefghijklmnopqrstuvwxyz";
+		String def = "defghijklmnopqrstuvwxyzabc";
+		
+		Kryo kryo = new Kryo();
+		kryo.register(String.class, new BadiffSerializer<String>(new Kryo()));
+		kryo.setAutoReset(false);
+		
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		Output output = new Output(bytes);
+		
+		kryo.writeObject(output, abc);
+		kryo.writeObject(output, def);
+		
+		output.close();
+		
+		kryo.reset();
+		Input input = new Input(bytes.toByteArray());
+				
+		Assert.assertEquals(abc, kryo.readObject(input, String.class));
+		Assert.assertEquals(def, kryo.readObject(input, String.class));
+	}
+	
 	public static interface I {}
 	public static class C implements I {
 		private String alpha;
