@@ -9,11 +9,16 @@ A pure-java byte-level diffing library for working with large inputs, taking adv
     Starting diff
     Computed parallel graph diff for 52428800 bytes in 54981ms
 ```
+
+## Development & Issue Tracking
 Source is available on [stash.robindps.com](http://stash.robindps.com/projects/BDF/repos/badiff/browse) , and can be cloned with:
 
 ```sh
   git clone http://stash.robindps.com/scm/bdf/badiff.git
 ```
+
+[This github repo](https://github.com/org-badiff/badiff)  is a mirror of the definitive repo hosted on [stash.robindps.com](http://stash.robindps.com/projects/BDF/repos/badiff/browse) .  Please submit issues to [jira.robindps.com](http://jira.robindps.com/browse/BDF/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel) .
+
 badiff has no external dependencies, but requires Java 1.6 or higher.  badiff is released under a BSD license.
 
 ## Find it on maven:
