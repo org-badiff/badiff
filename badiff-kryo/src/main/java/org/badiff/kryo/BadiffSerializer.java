@@ -55,6 +55,8 @@ public class BadiffSerializer<T> extends Serializer<T> {
 	protected Serializer<T> getBytesSerializer(Class<?> streamType) {
 		Serializer<T> bytesSerializer = (Serializer<T>) serializers.get(streamType);
 		if(bytesSerializer == null) {
+			if(factory == null)
+				throw new IllegalStateException(this + " is noy configured for " + streamType);
 			bytesSerializer = factory.makeSerializer(bytesKryo, streamType);
 			serializers.put(streamType, bytesSerializer);
 		}
