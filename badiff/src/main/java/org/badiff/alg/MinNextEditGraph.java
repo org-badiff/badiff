@@ -3,7 +3,6 @@ package org.badiff.alg;
 import java.util.Arrays;
 
 import org.badiff.Op;
-import org.badiff.q.OpQueue;
 
 public class MinNextEditGraph extends EditGraph {
 	

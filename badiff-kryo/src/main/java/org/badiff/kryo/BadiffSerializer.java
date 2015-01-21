@@ -1,9 +1,6 @@
 package org.badiff.kryo;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Field;
-import java.util.Map;
-
 import org.badiff.ByteArrayDiffs;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -13,7 +10,6 @@ import com.esotericsoftware.kryo.factories.SerializerFactory;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import com.esotericsoftware.kryo.util.ObjectMap;
 
 @SuppressWarnings("unchecked")
