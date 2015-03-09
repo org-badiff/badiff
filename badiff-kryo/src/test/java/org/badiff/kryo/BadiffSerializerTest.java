@@ -16,7 +16,7 @@ public class BadiffSerializerTest {
 		String def = "defghijklmnopqrstuvwxyzabc";
 		
 		Kryo kryo = new Kryo();
-		kryo.register(String.class, new BadiffSerializer<String>(String.class, new Kryo()));
+		kryo.register(String.class, new BadiffSerializer<String>(String.class));
 		kryo.setAutoReset(false);
 		
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
