@@ -1,16 +1,13 @@
 package org.badiff.kryo;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 
 import org.badiff.ByteArrayDiffs;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.ReferenceResolver;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.util.MapReferenceResolver;
 import com.esotericsoftware.kryo.util.ObjectMap;
 
 public class BadiffSerializer<T> extends Serializer<T> {
@@ -39,6 +36,7 @@ public class BadiffSerializer<T> extends Serializer<T> {
 		return type.cast(bytesKryo.readClassAndObject(bytesInput));
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected ObjectMap context(Kryo kryo) {
 		return kryo.getGraphContext();
 	}

@@ -13,6 +13,7 @@ public class PersistentBadiffSerializer<T> extends BadiffSerializer<T> {
 		super(type);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected ObjectMap context(Kryo kryo) {
 		return kryo.getContext();
