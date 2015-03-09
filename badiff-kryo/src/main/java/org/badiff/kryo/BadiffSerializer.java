@@ -36,25 +36,20 @@ public class BadiffSerializer<T> extends Serializer<T> {
 		return type.cast(bytesKryo.readClassAndObject(bytesInput));
 	}
 	
-	@SuppressWarnings("rawtypes")
-	protected ObjectMap context(Kryo kryo) {
-		return kryo.getGraphContext();
-	}
-	
 	@Override
 	@SuppressWarnings("unchecked")
 	public void write(Kryo kryo, Output output, T object) {
 		if(kryo == bytesKryo)
 			throw new IllegalArgumentException("Cannot re-use Kryo instances");
 		
-		byte[] previous = (byte[]) context(kryo).get(this, new byte[0]);
+		byte[] previous = (byte[]) kryo.getGraphContext().get(this, new byte[0]);
 		byte[] next = toBytes(object);
 		byte[] diff = ByteArrayDiffs.udiff(previous, next);
 		
 		output.writeInt(diff.length, true);
 		output.write(diff);
 		
-		context(kryo).put(this, next);
+		kryo.getGraphContext().put(this, next);
 	}
 
 	@Override
@@ -64,12 +59,12 @@ public class BadiffSerializer<T> extends Serializer<T> {
 			throw new IllegalArgumentException("Cannot re-use Kryo instances");
 		
 		byte[] diff = input.readBytes(input.readInt(true));
-		byte[] previous = (byte[]) context(kryo).get(this, new byte[0]);
+		byte[] previous = (byte[]) kryo.getGraphContext().get(this, new byte[0]);
 		byte[] next = ByteArrayDiffs.apply(previous, diff);
 		
 		T object = fromBytes(next);
 		
-		context(kryo).put(this, next);
+		kryo.getGraphContext().put(this, next);
 		
 		return object;
 	}
