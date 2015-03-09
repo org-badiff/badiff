@@ -1,119 +1,70 @@
 package org.badiff.kryo;
 
 import java.io.ByteArrayOutputStream;
+
 import org.badiff.ByteArrayDiffs;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.factories.ReflectionSerializerFactory;
-import com.esotericsoftware.kryo.factories.SerializerFactory;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
-import com.esotericsoftware.kryo.util.ObjectMap;
 
-@SuppressWarnings("unchecked")
 public class BadiffSerializer<T> extends Serializer<T> {
 	protected Kryo bytesKryo;
-	protected ObjectMap<Class<?>, Serializer<?>> serializers = new ObjectMap<Class<?>, Serializer<?>>(8);
-	protected SerializerFactory factory;
+	protected Class<T> type;
 	
-	public BadiffSerializer(Kryo bytesKryo) {
-		this(bytesKryo, null);
+	public BadiffSerializer(Class<T> type) {
+		this(type, new Kryo());
 	}
 	
-	public BadiffSerializer(Kryo bytesKryo, SerializerFactory factory) {
+	public BadiffSerializer(Class<T> type, Kryo bytesKryo) {
 		this.bytesKryo = bytesKryo;
-		this.factory = factory != null ? factory : createSerializerFactory();
+		this.type = type;
 	}
 	
-	public BadiffSerializer(Kryo bytesKryo, Class<T> bytesType, Serializer<T> bytesSerializer) {
-		this.bytesKryo = bytesKryo;
-		
-		serializers.put(bytesType, bytesSerializer);
-	}
-	
-	protected Class<? extends Serializer> getDefaultSerializerClass() {
-		return CompatibleFieldSerializer.class;
-	}
-	
-	protected SerializerFactory createSerializerFactory() {
-		return new SerializerFactory() {
-			@Override
-			public Serializer makeSerializer(Kryo kryo, Class<?> type) {
-				Serializer s = kryo.getSerializer(type);
-				if(s == BadiffSerializer.this)
-					s = ReflectionSerializerFactory.makeSerializer(
-							kryo,
-							getDefaultSerializerClass(),
-							type);
-				return s;
-			}
-		};
-	}
-	
-	protected Serializer<T> getBytesSerializer(Class<?> streamType) {
-		Serializer<T> bytesSerializer = (Serializer<T>) serializers.get(streamType);
-		if(bytesSerializer == null) {
-			bytesSerializer = factory.makeSerializer(bytesKryo, streamType);
-			serializers.put(streamType, bytesSerializer);
-		}
-		return bytesSerializer;
-	}
-	
-	protected byte[] toBytes(Kryo streamKryo, T object) {
+	protected byte[] toBytes(T object) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		Output bytesOutput = new Output(bytes);
-		bytesOutput.write(object == null ? 0 : 1);
-		if(object != null) {
-			if(bytesKryo == streamKryo)
-				getBytesSerializer(object.getClass()).write(bytesKryo, bytesOutput, object);
-			else
-				bytesKryo.writeObject(bytesOutput, object);
-		}
+		bytesKryo.writeClassAndObject(bytesOutput, object);
 		bytesOutput.close();
 		return bytes.toByteArray();
 	}
 	
-	protected T fromBytes(Kryo streamKryo, byte[] buf, Class<T> streamType) {
+	protected T fromBytes(byte[] buf) {
 		Input bytesInput = new Input(buf);
-		if(bytesInput.read() == 0)
-			return null;
-		if(bytesKryo == streamKryo)
-			return getBytesSerializer(streamType).read(bytesKryo, bytesInput, streamType);
-		else
-			return bytesKryo.readObject(bytesInput, streamType);
-	}
-	
-	protected byte[] getPreviousBytes(Kryo kryo) {
-		byte[] previous = (byte[]) kryo.getGraphContext().get(this);
-		if(previous == null)
-			setPreviousBytes(kryo, previous = new byte[0]);
-		return previous;
-	}
-	
-	protected byte[] setPreviousBytes(Kryo kryo, byte[] next) {
-		kryo.getGraphContext().put(this, next);
-		return next;
+		return type.cast(bytesKryo.readClassAndObject(bytesInput));
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void write(Kryo kryo, Output output, T object) {
-		byte[] previous = getPreviousBytes(kryo);
-		byte[] next = setPreviousBytes(kryo, toBytes(kryo, object));
+		if(kryo == bytesKryo)
+			throw new IllegalArgumentException("Cannot re-use Kryo instances");
+		
+		byte[] previous = (byte[]) kryo.getGraphContext().get(this, new byte[0]);
+		byte[] next = toBytes(object);
 		byte[] diff = ByteArrayDiffs.udiff(previous, next);
 		
 		output.writeInt(diff.length, true);
 		output.write(diff);
+		
+		kryo.getGraphContext().put(this, next);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public T read(Kryo kryo, Input input, Class<T> type) {
-		byte[] diff = input.readBytes(input.readInt(true));
-		byte[] previous = getPreviousBytes(kryo);
-		byte[] next = setPreviousBytes(kryo, ByteArrayDiffs.apply(previous, diff));
+		if(kryo == bytesKryo)
+			throw new IllegalArgumentException("Cannot re-use Kryo instances");
 		
-		T object = fromBytes(kryo, next, type);
+		byte[] diff = input.readBytes(input.readInt(true));
+		byte[] previous = (byte[]) kryo.getGraphContext().get(this, new byte[0]);
+		byte[] next = ByteArrayDiffs.apply(previous, diff);
+		
+		T object = fromBytes(next);
+		
+		kryo.getGraphContext().put(this, next);
+		
 		return object;
 	}
 
