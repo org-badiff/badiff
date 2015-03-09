@@ -122,6 +122,7 @@ public class FileRandomInput extends FilterInputStream implements RandomInput {
 		return data.readDouble();
 	}
 
+	@Deprecated
 	public final String readLine() throws IOException {
 		return data.readLine();
 	}
