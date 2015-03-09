@@ -26,7 +26,7 @@ public class ProgressInputListener implements RandomInputListener {
 	public void moved(ListenableRandomInput thiz) {
 		int i = pos(thiz);
 		long step = thiz.last() / 10;
-		if(thiz.position() - pos[i] > step) {
+		if(thiz.position() - pos[i] > step || thiz.position() == thiz.last() && pos[i] < thiz.position()) {
 			pos[i] = thiz.position();
 			status();
 		}

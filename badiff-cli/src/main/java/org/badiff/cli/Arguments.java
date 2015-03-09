@@ -20,6 +20,7 @@ public abstract class Arguments {
 		public static final String BEFORE = "before";
 		public static final String AFTER = "after";
 		public static final String VERBOSE = "verbose";
+		public static final String CHUNK = "chunk";
 
 		private DiffArguments() {
 			super("diff_args.properties");
@@ -28,6 +29,7 @@ public abstract class Arguments {
 			req("1", BEFORE, true, "original file for comparison");
 			req("2", AFTER, true, "target file for comparison");
 			opt("v", VERBOSE, false, "be verbose during comparison");
+			opt("c", CHUNK, true, "chunk size when diffing");
 		}
 	}
 	
