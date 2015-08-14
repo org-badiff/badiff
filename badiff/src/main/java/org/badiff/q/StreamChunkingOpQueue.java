@@ -75,13 +75,17 @@ public class StreamChunkingOpQueue extends OpQueue {
 		/*
 		 * Lazily offer new chunks if available
 		 */
-		byte[] obuf = readChunk(orig);
-		byte[] tbuf = readChunk(target);
+		byte[] obuf = orig != null ? readChunk(orig) : null;
+		byte[] tbuf = target != null ? readChunk(target) : null;
 
 		if(obuf != null)
 			prepare(new Op(Op.DELETE, obuf.length, obuf));
+		else
+			orig = null;
 		if(tbuf != null)
 			prepare(new Op(Op.INSERT, tbuf.length, tbuf));
+		else
+			target = null;
 		
 		return obuf != null || tbuf != null;
 	}
@@ -95,8 +99,10 @@ public class StreamChunkingOpQueue extends OpQueue {
 		try {
 			byte[] buf = new byte[chunk];
 			int r = in.read(buf);
-			if(r == -1)
+			if(r == -1) {
+				in.close();
 				return null;
+			}
 			if(r == chunk)
 				return buf;
 			return Arrays.copyOf(buf, r);
