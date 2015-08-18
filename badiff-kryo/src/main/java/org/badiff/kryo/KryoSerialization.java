@@ -10,7 +10,6 @@ import org.badiff.io.Serialization;
 import org.badiff.io.Serialized;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -48,12 +47,16 @@ public class KryoSerialization implements Serialization {
 	private Kryo kryo;
 	private GraphContext graphContext;
 	
-	@SuppressWarnings("unchecked")
 	public KryoSerialization() {
-		kryo = new Kryo();
-		kryo.addDefaultSerializer(Serialized.class, SerializedSerializer.class);
-		kryo.getContext().put(KryoSerialization.class, this);
-		graphContext = new GraphContext((Map<Object, Object>) kryo.getGraphContext());
+		this(new Kryo());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public KryoSerialization(Kryo kryo) {
+		this.kryo = kryo;
+		this.kryo.addDefaultSerializer(Serialized.class, SerializedSerializer.class);
+		this.kryo.getContext().put(KryoSerialization.class, this);
+		graphContext = new GraphContext((Map<Object, Object>) this.kryo.getGraphContext());
 	}
 
 	private static Output wrap(OutputStream out) {
