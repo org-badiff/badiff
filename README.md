@@ -51,13 +51,11 @@ Diffing two files, and storing the result as a file
 Diffing two byte arrays and storing the result as a byte array
 
 ```java
-  ByteArrayDiffs badiff = new ByteArrayDiffs(); // ByteArrayDiffs can optionally specify a serializer
-  
   String orig = "Hello world!";
   String target = "Hellish cruel world!";
   
-  byte[] diff = badiff.diff(orig.getBytes(), target.getBytes()); // bidirectional diff
-  byte[] udiff = badiff.udiff(orig.getBytes(), target.getBytes()); // unidirectional diff
+  byte[] diff = ByteArrayDiffs.diff(orig.getBytes(), target.getBytes()); // bidirectional diff
+  byte[] udiff = ByteArrayDiffs.udiff(orig.getBytes(), target.getBytes()); // unidirectional diff
 ```
 ## Algorithm
 
