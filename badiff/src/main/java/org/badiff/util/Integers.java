@@ -2,6 +2,46 @@ package org.badiff.util;
 
 public class Integers {
 	
+	public static long negative(long l) {
+		return l >> 63;
+	}
+	
+	public static int negative(int i) {
+		return i >> 31;
+	}
+	
+	public static short netative(short s) {
+		return (short) negative((int) s);
+	}
+	
+	public static long min(long lhs, long rhs) {
+		long m = negative(lhs - rhs);
+		return (lhs & m) | (rhs & ~m);
+	}
+	
+	public static int min(int lhs, int rhs) {
+		int m = negative(lhs - rhs);
+		return (lhs & m) | (rhs & ~m);
+	}
+	
+	public static short min(short lhs, short rhs) {
+		return (short) min((int) lhs, (int) rhs);
+	}
+	
+	public static long max(long lhs, long rhs) {
+		long m = negative(lhs - rhs);
+		return (lhs & ~m) | (rhs & m);
+	}
+	
+	public static int max(int lhs, int rhs) {
+		int m = negative(lhs - rhs);
+		return (lhs & ~m) | (rhs & m);
+	}
+	
+	public static short max(short lhs, short rhs) {
+		return (short) max((int) lhs, (int) rhs);
+	}
+	
 	public static long any(long l) {
 		l = l | (l << 32) | (l >>> 32);
 		l = l | (l << 16) | (l >>> 16);
@@ -39,18 +79,17 @@ public class Integers {
 	}
 	
 	public static long cmp(long lhs, long rhs, long equal, long unequal) {
-		long mask = any(lhs ^ rhs);
+		long mask = negative(lhs - rhs) | negative(rhs - lhs);
 		return (equal & ~mask) | (unequal & mask);
 	}
 	
 	public static int cmp(long lhs, long rhs, int equal, int unequal) {
-		long mask = any(lhs ^ rhs);
+		long mask = negative(lhs - rhs) | negative(rhs - lhs);
 		return (int)((equal & ~mask) | (unequal & mask));
 	}
 	
 	public static short cmp(long lhs, long rhs, short equal, short unequal) {
-		long mask = any(lhs ^ rhs);
-		return (short)((equal & ~mask) | (unequal & mask));
+		return (short) cmp(lhs, rhs, (int) equal, (int) unequal);
 	}
 	
 	private Integers() {}

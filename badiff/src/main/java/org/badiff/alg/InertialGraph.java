@@ -137,66 +137,70 @@ public class InertialGraph implements Graph {
 		cni = cost(Op.NEXT, Op.INSERT);
 		cnn = cost(Op.NEXT, Op.NEXT);
 		
+		int costLength = cost.length;
+		int xvalLength = xval.length;
+		int yvalLength = yval.length;
 		
-		int pos;
-		for(int y = 0; y < yval.length; y++) {
-			for(int x = 0; x < xval.length; x++) {
-				if(x == 0 && y == 0)
-					continue;
+		int pmax = xvalLength * yvalLength;
+		
+		int x = 0;
+		int y = 0;
+		for(int pos = 0; pos < pmax; pos++) {
+			// mark entry costs
+			int edc, eic, enc, f;
 
-				pos = y * xval.length + x;
-				// mark entry costs
-				int edc, eic, enc, f;
+			f = (pos-1)*NUM_FIELDS + DELETE;
+			f = (f + costLength) % costLength;
+			edc = cmp(x, 0, 
+					cmp(y, 0, 
+							0, 
+							Short.MAX_VALUE),
+					cost[f]);
+			
+			f = (pos-xvalLength)*NUM_FIELDS + INSERT;
+			f = (f + costLength) % costLength;
+			eic = cmp(y, 0,
+					cmp(x, 0,
+							0,
+							Short.MAX_VALUE),
+					cost[f]);
+			
+			f = (pos - 1 - xvalLength)*NUM_FIELDS + NEXT;
+			f = (f + costLength) % costLength;
+			enc = cmp(x, 0,
+					cmp(y, 0,
+							0,
+							Short.MAX_VALUE),
+					cmp(y, 0,
+							Short.MAX_VALUE,
+							cmp(xval[x], yval[y],
+									cost[f],
+									Short.MAX_VALUE)));
+			
+			int cost;
 
-				f = (pos-1)*NUM_FIELDS + DELETE;
-				f = (f + cost.length) % cost.length;
-				edc = cmp(x, 0, 
-						cmp(y, 0, 
-								0, 
-								Short.MAX_VALUE),
-						cost[f]);
-				
-				f = (pos-xval.length)*NUM_FIELDS + INSERT;
-				f = (f + cost.length) % cost.length;
-				eic = cmp(y, 0,
-						cmp(x, 0,
-								0,
-								Short.MAX_VALUE),
-						cost[f]);
-				
-				f = (pos - 1 - xval.length)*NUM_FIELDS + NEXT;
-				f = (f + cost.length) % cost.length;
-				enc = cmp(x, 0,
-						cmp(y, 0,
-								0,
-								Short.MAX_VALUE),
-						cmp(y, 0,
-								Short.MAX_VALUE,
-								cmp(xval[x], yval[y],
-										cost[f],
-										Short.MAX_VALUE)));
-				
-				int cost;
+			// compute delete cost
+			cost = edc + cdd;
+			cost = min(cost, eic + cid);
+			cost = min(cost, enc + cnd);
+			this.cost[pos*NUM_FIELDS + DELETE] = (short) min(cost, Short.MAX_VALUE);
 
-				// compute delete cost
-				cost = edc + cdd;
-				cost = Math.min(cost, eic + cid);
-				cost = Math.min(cost, enc + cnd);
-				this.cost[pos*NUM_FIELDS + DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
+			// compute insert cost
+			cost = eic + cii;
+			cost = min(cost, edc + cdi);
+			cost = min(cost, enc + cni);
+			this.cost[pos*NUM_FIELDS + INSERT] = (short) min(cost, Short.MAX_VALUE);
 
-				// compute insert cost
-				cost = eic + cii;
-				cost = Math.min(cost, edc + cdi);
-				cost = Math.min(cost, enc + cni);
-				this.cost[pos*NUM_FIELDS + INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
-
-				// compute next cost
-				cost = enc + cnn;
-				cost = Math.min(cost, edc + cdn);
-				cost = Math.min(cost, eic + cin);
-				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);
-			}
-		}	
+			// compute next cost
+			cost = enc + cnn;
+			cost = min(cost, edc + cdn);
+			cost = min(cost, eic + cin);
+			this.cost[pos*NUM_FIELDS + NEXT] = (short) min(cost, Short.MAX_VALUE);
+			
+			x++;
+			y += (x / xvalLength);
+			x %= xvalLength;
+		}
 	}
 
 	@Override
