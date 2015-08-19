@@ -15,7 +15,7 @@ badiff has no external dependencies, but requires Java 1.6 or higher.  badiff is
   <dependency>
     <groupId>org.badiff</groupId>
     <artifactId>badiff</artifactId>
-    <version>1.1.11</version>
+    <version>1.1.13</version>
   </dependency>
 ```
 ## Example usage
