@@ -38,6 +38,8 @@ import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
+import static org.badiff.util.Integers.*;
+
 /**
  * {@link Graph} which computes diff path lengths based not on the literal edge count between the origin
  * and a node but instead on the logical byte cost to serialize that edge sequence.  The general premise
@@ -144,24 +146,35 @@ public class InertialGraph implements Graph {
 
 				pos = y * xval.length + x;
 				// mark entry costs
-				int edc, eic, enc;
+				int edc, eic, enc, f;
 
-				if(x == 0) {
-					edc = Short.MAX_VALUE;
-					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
-					enc = Short.MAX_VALUE;
-				} else if(y == 0) {
-					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
-					eic = Short.MAX_VALUE;
-					enc = Short.MAX_VALUE;
-				} else {
-					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
-					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
-					if(xval[x] == yval[y])
-						enc = cost[(pos - 1 - xval.length)*NUM_FIELDS + NEXT];
-					else
-						enc = Short.MAX_VALUE;
-				}
+				f = (pos-1)*NUM_FIELDS + DELETE;
+				f = (f + cost.length) % cost.length;
+				edc = cmp(x, 0, 
+						cmp(y, 0, 
+								0, 
+								Short.MAX_VALUE),
+						cost[f]);
+				
+				f = (pos-xval.length)*NUM_FIELDS + INSERT;
+				f = (f + cost.length) % cost.length;
+				eic = cmp(y, 0,
+						cmp(x, 0,
+								0,
+								Short.MAX_VALUE),
+						cost[f]);
+				
+				f = (pos - 1 - xval.length)*NUM_FIELDS + NEXT;
+				f = (f + cost.length) % cost.length;
+				enc = cmp(x, 0,
+						cmp(y, 0,
+								0,
+								Short.MAX_VALUE),
+						cmp(y, 0,
+								Short.MAX_VALUE,
+								cmp(xval[x], yval[y],
+										cost[f],
+										Short.MAX_VALUE)));
 				
 				int cost;
 
@@ -181,7 +194,7 @@ public class InertialGraph implements Graph {
 				cost = enc + cnn;
 				cost = Math.min(cost, edc + cdn);
 				cost = Math.min(cost, eic + cin);
-				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
+				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);
 			}
 		}	
 	}
