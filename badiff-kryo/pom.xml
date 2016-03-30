@@ -13,9 +13,9 @@
   		<artifactId>badiff</artifactId>
   	</dependency>
   	<dependency>
-  		<groupId>com.esotericsoftware.kryo</groupId>
+  		<groupId>com.esotericsoftware</groupId>
   		<artifactId>kryo</artifactId>
-  		<version>2.24.0</version>
+  		<version>3.0.0</version>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
