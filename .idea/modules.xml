@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/badiff/badiff.iml" filepath="$PROJECT_DIR$/badiff/badiff.iml" />
+      <module fileurl="file://$PROJECT_DIR$/badiff-cli/badiff-cli.iml" filepath="$PROJECT_DIR$/badiff-cli/badiff-cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/badiff-examples/badiff-examples.iml" filepath="$PROJECT_DIR$/badiff-examples/badiff-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/badiff-hadoop/badiff-hadoop.iml" filepath="$PROJECT_DIR$/badiff-hadoop/badiff-hadoop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/badiff-parent/badiff-parent.iml" filepath="$PROJECT_DIR$/badiff-parent/badiff-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/badiff-patcher/badiff-patcher.iml" filepath="$PROJECT_DIR$/badiff-patcher/badiff-patcher.iml" />
+    </modules>
+  </component>
+</project>
+

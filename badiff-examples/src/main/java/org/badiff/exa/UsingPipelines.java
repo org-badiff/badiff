@@ -1,6 +1,5 @@
 package org.badiff.exa;
 
-import org.badiff.Diff;
 import org.badiff.imp.MemoryDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.p.Pipeline;

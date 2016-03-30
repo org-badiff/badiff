@@ -25,7 +25,7 @@ public class Main {
 			p("badiff-cli command [ARGS...]");
 			p("Valid commands:");
 			p("\thelp [command]");
-			p("\tdiff -1 orig -2 target -o patch [-v]");
+			p("\tdiff -1 orig -2 target -o patch [-v] [-c chunk_size]");
 			p("\tpatch -1 orig -p patch -o target [-v]");
 		} else if("help".equals(args[0])) {
 			p("badiff-cli help [command]");
@@ -36,6 +36,7 @@ public class Main {
 			p("\t-2\tThe modified file");
 			p("\t-o\tThe patch file to generate (created)");
 			p("\t-v\tBe verbose");
+			p("\t-c\tChunk size when diffing");
 		} else if("patch".equals(args[0])) {
 			p("badiff-cli patch -1 orig -p patch -o target [-v]");
 			p("\t-1\tThe original file");

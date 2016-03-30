@@ -1,12 +1,14 @@
 package org.badiff.cli;
 
+import static org.badiff.cli.Arguments.PatchArguments.AFTER;
+import static org.badiff.cli.Arguments.PatchArguments.BEFORE;
+import static org.badiff.cli.Arguments.PatchArguments.PATCH;
+
 import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
 import org.badiff.imp.BadiffFileDiff;
 import org.badiff.util.Diffs;
-
-import static org.badiff.cli.Arguments.PatchArguments.*;
 
 public class PatchMain {
 

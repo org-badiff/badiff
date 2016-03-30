@@ -65,8 +65,7 @@ public class ByteArrayDiffsTest {
 	public void testDiff_issue_2() throws Exception {
 		byte[] prior = new byte[2270];
 		byte[] current = new byte[2281];
-		byte[] diff = ByteArrayDiffs.diff(prior, current);
-		
+		ByteArrayDiffs.diff(prior, current);
 	}
 	
 	@Test

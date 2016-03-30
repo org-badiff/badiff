@@ -1,7 +1,9 @@
 package org.badiff.hadoop.aig;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -100,7 +102,7 @@ public class GeneticMapper extends Mapper<NullWritable, CsvGeneticParams, FloatW
 			MemoryDiff diff = new MemoryDiff(q);
 			NoopOutputStream nout = new NoopOutputStream();
 			try {
-				diff.serialize(DefaultSerialization.newInstance(), nout);
+				diff.serialize(DefaultSerialization.newInstance(), new DataOutputStream(nout));
 			} catch(IOException ioe) {
 				throw new RuntimeException(ioe);
 			}
