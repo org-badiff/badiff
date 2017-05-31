@@ -2,11 +2,6 @@
 
 A pure-java byte-level diffing library for working with large inputs, taking advantage of parallel processing during optimization.
 
-## Development & Issue Tracking
-[This github repo](https://github.com/org-badiff/badiff)  is a mirror of the definitive repo hosted on [stash.robindps.com](http://stash.robindps.com/projects/BDF/repos/badiff/browse).
-
-The primary issue tracker is at [jira.robindps.com](http://jira.robindps.com/browse/BDF/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel).  Issues created via [github issue tracker](https://github.com/org-badiff/badiff/issues) will be imported into the JIRA, but responded to on github.
-
 badiff has no external dependencies, but requires Java 1.6 or higher.  badiff is released under a BSD license.
 
 ## Find it on maven:
