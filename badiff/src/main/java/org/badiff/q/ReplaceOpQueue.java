@@ -47,8 +47,10 @@ public class ReplaceOpQueue extends OpQueue {
 	 * @param target
 	 */
 	public ReplaceOpQueue(byte[] orig, byte[] target) {
-		prepare(new Op(Op.DELETE, orig.length, orig));
-		prepare(new Op(Op.INSERT, target.length, target));
+		if(orig.length > 0)
+			prepare(new Op(Op.DELETE, orig.length, orig));
+		if(target.length > 0)
+			prepare(new Op(Op.INSERT, target.length, target));
 	}
 
 }

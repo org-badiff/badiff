@@ -81,5 +81,13 @@ public class ByteArrayDiffsTest {
 		Assert.assertTrue(Arrays.equals(orig, undone));
 	}
 
+	@Test
+	public void testZeroLengthOriginal() {
+		ByteArrayDiffs.diff(new byte[0], new byte[1]);
+	}
 	
+	@Test
+	public void testZeroLengthTarget() {
+		ByteArrayDiffs.diff(new byte[1], new byte[0]);
+	}
 }
