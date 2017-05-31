@@ -59,7 +59,7 @@ public class DiffMain {
 		
 		Header h = new Header();
 		
-		Header.Optional opt = new Header.Optional();
+		Header.Optional opt = h.new Optional();
 		h.setOptional(opt);
 		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
 		opt.setPreHash(preHash);
