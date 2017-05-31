@@ -13,11 +13,14 @@ import org.apache.commons.cli.PosixParser;
 public abstract class Arguments {
 
 	public static class DiffArguments extends AbstractArguments {
+		private static final long serialVersionUID = 0;
+		
 		public static final String PIPELINE = "pipeline";
 		public static final String OUTPUT = "output";
 		public static final String BEFORE = "before";
 		public static final String AFTER = "after";
 		public static final String VERBOSE = "verbose";
+		public static final String CHUNK = "chunk";
 
 		private DiffArguments() {
 			super("diff_args.properties");
@@ -26,10 +29,13 @@ public abstract class Arguments {
 			req("1", BEFORE, true, "original file for comparison");
 			req("2", AFTER, true, "target file for comparison");
 			opt("v", VERBOSE, false, "be verbose during comparison");
+			opt("c", CHUNK, true, "chunk size when diffing");
 		}
 	}
 	
 	public static class PatchArguments extends AbstractArguments {
+		private static final long serialVersionUID = 0;
+		
 		public static final String PATCH = "patch";
 		public static final String BEFORE = "before";
 		public static final String AFTER = "after";
@@ -50,6 +56,8 @@ public abstract class Arguments {
 	public static final PatchArguments PATCH = new PatchArguments();
 	
 	public static abstract class AbstractArguments extends Options {
+		private static final long serialVersionUID = 0;
+		
 		protected Properties defaults;
 		
 		public AbstractArguments(String rsrc) {

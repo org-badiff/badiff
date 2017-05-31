@@ -1,24 +1,30 @@
 package org.badiff.cli;
 
+import static org.badiff.cli.Arguments.DiffArguments.AFTER;
+import static org.badiff.cli.Arguments.DiffArguments.BEFORE;
+import static org.badiff.cli.Arguments.DiffArguments.OUTPUT;
+import static org.badiff.cli.Arguments.DiffArguments.PIPELINE;
+import static org.badiff.cli.Arguments.DiffArguments.VERBOSE;
+import static org.badiff.cli.Arguments.DiffArguments.CHUNK;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
 import org.apache.commons.cli.CommandLine;
+import org.badiff.alg.GraphFactory;
 import org.badiff.cli.io.ListenableRandomInput;
 import org.badiff.cli.io.ProgressInputListener;
 import org.badiff.imp.BadiffFileDiff;
-import org.badiff.imp.FileDiff;
 import org.badiff.imp.BadiffFileDiff.Header;
-import org.badiff.imp.BadiffFileDiff.Header.Optional;
+import org.badiff.imp.FileDiff;
 import org.badiff.io.DefaultSerialization;
 import org.badiff.io.FileRandomInput;
 import org.badiff.p.Pipeline;
 import org.badiff.q.OpQueue;
+import org.badiff.q.ParallelGraphOpQueue;
 import org.badiff.q.RandomChunkingOpQueue;
 import org.badiff.util.Digests;
-
-import static org.badiff.cli.Arguments.DiffArguments.*;
 
 public class DiffMain {
 	
@@ -29,6 +35,7 @@ public class DiffMain {
 		File target = new File(cli.getOptionValue(AFTER));
 		BadiffFileDiff output = new BadiffFileDiff(cli.getOptionValue(OUTPUT));
 		String pipeline = cli.getOptionValue(PIPELINE);
+		int chunk = Integer.parseInt(cli.getOptionValue(CHUNK));
 
 		ListenableRandomInput oin = new ListenableRandomInput(new FileRandomInput(orig));
 		ListenableRandomInput tin = new ListenableRandomInput(new FileRandomInput(target));
@@ -42,7 +49,9 @@ public class DiffMain {
 		FileDiff tmp = new FileDiff(output.getParentFile(), output.getName() + ".tmp");
 		
 		OpQueue q;
-		q = new RandomChunkingOpQueue(oin, tin);
+		q = new RandomChunkingOpQueue(oin, tin, chunk);
+		
+		q = new ParallelGraphOpQueue(q, Runtime.getRuntime().availableProcessors(), chunk, GraphFactory.INERTIAL_GRAPH);
 		
 		q = new Pipeline(q).into(pipeline).outlet();
 		
@@ -50,7 +59,7 @@ public class DiffMain {
 		
 		Header h = new Header();
 		
-		Header.Optional opt = h.new Optional();
+		Header.Optional opt = new Header.Optional();
 		h.setOptional(opt);
 		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
 		opt.setPreHash(preHash);
@@ -61,5 +70,6 @@ public class DiffMain {
 		self.close();
 		
 		tmp.delete();
+
 	}
 }

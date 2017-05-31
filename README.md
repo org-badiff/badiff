@@ -1,39 +1,29 @@
-badiff
-======
-byte array diff
----
+# badiff
 
-A pure-java byte-level diffing library for working with large inputs, taking advantage of parallel processing during optimization. badiff is pretty fast:
+A pure-java byte-level diffing library for working with large inputs, taking advantage of parallel processing during optimization.
 
-````
- Test output running on my desktop, diffing two 50MB files with random contents
-    Creating random input files
-    Mapping input to RAM...
-    Starting diff
-    Computed parallel graph diff for 52428800 bytes in 54981ms
-````
-Source is available on github, and can be cloned with:
+## Development & Issue Tracking
+[This github repo](https://github.com/org-badiff/badiff)  is a mirror of the definitive repo hosted on [stash.robindps.com](http://stash.robindps.com/projects/BDF/repos/badiff/browse).
 
-````
-  git clone git://github.com/org-badiff/badiff.git badiff
-````
+The primary issue tracker is at [jira.robindps.com](http://jira.robindps.com/browse/BDF/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel).  Issues created via [github issue tracker](https://github.com/org-badiff/badiff/issues) will be imported into the JIRA, but responded to on github.
+
 badiff has no external dependencies, but requires Java 1.6 or higher.  badiff is released under a BSD license.
 
-###Find it on maven:
+## Find it on maven:
 
-````
+```xml
   <dependency>
     <groupId>org.badiff</groupId>
     <artifactId>badiff</artifactId>
-    <version>1.1.12</version>
+    <version>1.2.1</version>
   </dependency>
-````
-Example usage
----
+```
+## Example usage
+
 
 Diffing two files, and storing the result as a file
 
-````
+```java
   File orig, target, diff;
   JFileChooser chooser = new JFileChooser();
   
@@ -56,21 +46,18 @@ Diffing two files, and storing the result as a file
   // move the generated diff file to the dest file location
   diff.delete();
   computed.renameTo(diff);
-````
+```
 
 Diffing two byte arrays and storing the result as a byte array
 
-````
-  ByteArrayDiffs badiff = new ByteArrayDiffs(); // ByteArrayDiffs can optionally specify a serializer
-  
+```java
   String orig = "Hello world!";
   String target = "Hellish cruel world!";
   
-  byte[] diff = badiff.diff(orig.getBytes(), target.getBytes()); // bidirectional diff
-  byte[] udiff = badiff.udiff(orig.getBytes(), target.getBytes()); // unidirectional diff
-````
-Algorithm
----
+  byte[] diff = ByteArrayDiffs.diff(orig.getBytes(), target.getBytes()); // bidirectional diff
+  byte[] udiff = ByteArrayDiffs.udiff(orig.getBytes(), target.getBytes()); // unidirectional diff
+```
+## Algorithm
 
 badiff uses the O(ND) algorithm described in this paper: http://www.xmailserver.org/diff2.pdf‎ 
 
@@ -80,7 +67,6 @@ Chunked graphing is done in parallel by a thread pool sized to the number of ava
 
 Post-processing is done serially rather than in parallel, so for large input sizes (>50MB) it may be advantageous to skip the post-processing.
 
-Copyright
----
+## Copyright
 
 badiff is copyrighted &copy;2013 Robin Kirkman

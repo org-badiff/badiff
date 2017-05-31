@@ -38,6 +38,8 @@ import org.badiff.q.CompactingOpQueue;
 import org.badiff.q.ListOpQueue;
 import org.badiff.q.OpQueue;
 
+import static org.badiff.util.Integers.*;
+
 /**
  * {@link Graph} which computes diff path lengths based not on the literal edge count between the origin
  * and a node but instead on the logical byte cost to serialize that edge sequence.  The general premise
@@ -135,55 +137,70 @@ public class InertialGraph implements Graph {
 		cni = cost(Op.NEXT, Op.INSERT);
 		cnn = cost(Op.NEXT, Op.NEXT);
 		
+		int costLength = cost.length;
+		int xvalLength = xval.length;
+		int yvalLength = yval.length;
 		
-		int pos;
-		for(int y = 0; y < yval.length; y++) {
-			for(int x = 0; x < xval.length; x++) {
-				if(x == 0 && y == 0)
-					continue;
+		int pmax = xvalLength * yvalLength;
+		
+		int x = 0;
+		int y = 0;
+		for(int pos = 0; pos < pmax; pos++) {
+			// mark entry costs
+			int edc, eic, enc, f;
 
-				pos = y * xval.length + x;
-				// mark entry costs
-				int edc, eic, enc;
+			f = (pos-1)*NUM_FIELDS + DELETE;
+			f = (f + costLength) % costLength;
+			edc = cmp(x, 0, 
+					cmp(y, 0, 
+							0, 
+							Short.MAX_VALUE),
+					cost[f]);
+			
+			f = (pos-xvalLength)*NUM_FIELDS + INSERT;
+			f = (f + costLength) % costLength;
+			eic = cmp(y, 0,
+					cmp(x, 0,
+							0,
+							Short.MAX_VALUE),
+					cost[f]);
+			
+			f = (pos - 1 - xvalLength)*NUM_FIELDS + NEXT;
+			f = (f + costLength) % costLength;
+			enc = cmp(x, 0,
+					cmp(y, 0,
+							0,
+							Short.MAX_VALUE),
+					cmp(y, 0,
+							Short.MAX_VALUE,
+							cmp(xval[x], yval[y],
+									cost[f],
+									Short.MAX_VALUE)));
+			
+			int cost;
 
-				if(x == 0) {
-					edc = Short.MAX_VALUE;
-					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
-					enc = Short.MAX_VALUE;
-				} else if(y == 0) {
-					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
-					eic = Short.MAX_VALUE;
-					enc = Short.MAX_VALUE;
-				} else {
-					edc = cost[(pos-1)*NUM_FIELDS + DELETE];
-					eic = cost[(pos-xval.length)*NUM_FIELDS + INSERT];
-					if(xval[x] == yval[y])
-						enc = cost[(pos - 1 - xval.length)*NUM_FIELDS + NEXT];
-					else
-						enc = Short.MAX_VALUE;
-				}
-				
-				int cost;
+			// compute delete cost
+			cost = edc + cdd;
+			cost = min(cost, eic + cid);
+			cost = min(cost, enc + cnd);
+			this.cost[pos*NUM_FIELDS + DELETE] = (short) min(cost, Short.MAX_VALUE);
 
-				// compute delete cost
-				cost = edc + cdd;
-				cost = Math.min(cost, eic + cid);
-				cost = Math.min(cost, enc + cnd);
-				this.cost[pos*NUM_FIELDS + DELETE] = (short) Math.min(cost, Short.MAX_VALUE);
+			// compute insert cost
+			cost = eic + cii;
+			cost = min(cost, edc + cdi);
+			cost = min(cost, enc + cni);
+			this.cost[pos*NUM_FIELDS + INSERT] = (short) min(cost, Short.MAX_VALUE);
 
-				// compute insert cost
-				cost = eic + cii;
-				cost = Math.min(cost, edc + cdi);
-				cost = Math.min(cost, enc + cni);
-				this.cost[pos*NUM_FIELDS + INSERT] = (short) Math.min(cost, Short.MAX_VALUE);
-
-				// compute next cost
-				cost = enc + cnn;
-				cost = Math.min(cost, edc + cdn);
-				cost = Math.min(cost, eic + cin);
-				this.cost[pos*NUM_FIELDS + NEXT] = (short) Math.min(cost, Short.MAX_VALUE);				
-			}
-		}	
+			// compute next cost
+			cost = enc + cnn;
+			cost = min(cost, edc + cdn);
+			cost = min(cost, eic + cin);
+			this.cost[pos*NUM_FIELDS + NEXT] = (short) min(cost, Short.MAX_VALUE);
+			
+			x++;
+			y += (x / xvalLength);
+			x %= xvalLength;
+		}
 	}
 
 	@Override

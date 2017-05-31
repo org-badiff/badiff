@@ -127,7 +127,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * @author robin
 		 *
 		 */
-		public class Stats implements Serialized {
+		public static class Stats implements Serialized {
 			/**
 			 * The number of rewinds (DELETE with negative run length)
 			 */
@@ -153,7 +153,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 			 */
 			private long outputSize;
 			
-			private Stats() {}
+			public Stats() {}
 			
 			@Override
 			public void serialize(Serialization serial, OutputStream out)
@@ -230,7 +230,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		 * @author robin
 		 *
 		 */
-		public class Optional implements Serialized {
+		public static class Optional implements Serialized {
 			public Optional() {}
 			
 			/**
@@ -570,7 +570,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		Header.Optional opt = null;
 		if((flags & FLAG_OPTIONAL_DATA) != 0) {
-			opt = header.new Optional();
+			opt = new Header.Optional();
 			opt.deserialize(serial, in);
 		}
 		
@@ -652,7 +652,7 @@ public class BadiffFileDiff extends File implements Diff, Serialized {
 		
 		Header h = new Header();
 		
-		Header.Optional opt = h.optional = h.new Optional();
+		Header.Optional opt = h.optional = new Header.Optional();
 		opt.setHashAlgorithm(Digests.defaultDigest().getAlgorithm());
 		opt.setPreHash(preHash);
 		opt.setPostHash(postHash);

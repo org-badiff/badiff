@@ -54,7 +54,7 @@ public class DefaultSerialization implements Serialization {
 		return new DefaultSerialization();
 	}
 
-	private static abstract class Serializer<T> {
+	protected static abstract class Serializer<T> {
 		protected Class<T> type;
 		
 		public Serializer(Class<T> type) {
@@ -209,6 +209,10 @@ public class DefaultSerialization implements Serialization {
 			}
 		});
 		
+	}
+	
+	protected void addSerializer(Serializer<?> s) {
+		serializers.add(s);
 	}
 	
 	public void writeLong(DataOutput out, long val) throws IOException {
